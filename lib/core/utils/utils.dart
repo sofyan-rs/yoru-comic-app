@@ -1,11 +1,12 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:yoru/core/constants/texts.dart';
 import 'package:yoru/core/network/image_cache.dart';
 import 'package:yoru/core/theme/dotline_tokens.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/services.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:gal/gal.dart';
@@ -16,6 +17,25 @@ const _toastMaxWidth = 480.0;
 
 /// About one line of toast, for placing it from the top on a wide window.
 const _toastHeight = 52.0;
+
+/// Shares [text] through the system share sheet on mobile. On desktop
+/// it copies [text] and says so instead: Linux has no share sheet
+/// (share_plus only opens a `mailto:` link there), and a copied link is
+/// what a desktop user pastes anyway.
+Future<void> shareText(
+  BuildContext context, {
+  required String text,
+  String? subject,
+}) async {
+  if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+    await Clipboard.setData(ClipboardData(text: text));
+    if (context.mounted) {
+      showSnackBar(context: context, message: AppText.linkCopied);
+    }
+    return;
+  }
+  await SharePlus.instance.share(ShareParams(text: text, subject: subject));
+}
 
 void showSnackBar({
   required BuildContext context,

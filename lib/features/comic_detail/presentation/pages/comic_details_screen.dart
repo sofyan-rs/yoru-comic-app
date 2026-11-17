@@ -32,7 +32,6 @@ import 'package:yoru/features/source/presentation/pages/web_view_screen.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lucide_icons_flutter/lucide_icons_300.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:yoru/features/source/presentation/widgets/missing_source.dart';
 import 'package:yoru/core/source/extension_manager.dart';
 import 'package:yoru/core/source/extension_meta.dart';
@@ -376,11 +375,10 @@ class _ComicDetailsViewState extends State<_ComicDetailsView> {
 
   void _share(String title) {
     final link = DeepLinks.comic(widget.slug);
-    SharePlus.instance.share(
-      ShareParams(
-        text: '$title — ${AppText.shareSuffix}\n$link',
-        subject: title,
-      ),
+    shareText(
+      context,
+      text: '$title — ${AppText.shareSuffix}\n$link',
+      subject: title,
     );
   }
 

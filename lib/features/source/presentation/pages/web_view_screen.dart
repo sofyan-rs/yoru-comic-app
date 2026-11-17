@@ -16,7 +16,6 @@ import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:lucide_icons_flutter/lucide_icons_300.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// A source's site in a WebView, e.g. to pass a Cloudflare check. Uses the
@@ -184,8 +183,10 @@ class _WebViewScreenState extends State<WebViewScreen> {
                       DotMenuItem(
                         label: AppText.share,
                         icon: LucideIcons300.share2,
-                        onTap: () => SharePlus.instance.share(
-                          ShareParams(uri: _url, subject: _title),
+                        onTap: () => shareText(
+                          context,
+                          text: _url.toString(),
+                          subject: _title,
                         ),
                       ),
                       DotMenuItem(
