@@ -59,6 +59,7 @@ class AppText {
   static const String sortChapter = 'Sort chapters';
   static const String share = 'Share';
   static const String shareSuffix = 'read it on Yoru';
+  static const String linkCopied = 'Link copied to clipboard';
   static const String titleCopied = 'Title copied to clipboard';
   static const String copyTitle = 'Copy title';
   static const String successSaveImg = 'Image saved to gallery.';
