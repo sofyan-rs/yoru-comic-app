@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:yoru/core/error/exceptions.dart';
 import 'package:yoru/core/network/doh.dart';
@@ -148,6 +149,45 @@ class _BrowserLikeFileService extends FileService {
 
   @override
   Future<FileServiceResponse> get(
+    String url, {
+    Map<String, String>? headers,
+  }) async => _decodable(await _get(url, headers: headers));
+
+  /// [response] as an image this device can show: an AVIF on one without
+  /// an AVIF decoder (Android 11 and older, the desktops), or an AVIF
+  /// sequence anywhere, is converted to PNG before it is cached. Some hosts
+  /// send AVIF whatever the `Accept` (VoraToon's covers on cvr.voratoon.id,
+  /// sequences even for a still cover), and Flutter could only show a
+  /// placeholder for them.
+  static Future<FileServiceResponse> _decodable(
+    FileServiceResponse response,
+  ) async {
+    if (response.statusCode != 200 ||
+        !_maybeAvif.contains(response.fileExtension)) {
+      return response;
+    }
+    final bytes = await response.content.fold(
+      BytesBuilder(copy: false),
+      (b, chunk) => b..add(chunk),
+    );
+    final body = bytes.takeBytes();
+    if (!isAvif(body) || (!isAvifSequence(body) && await avifSupported())) {
+      return _BytesResponse.typed(body, response.fileExtension, response);
+    }
+    try {
+      return _BytesResponse.typed(await avifToPng(body), '.png', response);
+    } catch (e) {
+      // Not decodable here either: kept as is, so the reader can say why.
+      debugPrint('AVIF to PNG: $e');
+      return _BytesResponse.typed(body, response.fileExtension, response);
+    }
+  }
+
+  /// Extensions (from the `Content-Type`) of a response that may be AVIF:
+  /// its own, and the ones of hosts that do not name the type.
+  static const _maybeAvif = {'.avif', '', '.bin'};
+
+  Future<FileServiceResponse> _get(
     String url, {
     Map<String, String>? headers,
   }) async {
@@ -456,11 +496,25 @@ class _IdleTimeoutResponse implements FileServiceResponse {
 
 /// An image downloaded in a WebView.
 class _BytesResponse implements FileServiceResponse {
-  _BytesResponse(this._bytes, this._url, this._type);
+  _BytesResponse(this._bytes, this._url, this._type)
+    : _extension = null,
+      _validTill = null,
+      _eTag = null;
+
+  /// [bytes] read from [from], saved with [extension].
+  _BytesResponse.typed(this._bytes, String extension, FileServiceResponse from)
+    : _url = null,
+      _type = null,
+      _extension = extension,
+      _validTill = from.validTill,
+      _eTag = from.eTag;
 
   final Uint8List _bytes;
-  final Uri _url;
+  final Uri? _url;
   final String? _type;
+  final String? _extension;
+  final DateTime? _validTill;
+  final String? _eTag;
 
   @override
   Stream<List<int>> get content => Stream.value(_bytes);
@@ -472,18 +526,20 @@ class _BytesResponse implements FileServiceResponse {
   int get statusCode => 200;
 
   @override
-  DateTime get validTill => DateTime.now().add(const Duration(days: 7));
+  DateTime get validTill =>
+      _validTill ?? DateTime.now().add(const Duration(days: 7));
 
   @override
-  String? get eTag => null;
+  String? get eTag => _eTag;
 
   @override
   String get fileExtension {
+    if (_extension case final extension?) return extension;
     final type = _type?.split(';').first.trim();
     if (type != null && type.startsWith('image/')) {
       return '.${type.substring(6).replaceAll('jpeg', 'jpg')}';
     }
-    final path = _url.path;
+    final path = _url!.path;
     final dot = path.lastIndexOf('.');
     return dot > path.lastIndexOf('/') ? path.substring(dot) : '.jpg';
   }
