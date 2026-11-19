@@ -8,7 +8,8 @@
 //   is opened in a browser). <key> is a slug for the default BacaKomik
 //   source, which gets Open Graph tags with the series title, cover and
 //   synopsis so chat apps show a preview; other sources' comics are
-//   `<source>:<slug>` and only get a title made from the slug.
+//   `<source>:<slug>` and get the same from the source's own series page
+//   when the worker can read it (VoraToon), else a title from the slug.
 // - / is the app's home page (what the app does, download, privacy link),
 //   also the homepage URL of the Google sign-in consent screen.
 // - /privacy-policy is the privacy policy, linked from the Google sign-in consent
@@ -251,17 +252,77 @@ async function seriesPage(slug, url) {
   return response;
 }
 
-// A comic from another source: the API only knows BacaKomik's, so the page
-// has a title from the slug and the source name.
-function otherSourcePage(source, slug, url) {
-  return html(
+// A comic from another source: the API only knows BacaKomik's. Sources with
+// a reader in SOURCE_PAGES get the details from their own site; the rest get
+// a title from the slug and the source name.
+async function otherSourcePage(source, slug, url) {
+  let series = null;
+  try {
+    series = (await SOURCE_PAGES[source]?.(slug)) ?? null;
+  } catch {
+    // Source site down: still serve the page so the link can open the app.
+  }
+  const response = html(
     page({
       url: `${url.origin}/series/${source}:${slug}`,
-      title: titleFromSlug(slug),
+      title: series?.title ?? titleFromSlug(slug),
+      description: series?.description,
+      image: series?.cover,
       meta: SOURCE_NAMES[source] ?? source,
     }),
   );
+  // Without the details, ask the source again on the next visit.
+  if (SOURCE_PAGES[source] && !series) {
+    response.headers.set('Cache-Control', 'no-store');
+  }
+  return response;
 }
+
+// Reads title, synopsis and cover from a source's series page, for sources
+// whose API the worker cannot call.
+const SOURCE_PAGES = {
+  // VoraToon's API is encrypted, but its server-rendered page has the
+  // details. The cover is a presigned S3 URL valid for days, far longer than
+  // PAGE_TTL, and is served without a Referer check.
+  async voratoon(slug) {
+    const res = await fetch(`https://voratoon.co/series/${slug}`, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Yoru link preview)' },
+      cf: { cacheTtl: PAGE_TTL, cacheEverything: true },
+    });
+    if (!res.ok) return null;
+    const doc = await res.text();
+    const title = metaContent(doc, 'og:title')
+      ?.replace(/^Baca\s+/i, '')
+      .replace(/\s*\|\s*VoraToon\s*$/i, '');
+    if (!title) return null;
+    const cover = [...doc.matchAll(/<img\s[^>]*>/gi)]
+      .map(([tag]) => ({ alt: attr(tag, 'alt'), src: attr(tag, 'src') }))
+      .find((img) => img.alt?.startsWith('Cover ') && img.src?.startsWith('https://'))?.src;
+    return {
+      title,
+      description: metaContent(doc, 'og:description'),
+      cover,
+    };
+  },
+};
+
+function metaContent(doc, property) {
+  const tag = [...doc.matchAll(/<meta\s[^>]*>/gi)]
+    .map(([t]) => t)
+    .find((t) => attr(t, 'property') === property || attr(t, 'name') === property);
+  return tag ? attr(tag, 'content') : undefined;
+}
+
+// Value of `name` in an HTML tag, with entities decoded.
+function attr(tag, name) {
+  const m = tag.match(new RegExp(`\\s${name}="([^"]*)"`, 'i'));
+  return m ? unescape(m[1]) : undefined;
+}
+
+const unescape = (s) =>
+  s.replace(/&(amp|lt|gt|quot|#39|#x27);/g, (_, e) =>
+    ({ amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'", '#x27': "'" })[e],
+  );
 
 // `magic-emperor` → `Magic Emperor`, the same placeholder as the app.
 export function titleFromSlug(slug) {
@@ -721,7 +782,7 @@ const GALLERY = [
 const STATS = [
   ['0', 'Ads'],
   ['0', 'Trackers'],
-  ['4', 'Platforms'],
+  ['5', 'Platforms'],
   ['GPL-3.0', 'Open source'],
 ];
 

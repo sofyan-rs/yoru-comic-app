@@ -135,16 +135,54 @@ test('other paths', async () => {
 test('comics from other sources get a page without an API call', async () => {
   globalThis.fetch = async () => assert.fail('no API call expected');
   for (const path of [
-    '/series/voratoon:solo-leveling',
-    '/series/voratoon%3Asolo-leveling',
+    '/series/mangadex:solo-leveling',
+    '/series/mangadex%3Asolo-leveling',
   ]) {
     const res = await get(path);
     assert.equal(res.status, 200);
     const body = await res.text();
     assert.match(body, /Solo Leveling/);
+    assert.match(body, /mangadex/);
+    assert.match(body, /series\/mangadex:solo-leveling/);
+  }
+});
+
+test('VoraToon comics get the title, synopsis and cover of its page', async () => {
+  const cover =
+    'https://cvr.voratoon.id/prod/series/solo-leveling/cover/a.avif?X-Amz-Date=1&amp;X-Amz-Signature=2';
+  globalThis.fetch = async (url) => {
+    assert.equal(String(url), 'https://voratoon.co/series/solo-leveling');
+    return new Response(
+      `<meta property="og:title" content="Baca Solo &amp; Leveling | VoraToon"/>
+      <meta property="og:description" content="Sung Jinwoo levels up."/>
+      <img alt="" referrerPolicy="no-referrer" src="https://cvr.voratoon.id/other.avif"/>
+      <img fetchPriority="high" alt="Cover Solo &amp; Leveling" referrerPolicy="no-referrer" src="${cover}"/>`,
+      { status: 200 },
+    );
+  };
+  for (const path of ['/series/voratoon:solo-leveling', '/series/voratoon%3Asolo-leveling']) {
+    const res = await get(path);
+    assert.equal(res.status, 200);
+    assert.equal(res.headers.get('Cache-Control'), 'public, max-age=3600');
+    const body = await res.text();
+    assert.match(body, /<h1>Solo &amp; Leveling<\/h1>/);
+    assert.match(body, /Sung Jinwoo levels up\./);
     assert.match(body, /VoraToon/);
+    assert.ok(body.includes(`<img class="cover" src="${cover}"`));
+    assert.ok(body.includes(`<meta property="og:image" content="${cover}">`));
     assert.match(body, /series\/voratoon:solo-leveling/);
   }
+});
+
+test('VoraToon failure still serves a page that opens the app', async () => {
+  globalThis.fetch = async () => new Response('nope', { status: 503 });
+  const res = await get('/series/voratoon:solo-leveling');
+  const body = await res.text();
+  assert.equal(res.status, 200);
+  assert.equal(res.headers.get('Cache-Control'), 'no-store');
+  assert.match(body, /<h1>Solo Leveling<\/h1>/);
+  assert.doesNotMatch(body, /class="cover"/);
+  assert.match(body, /Open in the app/);
 });
 
 test('altstore.json lists the iOS IPA of each release, newest first', async () => {
