@@ -120,6 +120,9 @@ void main() {
     expect(isAvif(Uint8List.fromList(head('avis'))), isTrue);
     expect(isAvif(Uint8List.fromList(head('heic'))), isFalse);
     expect(isAvif(Uint8List.fromList([0xFF, 0xD8, 0xFF])), isFalse);
+    expect(isAvifSequence(Uint8List.fromList(head('avis'))), isTrue);
+    expect(isAvifSequence(Uint8List.fromList(head('avif'))), isFalse);
+    expect(isAvifSequence(Uint8List.fromList([0xFF, 0xD8, 0xFF])), isFalse);
   });
 
   group('page height', () {
