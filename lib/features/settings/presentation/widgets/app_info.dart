@@ -10,8 +10,8 @@ import 'package:lucide_icons_flutter/lucide_icons_300.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-/// "About the app" sheet: version, description and a link to the
-/// developer site.
+/// "About the app" sheet: version, description, and links to the developer
+/// site and the Ko-fi support page.
 class AppInfo extends StatefulWidget {
   const AppInfo({super.key});
 
@@ -30,9 +30,9 @@ class _AppInfoState extends State<AppInfo> {
     });
   }
 
-  Future<void> _openWebsite() async {
+  Future<void> _openLink(String url) async {
     final opened = await launchUrl(
-      Uri.parse(AppVariables.websiteLink),
+      Uri.parse(url),
       mode: LaunchMode.externalApplication,
     );
     if (!opened && mounted) {
@@ -65,8 +65,17 @@ class _AppInfoState extends State<AppInfo> {
               icon: LucideIcons300.globe,
               title: AppText.website,
               subtitle: AppVariables.websiteLabel,
-              onTap: _openWebsite,
+              onTap: () => _openLink(AppVariables.websiteLink),
             ),
+            // Store policies restrict links to outside payments, so store
+            // builds leave it out.
+            if (!AppVariables.storeBuild)
+              ListRow(
+                icon: LucideIcons300.heart,
+                title: AppText.giveSupport,
+                subtitle: AppVariables.supportLabel,
+                onTap: () => _openLink(AppVariables.supportLink),
+              ),
           ],
         ),
       ],

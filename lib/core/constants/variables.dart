@@ -17,6 +17,8 @@ class AppVariables {
 
   static const String websiteLink = 'https://kurodev.org';
   static const String websiteLabel = 'kurodev.org';
+  static const String supportLink = 'https://ko-fi.com/kurodev';
+  static const String supportLabel = 'ko-fi.com/kurodev';
 
   /// Host of shared comic links. Its `/.well-known/assetlinks.json` lets
   /// Android open them in the app; see `hosting/`.

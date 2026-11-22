@@ -170,6 +170,7 @@ class AppText {
   static const String aboutApp = 'About the app';
   static const String aboutAppDescription = 'Developer and website';
   static const String website = 'Kurodev website';
+  static const String giveSupport = 'Give support';
   static const String linkFailed = "Couldn't open the link";
   static const String chaptersRead = 'Chapters read';
   static const String sources = 'Sources';
