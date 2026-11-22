@@ -7,6 +7,8 @@ import 'package:yoru/core/source/comic_key.dart';
 import 'package:yoru/core/source/extension_bridge.dart';
 import 'package:yoru/core/source/extension_meta.dart';
 import 'package:yoru/core/source/extension_runtime.dart';
+import 'package:yoru/core/source/local/local_library.dart';
+import 'package:yoru/core/source/local/local_source.dart';
 import 'package:yoru/core/source/mihon_host.dart';
 import 'package:yoru/core/source/mihon_installer.dart';
 import 'package:yoru/core/source/mihon_repo.dart';
@@ -66,7 +68,16 @@ class ExtensionManager extends ChangeNotifier implements SourceRegistry {
     this._bridge, {
     @ignoreParam this._loader,
     @ignoreParam MihonHost? mihon,
-  }) : _mihon = mihon ?? MihonHost.platform;
+    @ignoreParam LocalLibrary? local,
+  }) : _mihon = mihon ?? MihonHost.platform,
+       local = local ?? LocalLibrary.instance {
+    // Home and Explore reload when comics are imported or deleted.
+    this.local.addListener(notifyListeners);
+  }
+
+  /// Comics imported from files; the [LocalSource], always installed.
+  final LocalLibrary local;
+  late final _localSource = LocalSource(local);
 
   /// Added on first run: the built `dist/` of the private extension source
   /// repo, served from a Cloudflare Worker. Not in a store build, where the
@@ -116,8 +127,10 @@ class ExtensionManager extends ChangeNotifier implements SourceRegistry {
   }).length;
 
   /// Sources to read from, by name: every single-source extension and the
-  /// enabled languages of multi-language ones.
-  List<ExtensionMeta> get installed => [
+  /// enabled languages of multi-language ones, then [LocalSource].
+  List<ExtensionMeta> get installed => [..._extensionSources, LocalSource.info];
+
+  List<ExtensionMeta> get _extensionSources => [
     for (final e in extensions)
       if (e.isMihon)
         ...e.mihonSourcesIn(languagesOf(e.id))
@@ -127,9 +140,10 @@ class ExtensionManager extends ChangeNotifier implements SourceRegistry {
         for (final language in languagesOf(e.id)) e.forLanguage(language),
   ]..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
 
-  /// Every source of the installed extensions, enabled or not; names comics
-  /// of a language that was turned off.
+  /// Every source of the installed extensions, enabled or not, and
+  /// [LocalSource]; names comics of a language that was turned off.
   List<ExtensionMeta> get knownSources => [
+    LocalSource.info,
     for (final e in extensions)
       if (e.isMihon)
         ...e.mihonSourcesIn(e.languages)
@@ -158,6 +172,7 @@ class ExtensionManager extends ChangeNotifier implements SourceRegistry {
   /// An installed extension, or one language of a multi-language one
   /// (enabled or not, so its comics still open).
   ExtensionMeta? meta(String sourceId) {
+    if (LocalSource.isLocalKey(sourceId)) return LocalSource.info;
     if (_extension(sourceId) case final e? when !e.isMihon) return e;
     for (final e in extensions) {
       if (e.sourceFor(sourceId) case final source?) return source;
@@ -253,6 +268,7 @@ class ExtensionManager extends ChangeNotifier implements SourceRegistry {
   Future<SourceBackend> backend(String sourceId) => _engine(sourceId);
 
   Future<LoadedSource> _engine(String sourceId) async {
+    if (LocalSource.isLocalKey(sourceId)) return _localSource;
     if (_runtimes[sourceId] case final runtime?) return runtime;
     if (_loading[sourceId] case final loading?) return loading;
     final loading = _load(sourceId);

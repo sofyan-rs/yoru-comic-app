@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:yoru/core/source/local/local_source.dart';
 import 'package:yoru/app/root_tabs.dart';
 import 'package:yoru/core/constants/texts.dart';
 import 'package:yoru/core/presentation/bloc/comic_list_state.dart';
@@ -196,31 +197,42 @@ class _ExploreScreenState extends State<ExploreScreen> {
             listenWhen: (previous, current) =>
                 previous.source != current.source,
             listener: _onSourceChanged,
-            child: BlocBuilder<ExploreBloc, ComicListState>(
-              builder: (context, state) {
-                return ScrollAwayHeader(
-                  keepShown: _queryFocus.hasFocus,
-                  header: Column(children: [_header(state), _controls(filter)]),
-                  body: RefreshIndicator(
-                    color: Dotline.of(context).ink,
-                    backgroundColor: Dotline.of(context).surface,
-                    onRefresh: _load,
-                    child: CustomScrollView(
-                      controller: _scrollController,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      // Scrolling the results ends typing, so the header can go.
-                      keyboardDismissBehavior:
-                          ScrollViewKeyboardDismissBehavior.onDrag,
-                      slivers: [
-                        ..._results(state),
-                        SliverPadding(
-                          padding: EdgeInsets.only(bottom: bottomInset),
-                        ),
-                      ],
-                    ),
+            // Imported or deleted comics show at once.
+            child: BlocListener<SourcesCubit, SourcesState>(
+              listenWhen: (previous, current) =>
+                  previous.localRevision != current.localRevision &&
+                  LocalSource.isLocalKey(
+                    context.read<FilterCubit>().state.source,
                   ),
-                );
-              },
+              listener: (_, _) => _load(),
+              child: BlocBuilder<ExploreBloc, ComicListState>(
+                builder: (context, state) {
+                  return ScrollAwayHeader(
+                    keepShown: _queryFocus.hasFocus,
+                    header: Column(
+                      children: [_header(state), _controls(filter)],
+                    ),
+                    body: RefreshIndicator(
+                      color: Dotline.of(context).ink,
+                      backgroundColor: Dotline.of(context).surface,
+                      onRefresh: _load,
+                      child: CustomScrollView(
+                        controller: _scrollController,
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        // Scrolling the results ends typing, so the header can go.
+                        keyboardDismissBehavior:
+                            ScrollViewKeyboardDismissBehavior.onDrag,
+                        slivers: [
+                          ..._results(state),
+                          SliverPadding(
+                            padding: EdgeInsets.only(bottom: bottomInset),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
           ),
         ),

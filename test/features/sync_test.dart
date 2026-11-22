@@ -670,6 +670,53 @@ void main() {
       verify(() => repo.upload(written)).called(1);
     });
 
+    test('imported comics stay on this device', () async {
+      final local = SyncSnapshot(
+        bookmarks: [bookmark('a', 1), bookmark('local:mine-1', 2)],
+        history: [read('local:mine-1/1', 3)],
+        comicCategories: [
+          inCategories('local:mine-1', ['c'], 4),
+        ],
+        deletedBookmarks: {'local:gone-2': at(5)},
+      );
+      when(() => repo.download()).thenAnswer((_) async => right(null));
+      when(() => repo.readLocal()).thenAnswer((_) async => right(local));
+
+      await syncLibrary(const NoParams());
+
+      final uploaded =
+          verify(() => repo.upload(captureAny())).captured.single
+              as SyncSnapshot;
+      expect(uploaded.bookmarks.map((b) => b.slug), ['a']);
+      expect(uploaded.history, isEmpty);
+      expect(uploaded.comicCategories, isEmpty);
+      expect(uploaded.deletedBookmarks, isEmpty);
+      // This device keeps them.
+      verifyNever(() => repo.writeLocal(any()));
+    });
+
+    test('ignores imported comics the cloud has and removes them', () async {
+      final remote = SyncSnapshot(
+        bookmarks: [bookmark('a', 1), bookmark('local:theirs-1', 2)],
+        history: [read('local:theirs-1/1', 3)],
+      );
+      when(() => repo.download()).thenAnswer((_) async => right(remote));
+      when(() => repo.readLocal())
+          .thenAnswer((_) async => right(const SyncSnapshot()));
+
+      await syncLibrary(const NoParams());
+
+      final written =
+          verify(() => repo.writeLocal(captureAny())).captured.single
+              as SyncSnapshot;
+      expect(written.bookmarks.map((b) => b.slug), ['a']);
+      expect(written.history, isEmpty);
+      final uploaded =
+          verify(() => repo.upload(captureAny())).captured.single
+              as SyncSnapshot;
+      expect(uploaded.bookmarks.map((b) => b.slug), ['a']);
+    });
+
     test('download failure stops before writing', () async {
       when(() => repo.download())
           .thenAnswer((_) async => left(const NetworkFailure()));

@@ -1,3 +1,4 @@
+import 'package:yoru/core/source/local/local_source.dart';
 import 'package:yoru/core/data/datasources/series_remote_data_source.dart';
 import 'package:yoru/core/domain/entities/comic.dart';
 import 'package:yoru/core/error/failures.dart';
@@ -27,5 +28,5 @@ class ExploreRepositoryImpl implements ExploreRepository {
       page: page,
     );
     return res.map((e) => e.toEntity()).toList();
-  });
+  }, offline: LocalSource.isLocalKey(filter.source));
 }

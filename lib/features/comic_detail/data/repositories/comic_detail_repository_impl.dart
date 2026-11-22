@@ -1,3 +1,5 @@
+import 'package:yoru/core/source/comic_key.dart';
+import 'package:yoru/core/source/local/local_source.dart';
 import 'package:yoru/core/data/datasources/series_remote_data_source.dart';
 import 'package:yoru/core/domain/entities/comic_details.dart';
 import 'package:yoru/core/error/failures.dart';
@@ -32,14 +34,14 @@ class ComicDetailRepositoryImpl implements ComicDetailRepository {
     // Fail fast with the first error while both requests run in parallel.
     await Future.wait([series, chapters]);
     return (await series).toEntity(await chapters);
-  });
+  }, offline: _offline(slug));
 
   @override
   Future<Either<Failure, List<Chapter>>> getChapters(String slug) =>
       runRemote(_networkInfo, () async {
         final chapters = await _remote.getChapters(slug);
         return [for (final c in chapters) c.toEntity(slug)];
-      });
+      }, offline: _offline(slug));
 
   @override
   Future<Either<Failure, ComicDetails>> getSeries(
@@ -50,5 +52,9 @@ class ComicDetailRepositoryImpl implements ComicDetailRepository {
     return series
         .toEntity(const [])
         .copyWith(chapters: chapters, totalChapter: '${chapters.length}');
-  });
+  }, offline: _offline(slug));
+
+  /// Imported comics need no connection.
+  static bool _offline(String key) =>
+      LocalSource.isLocalKey(ComicKey.sourceOf(key));
 }

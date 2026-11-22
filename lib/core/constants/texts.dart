@@ -385,6 +385,58 @@ class AppText {
   static const String noSourceShort = 'No source installed';
   static const String noSourceHint =
       'Install a source in Extensions to start reading.';
+  static const String localComics = 'Local comics';
+  static const String onThisDevice = 'On this device';
+  static const String noLocalComics = 'No comics on this device';
+  static const String noLocalComicsHint =
+      'Import CBZ or ZIP files, or folders of images, to read them here.';
+  static const String noLocalComicsHintFiles =
+      'Import CBZ or ZIP files to read them here.';
+  static const String importComics = 'Import comics';
+  static const String importComicsDescription =
+      'CBZ or ZIP files, or folders of images';
+  static const String importComicsDescriptionFiles = 'CBZ or ZIP files';
+  static const String importFiles = 'CBZ or ZIP files';
+  static const String importFolder = 'A folder';
+  static const String importFolderHint =
+      'A folder of images is one chapter; a folder of chapter folders or '
+      'CBZ files, one series.';
+  static const String importNamingTitle = 'NAMING FILES';
+  static const String importNaming =
+      'Files with the same series name go into one series, numbered from '
+      'the name. A ComicInfo.xml inside a CBZ wins over the name.';
+  static const String importNamingExamples =
+      'Blue Box - Ch. 12.cbz\nBlue Box Chapter 12.5.cbz\nMonster Vol. 3.cbz';
+  static const String addChapters = 'Add chapters';
+  static const String addChaptersHint =
+      'Every file goes into this comic, whatever it is named. Its number '
+      'comes from ComicInfo.xml or the name (Ch. 12), else the next one; a '
+      'chapter with a number it already has is replaced.';
+  static const String editDetails = 'Edit details';
+  static const String comicTitle = 'Title';
+  static const String comicAuthor = 'Author';
+  static const String comicGenres = 'Genres';
+  static const String comicGenresHint = 'Comma-separated, e.g. Action, Drama';
+  static const String coverLabel = 'COVER';
+  static const String chooseCoverImage = 'Choose image';
+  static const String useFirstPage = 'Use first page';
+  static const String detailsSaved = 'Details saved';
+  static const String coverChanged = 'Cover changed';
+  static const String saveFailed = "Couldn't save the changes";
+  static const String importingComics = 'Importing comics…';
+  static const String importBusy = 'An import is still running';
+  static const String importFailed = "Couldn't import the comics";
+  static const String importNothing = 'Nothing was imported';
+  static String imported(int chapters, int series) =>
+      'Imported $chapters chapter${chapters == 1 ? '' : 's'} into '
+      '$series series';
+  static String importSkipped(int files) =>
+      '$files file${files == 1 ? '' : 's'} skipped';
+  static const String deleteFromDevice = 'Delete from device';
+  static const String deleteLocalComicMessage =
+      'Removes the imported files of this comic from the device. Its '
+      'bookmark and history stay.';
+  static const String localComicDeleted = 'Deleted from device';
   static const String extensions = 'Extensions';
   static const String extensionsDescription = 'Sources to read comics from';
   static const String installed = 'Installed';

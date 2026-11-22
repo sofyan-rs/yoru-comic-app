@@ -1,3 +1,4 @@
+import 'package:yoru/core/source/local/local_source.dart';
 import 'package:yoru/core/presentation/widgets/dotline/dotline.dart';
 import 'package:yoru/core/theme/dotline_colors.dart';
 import 'package:yoru/core/theme/dotline_text.dart';
@@ -33,7 +34,11 @@ class BookmarkComicCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = Dotline.of(context);
     final details = item.bookmark.comicDetails;
-    final lang = context.sourceOf(item.bookmark.slug)?.lang;
+    final source = context.sourceOf(item.bookmark.slug);
+    // Imported comics have no language.
+    final lang = source == null || LocalSource.isLocalKey(source.id)
+        ? null
+        : source.lang;
     final heroTag = CoverHeroTag(context, details.coverImg);
 
     return Semantics(

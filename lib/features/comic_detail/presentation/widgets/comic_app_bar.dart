@@ -1,3 +1,4 @@
+import 'package:yoru/core/source/local/local_source.dart';
 import 'package:yoru/core/constants/texts.dart';
 import 'package:yoru/core/domain/entities/comic_details.dart';
 import 'package:yoru/core/presentation/widgets/dotline/dotline.dart';
@@ -170,14 +171,17 @@ class ComicAppBar extends StatelessWidget {
               ),
           ]),
         ),
-        const SizedBox(width: DotSpace.s2),
-        RoundIconButton(
-          icon: LucideIcons300.download,
-          semanticLabel: AppText.download,
-          onTap: toDownload.isEmpty
-              ? null
-              : () => _download(context, toDownload),
-        ),
+        // Imported comics are on the device already.
+        if (!LocalSource.isLocalKey(ComicKey.sourceOf(comicSlug))) ...[
+          const SizedBox(width: DotSpace.s2),
+          RoundIconButton(
+            icon: LucideIcons300.download,
+            semanticLabel: AppText.download,
+            onTap: toDownload.isEmpty
+                ? null
+                : () => _download(context, toDownload),
+          ),
+        ],
         const SizedBox(width: DotSpace.s2),
         RoundIconButton(
           icon: LucideIcons300.rotateCcw,

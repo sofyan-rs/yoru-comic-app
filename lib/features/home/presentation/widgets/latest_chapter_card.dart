@@ -1,3 +1,6 @@
+import 'package:yoru/core/source/local/local_source.dart';
+import 'package:yoru/core/source/comic_key.dart';
+import 'package:yoru/core/constants/texts.dart';
 import 'package:yoru/core/presentation/widgets/dotline/dotline.dart';
 import 'package:yoru/core/theme/dotline_tokens.dart';
 import 'package:yoru/features/comic_detail/presentation/pages/comic_details_screen.dart';
@@ -43,7 +46,11 @@ class LatestChapterCard extends StatelessWidget {
       subtitle: [
         // "-" is what a source without a format maps to.
         if (type != '-' && type.isNotEmpty) type,
-        isCompleted ? 'Completed' : 'Ongoing',
+        // Imported files say nothing about the series' status.
+        if (!LocalSource.isLocalKey(ComicKey.sourceOf(slug)))
+          isCompleted ? 'Completed' : 'Ongoing'
+        else
+          AppText.onThisDevice,
       ].join(' · '),
       value: chapter == '-' ? null : 'CH. $chapter',
       onTap: () => ComicDetailsScreen.open(

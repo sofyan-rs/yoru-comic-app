@@ -1,3 +1,4 @@
+import 'package:yoru/core/source/local/local_source.dart';
 import 'package:yoru/core/source/comic_key.dart';
 import 'package:yoru/core/source/extension_manager.dart';
 import 'package:yoru/core/source/extension_meta.dart';
@@ -15,6 +16,7 @@ class SourcesState {
     this.loadError,
     this.ready = false,
     this.updateCount = 0,
+    this.localRevision = 0,
   });
 
   /// Sources to pick from: enabled languages only.
@@ -37,6 +39,9 @@ class SourcesState {
   /// Extensions with an update in the repos (badge on More > Extensions).
   final int updateCount;
 
+  /// [LocalLibrary.revision]: changes when comics are imported or deleted.
+  final int localRevision;
+
   ExtensionMeta? get active =>
       installed.where((e) => e.id == activeId).firstOrNull;
 }
@@ -58,6 +63,7 @@ extension SourceNames on BuildContext {
   /// `VoraToon · ID`: name and language of the source of a [ComicKey].
   /// Just the id when not installed.
   String sourceLabelOf(String key) => switch (sourceOf(key)) {
+    final meta? when LocalSource.isLocalKey(meta.id) => meta.name,
     final meta? => '${meta.baseName} · ${meta.lang.toUpperCase()}',
     null => ComicKey.sourceOf(key),
   };
@@ -103,6 +109,7 @@ class SourcesCubit extends Cubit<SourcesState> {
         loadError: error,
         ready: true,
         updateCount: _manager.updateCount,
+        localRevision: _manager.local.revision,
       ),
     );
   }

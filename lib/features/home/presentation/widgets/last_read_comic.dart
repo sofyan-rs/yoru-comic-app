@@ -1,3 +1,5 @@
+import 'package:yoru/core/source/local/local_source.dart';
+import 'package:yoru/core/source/comic_key.dart';
 import 'package:yoru/core/constants/texts.dart';
 import 'package:yoru/core/presentation/widgets/dotline/dotline.dart';
 import 'package:yoru/core/theme/dotline_colors.dart';
@@ -74,10 +76,18 @@ class LastReadComic extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          [
-                            if (details.type != '-') details.type,
-                            details.status,
-                          ].join(' · ').toUpperCase(),
+                          // "-" is what a source without one maps to;
+                          // imported files have neither.
+                          (LocalSource.isLocalKey(
+                                    ComicKey.sourceOf(latest.comicSlug),
+                                  )
+                                  ? [AppText.onThisDevice]
+                                  : [
+                                      if (details.type != '-') details.type,
+                                      if (details.status != '-') details.status,
+                                    ])
+                              .join(' · ')
+                              .toUpperCase(),
                           style: DotlineText.label.copyWith(color: c.inkFaint),
                         ),
                         const SizedBox(height: DotSpace.s2),

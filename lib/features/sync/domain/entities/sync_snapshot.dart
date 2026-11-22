@@ -1,3 +1,5 @@
+import 'package:yoru/core/source/local/local_source.dart';
+import 'package:yoru/core/source/comic_key.dart';
 import 'package:yoru/core/domain/entities/comic_details.dart';
 import 'package:yoru/features/bookmark/domain/entities/bookmark.dart';
 import 'package:yoru/features/category/domain/entities/category.dart';
@@ -136,6 +138,50 @@ abstract class SyncSnapshot with _$SyncSnapshot {
       savedBookmarks: savedBookmarks,
       savedHistory: savedHistory,
       savedCategories: savedCategories,
+    );
+  }
+
+  /// Whether [key] (a comic or chapter key) is a comic imported from files
+  /// ([LocalSource]): its files stay on this device, so it is not synced.
+  static bool isDeviceOnly(String key) =>
+      LocalSource.isLocalKey(ComicKey.sourceOf(key));
+
+  /// This library without imported comics' entries and deletions
+  /// ([isDeviceOnly]). What is uploaded, and what is taken from the cloud,
+  /// so another device never lists comics whose files it does not have.
+  /// The same snapshot when there is nothing to leave out.
+  SyncSnapshot withoutDeviceOnly() {
+    bool kept(String key) => !isDeviceOnly(key);
+    Map<String, DateTime> keptDates(Map<String, DateTime> dates) => {
+      for (final MapEntry(:key, :value) in dates.entries)
+        if (kept(key)) key: value,
+    };
+    final any =
+        bookmarks.any((b) => !kept(b.slug)) ||
+        history.any((h) => !kept(h.slug)) ||
+        comicCategories.any((c) => !kept(c.slug)) ||
+        deletedBookmarks.keys.any((k) => !kept(k)) ||
+        deletedHistory.keys.any((k) => !kept(k)) ||
+        savedBookmarks.keys.any((k) => !kept(k)) ||
+        savedHistory.keys.any((k) => !kept(k));
+    if (!any) return this;
+    return copyWith(
+      bookmarks: [
+        for (final b in bookmarks)
+          if (kept(b.slug)) b,
+      ],
+      history: [
+        for (final h in history)
+          if (kept(h.slug)) h,
+      ],
+      comicCategories: [
+        for (final c in comicCategories)
+          if (kept(c.slug)) c,
+      ],
+      deletedBookmarks: keptDates(deletedBookmarks),
+      deletedHistory: keptDates(deletedHistory),
+      savedBookmarks: keptDates(savedBookmarks),
+      savedHistory: keptDates(savedHistory),
     );
   }
 

@@ -1,3 +1,4 @@
+import 'package:yoru/core/source/local/local_source.dart';
 import 'package:yoru/core/constants/texts.dart';
 import 'package:yoru/core/presentation/widgets/dotline/dotline.dart';
 import 'package:yoru/core/source/extension_meta.dart';
@@ -36,6 +37,10 @@ class SourceSubtitle extends StatelessWidget {
     };
     final style = DotlineText.data.copyWith(color: c.inkFaint);
     if (source == null) return Text(AppText.noSourceShort, style: style);
+    // Needs no connection, so no status either.
+    if (LocalSource.isLocalKey(source!.id)) {
+      return Text(AppText.onThisDevice, style: style);
+    }
     return Row(
       children: [
         Flexible(
@@ -251,8 +256,9 @@ class _SourceCard extends StatelessWidget {
 /// `voratoon.co · ID · v1`.
 /// `mangadex.org · MULTI · 18+ · v1.0.0`; a multi-language extension says
 /// MULTI, an adult one 18+. The version comes last: an update follows it.
-String extensionLine(ExtensionMeta meta) =>
-    '${meta.domain} · ${meta.languages.isEmpty ? meta.lang.toUpperCase() : 'MULTI'} · ${meta.nsfw ? '18+ · ' : ''}v${meta.version}';
+String extensionLine(ExtensionMeta meta) => LocalSource.isLocalKey(meta.id)
+    ? AppText.onThisDevice
+    : '${meta.domain} · ${meta.languages.isEmpty ? meta.lang.toUpperCase() : 'MULTI'} · ${meta.nsfw ? '18+ · ' : ''}v${meta.version}';
 
 /// [extensionLine] with its `18+` in red, and [suffix] (an update's
 /// `→ v1.2.0`) after the version.
@@ -266,6 +272,12 @@ class ExtensionLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = Dotline.of(context);
+    if (LocalSource.isLocalKey(meta.id)) {
+      return Text(
+        AppText.onThisDevice,
+        style: style ?? DotlineText.bodyS.copyWith(color: c.inkMuted),
+      );
+    }
     final lang = meta.languages.isEmpty ? meta.lang.toUpperCase() : 'MULTI';
     return Text.rich(
       TextSpan(

@@ -1,3 +1,4 @@
+import 'package:yoru/features/local/presentation/local_import.dart';
 import 'package:yoru/core/constants/texts.dart';
 import 'package:yoru/core/constants/variables.dart';
 import 'package:yoru/core/presentation/widgets/dotline/dotline.dart';
@@ -175,6 +176,15 @@ class _SettingsState extends State<Settings> {
           padding: const EdgeInsets.symmetric(horizontal: DotSpace.s4),
           child: ListGroup(
             children: [
+              ListRow(
+                icon: LucideIcons300.folderInput,
+                title: AppText.importComics,
+                subtitle: canImportFolders
+                    ? AppText.importComicsDescription
+                    : AppText.importComicsDescriptionFiles,
+                showChevron: true,
+                onTap: () => importLocalComics(context),
+              ),
               ListRow(
                 icon: LucideIcons300.folder,
                 title: AppText.categories,

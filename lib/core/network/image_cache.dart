@@ -9,6 +9,8 @@ import 'package:yoru/core/network/image_host_support.dart';
 import 'package:yoru/core/utils/image_support.dart';
 import 'package:yoru/core/source/extension_bridge.dart';
 import 'package:yoru/core/source/headless_pages.dart';
+import 'package:yoru/core/source/local/local_library.dart';
+import 'package:yoru/core/source/local/local_source.dart';
 import 'package:yoru/core/source/mihon_host.dart';
 import 'package:cronet_http/cronet_http.dart';
 import 'package:flutter/foundation.dart';
@@ -84,6 +86,10 @@ Map<String, String>? _withHostHeaders(Uri url, Map<String, String>? headers) {
 /// Whether [url] is a Mihon source's image (`mihon://…`, see `Images.kt`):
 /// only the image caches get it, through the extension in Kotlin.
 bool isMihonImage(String url) => url.startsWith('mihon://');
+
+/// Whether [url] is an imported comic's cover (`local://<slug>/<file>`,
+/// see [LocalSource.coverUrl]), read from the device.
+bool isLocalImage(String url) => url.startsWith('${LocalSource.scheme}://');
 
 /// Whether [url]'s host turns away requests that do not come from inside
 /// the site (see [comicImageCache]); the image caches get its images
@@ -193,6 +199,7 @@ class _BrowserLikeFileService extends FileService {
   }) async {
     final uri = Uri.parse(url);
     if (isMihonImage(url)) return _getMihon(uri);
+    if (isLocalImage(url)) return _getLocal(uri);
     headers = _withHostHeaders(uri, headers);
     if (_inPage(uri.host)) return _getInPage(uri, headers);
     final response = await _direct(uri, headers);
@@ -225,10 +232,23 @@ class _BrowserLikeFileService extends FileService {
     return _BytesResponse(image.bytes, url, image.type);
   }
 
+  /// An imported comic's cover, from its folder.
+  Future<FileServiceResponse> _getLocal(Uri url) async {
+    final file = File(
+      await LocalLibrary.instance.pathOf(url.host, url.path.substring(1)),
+    );
+    if (!await file.exists()) {
+      throw const ServerException('This image is no longer on this device');
+    }
+    return _BytesResponse(await file.readAsBytes(), url, null);
+  }
+
   /// See [imageHostBlocks].
   Future<bool> blocks(Uri url, Map<String, String>? headers) async {
     // Only the image caches can fetch them.
-    if (isMihonImage(url.toString())) return true;
+    if (isMihonImage(url.toString()) || isLocalImage(url.toString())) {
+      return true;
+    }
     if (_inPage(url.host)) return true;
     final response = await _direct(url, _withHostHeaders(url, headers));
     await response.content.drain<void>();

@@ -1,3 +1,5 @@
+import 'package:yoru/core/source/comic_key.dart';
+import 'package:yoru/core/source/local/local_source.dart';
 import 'package:yoru/core/data/datasources/series_remote_data_source.dart';
 import 'package:yoru/core/error/exceptions.dart';
 import 'package:yoru/core/error/failures.dart';
@@ -27,6 +29,7 @@ class ReaderRepositoryImpl implements ReaderRepository {
     }
     final seriesSlug = chapterSlug.substring(0, separator);
     final number = chapterSlug.substring(separator + 1);
+    final local = LocalSource.isLocalKey(ComicKey.sourceOf(seriesSlug));
 
     return runRemote(_networkInfo, () async {
       final res = await _remote.getChapter(seriesSlug, number);
@@ -45,7 +48,9 @@ class ReaderRepositoryImpl implements ReaderRepository {
             : null,
         images: res.images,
         imageHeaders: res.headers,
+        // Imported comics' pages are files, read like downloaded ones.
+        isOffline: local,
       );
-    });
+    }, offline: local);
   }
 }

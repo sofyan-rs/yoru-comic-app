@@ -1,3 +1,4 @@
+import 'package:yoru/core/source/local/local_source.dart';
 import 'package:yoru/core/data/datasources/series_remote_data_source.dart';
 import 'package:yoru/core/data/models/series_response.dart';
 import 'package:yoru/core/error/exceptions.dart';
@@ -34,5 +35,5 @@ class HomeRepositoryImpl implements HomeRepository {
       newSeries: newSeries.map((e) => e.toEntity()).toList(),
       latest: latest.map((e) => e.toEntity()).toList(),
     );
-  });
+  }, offline: LocalSource.isLocalKey(_sources.activeSource ?? ''));
 }

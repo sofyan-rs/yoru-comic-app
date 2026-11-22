@@ -1,3 +1,5 @@
+import 'package:yoru/features/local/presentation/local_import.dart';
+import 'package:yoru/core/source/local/local_source.dart';
 import 'package:yoru/core/constants/texts.dart';
 import 'package:yoru/core/error/exceptions.dart';
 import 'package:yoru/core/presentation/widgets/dotline/dotline.dart';
@@ -10,7 +12,7 @@ import 'package:lucide_icons_flutter/lucide_icons_300.dart';
 /// Error state for a failed source call. A bot check ([Challenge]) offers
 /// to pass it in the WebView, whose cookies the extension then reuses, and
 /// retries when the WebView closes; no installed source leads to the
-/// extensions; anything else shows the message with a retry button.
+/// extensions; no imported comics, to importing some; anything else shows the message with a retry button.
 class SourceError extends StatelessWidget {
   const SourceError({
     super.key,
@@ -28,6 +30,19 @@ class SourceError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (message == localEmptyMessage) {
+      return EmptyState(
+        icon: LucideIcons300.folderInput,
+        title: AppText.noLocalComics,
+        message: canImportFolders
+            ? AppText.noLocalComicsHint
+            : AppText.noLocalComicsHintFiles,
+        actionLabel: AppText.importComics,
+        onAction: () async {
+          if (await importLocalComics(context)) onRetry();
+        },
+      );
+    }
     if (message == noSourceMessage) {
       return EmptyState(
         icon: LucideIcons300.blocks,

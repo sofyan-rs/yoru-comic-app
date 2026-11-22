@@ -1,5 +1,9 @@
 import 'dart:async';
 
+import 'package:yoru/features/local/presentation/edit_local_comic_sheet.dart';
+import 'package:yoru/features/local/presentation/local_import.dart';
+import 'package:yoru/features/download/presentation/widgets/confirm_delete_sheet.dart';
+import 'package:yoru/core/source/local/local_source.dart';
 import 'package:yoru/app/root_tabs.dart';
 import 'package:yoru/core/constants/texts.dart';
 import 'package:yoru/core/di/injection.dart';
@@ -217,7 +221,9 @@ class _ComicDetailsViewState extends State<_ComicDetailsView> {
       if (_chapterSource != null) unawaited(_pickChapterSource(_chapterSource));
     }
     ComicDetails? stored;
-    if (!fetch) {
+    // An imported comic reads its files, offline and at once: always fresh,
+    // so added chapters and edits show.
+    if (!fetch && !_isLocal) {
       for (final bookmark in context.read<BookmarkCubit>().state) {
         if (bookmark.slug != widget.slug) continue;
         final details = bookmark.comicDetails;
@@ -286,6 +292,43 @@ class _ComicDetailsViewState extends State<_ComicDetailsView> {
       _sourceLoading = false;
       result.fold((_) {}, (chapters) => _sourceChapters[key] = chapters);
     });
+  }
+
+  bool get _isLocal => LocalSource.isLocalKey(ComicKey.sourceOf(widget.slug));
+
+  /// Imports files into this imported comic, then shows its new chapters.
+  Future<void> _addLocalChapters(String title) async {
+    final added = await importLocalComics(
+      context,
+      into: widget.slug,
+      intoTitle: title,
+    );
+    if (added && mounted) await _load();
+  }
+
+  /// Edits this imported comic's details, then shows them.
+  Future<void> _editLocal(ComicDetails details) async {
+    final changed = await showEditLocalComicSheet(
+      context,
+      comicKey: widget.slug,
+      details: details,
+    );
+    if (changed && mounted) await _load();
+  }
+
+  /// Removes an imported comic's files, after asking, and leaves.
+  Future<void> _deleteLocal(String title) async {
+    final confirmed = await showConfirmDeleteSheet(
+      context,
+      title: AppText.deleteFromDevice,
+      subtitle: title,
+      message: AppText.deleteLocalComicMessage,
+    );
+    if (!confirmed || !mounted) return;
+    await getIt<ExtensionManager>().local.delete(ComicKey.slugOf(widget.slug));
+    if (!mounted) return;
+    showSnackBar(context: context, message: AppText.localComicDeleted);
+    Navigator.of(context).maybePop();
   }
 
   /// Opens the comic's page on its site; a merged comic asks which
@@ -601,16 +644,37 @@ class _ComicDetailsViewState extends State<_ComicDetailsView> {
                 onTap: () =>
                     SourceMigrationScreen.open(context, keys: {widget.slug}),
               ),
-            DotMenuItem(
-              label: AppText.openWebView,
-              icon: LucideIcons300.globe,
-              onTap: () => _openWebView(bookmark),
-            ),
-            DotMenuItem(
-              label: AppText.share,
-              icon: LucideIcons300.share2,
-              onTap: () => _share(details?.title ?? widget.title),
-            ),
+            // An imported comic has no site, and its link opens nothing
+            // on another device.
+            if (!_isLocal) ...[
+              DotMenuItem(
+                label: AppText.openWebView,
+                icon: LucideIcons300.globe,
+                onTap: () => _openWebView(bookmark),
+              ),
+              DotMenuItem(
+                label: AppText.share,
+                icon: LucideIcons300.share2,
+                onTap: () => _share(details?.title ?? widget.title),
+              ),
+            ] else ...[
+              DotMenuItem(
+                label: AppText.addChapters,
+                icon: LucideIcons300.filePlus,
+                onTap: () => _addLocalChapters(details?.title ?? widget.title),
+              ),
+              if (details != null)
+                DotMenuItem(
+                  label: AppText.editDetails,
+                  icon: LucideIcons300.pencil,
+                  onTap: () => _editLocal(details),
+                ),
+              DotMenuItem(
+                label: AppText.deleteFromDevice,
+                icon: LucideIcons300.trash2,
+                onTap: () => _deleteLocal(details?.title ?? widget.title),
+              ),
+            ],
           ],
         ),
     ],

@@ -1,3 +1,4 @@
+import 'package:yoru/core/source/local/local_source.dart';
 import 'package:yoru/core/network/dns_setting.dart';
 import 'package:yoru/app/app_shortcuts.dart';
 import 'package:yoru/app/root_tabs.dart';
@@ -92,10 +93,13 @@ class _YoruAppState extends State<YoruApp> {
           ),
           // Home and Explore follow the picked source; its filter groups
           // are its own.
+          // Imported or deleted comics show at once on Home.
           BlocListener<SourcesCubit, SourcesState>(
             listenWhen: (previous, current) =>
                 previous.activeId != current.activeId ||
-                previous.ready != current.ready,
+                previous.ready != current.ready ||
+                (previous.localRevision != current.localRevision &&
+                    LocalSource.isLocalKey(current.activeId ?? '')),
             listener: (context, sources) {
               if (sources.activeId case final id?) {
                 context.read<FilterCubit>().setSource(id);

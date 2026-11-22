@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:yoru/core/source/local/local_source.dart';
 import 'package:yoru/core/constants/texts.dart';
 import 'package:yoru/core/di/injection.dart';
 import 'package:yoru/core/domain/entities/comic_details.dart';
@@ -1599,7 +1600,13 @@ class _ReadChapterViewState extends State<_ReadChapterView>
                       icon: LucideIcons300.slidersHorizontal,
                       onTap: _showSettings,
                     ),
-                    if (number != null)
+                    // An imported comic has no site.
+                    if (number != null &&
+                        !LocalSource.isLocalKey(
+                          ComicKey.sourceOf(
+                            seriesKeyOfChapter(_current?.slug ?? widget.slug),
+                          ),
+                        ))
                       DotMenuItem(
                         label: AppText.openWebView,
                         icon: LucideIcons300.globe,

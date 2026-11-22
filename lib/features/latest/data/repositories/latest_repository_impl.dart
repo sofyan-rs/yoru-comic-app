@@ -1,3 +1,4 @@
+import 'package:yoru/core/source/local/local_source.dart';
 import 'package:yoru/core/data/datasources/series_remote_data_source.dart';
 import 'package:yoru/core/domain/entities/comic.dart';
 import 'package:yoru/core/error/exceptions.dart';
@@ -29,5 +30,5 @@ class LatestRepositoryImpl implements LatestRepository {
           page: page,
         );
         return res.map((e) => e.toEntity()).toList();
-      });
+      }, offline: LocalSource.isLocalKey(_sources.activeSource ?? ''));
 }

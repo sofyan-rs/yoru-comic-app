@@ -94,7 +94,12 @@ class SyncLibrary implements UseCase<SyncResult, NoParams> {
       (failure) async => left(failure),
       (data) async {
         final (remote, local) = data;
-        var merged = merge(local, remote ?? const SyncSnapshot());
+        // Imported comics stay on their device: any the cloud has (from a
+        // version before this rule) are ignored, and none are uploaded.
+        var merged = merge(
+          local,
+          remote?.withoutDeviceOnly() ?? const SyncSnapshot(),
+        );
         merged = await _migrate(merged, keepDeletionsSince: keepSince);
 
         // Re-read so edits made while downloading or migrating are kept.
@@ -108,8 +113,9 @@ class SyncLibrary implements UseCase<SyncResult, NoParams> {
           if (written case Left(value: final failure)) return left(failure);
         }
 
-        if (remote == null || !merged.sameAs(remote)) {
-          final uploaded = await _repository.upload(merged);
+        final shared = merged.withoutDeviceOnly();
+        if (remote == null || !shared.sameAs(remote)) {
+          final uploaded = await _repository.upload(shared);
           if (uploaded case Left(value: final failure)) return left(failure);
         }
 
