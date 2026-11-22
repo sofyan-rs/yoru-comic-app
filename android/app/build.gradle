@@ -9,6 +9,15 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
+// A store build (--dart-define=STORE_BUILD=true, see AppVariables.storeBuild)
+// leaves out the permission to install APKs: Google Play allows it only for
+// apps whose core purpose needs it, and the store updates the app. Flutter
+// passes the dart-defines to Gradle base64-encoded and comma-separated.
+def storeBuild = ((project.findProperty('dart-defines') ?: '') as String)
+        .split(',')
+        .findAll { it }
+        .any { new String(it.decodeBase64(), 'UTF-8') == 'STORE_BUILD=true' }
+
 android {
     namespace "org.kurodev.yoru"
     compileSdk 37
@@ -45,6 +54,14 @@ android {
             storePassword keystoreProperties['storePassword']
         }
     }
+    if (storeBuild) {
+        // A build type's manifest merges over main and the libraries', so
+        // its tools:node="remove" also drops ota_update's copy.
+        ['debug', 'profile', 'release'].each {
+            sourceSets[it].manifest.srcFile 'src/store/AndroidManifest.xml'
+        }
+    }
+
     buildTypes {
         release {
             signingConfig signingConfigs.release

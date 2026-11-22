@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:yoru/core/constants/variables.dart';
 import 'package:yoru/core/error/exceptions.dart';
 import 'package:yoru/core/source/extension_bridge.dart';
 import 'package:yoru/core/source/mihon_process_host.dart';
@@ -65,7 +66,7 @@ class ChannelMihonHost implements MihonHost {
 
   @override
   Future<bool> get available => _available ??= () async {
-    if (kIsWeb || !Platform.isAndroid) return false;
+    if (kIsWeb || !Platform.isAndroid || AppVariables.storeBuild) return false;
     try {
       return await _channel.invokeMethod<bool>('supported') ?? false;
     } on MissingPluginException {

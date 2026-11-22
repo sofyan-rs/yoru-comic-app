@@ -1,3 +1,4 @@
+import 'package:yoru/core/constants/variables.dart';
 import 'package:yoru/core/constants/texts.dart';
 import 'package:yoru/core/presentation/widgets/dotline/dotline.dart';
 import 'package:yoru/core/source/extension_meta.dart';
@@ -32,7 +33,7 @@ class ExtensionFilter {
   );
 
   bool matches(ExtensionMeta meta) {
-    if (hideNsfw && meta.nsfw) return false;
+    if ((hideNsfw || AppVariables.storeBuild) && meta.nsfw) return false;
     if (lang case final lang? when !languagesOf(meta).contains(lang)) {
       return false;
     }
@@ -118,13 +119,16 @@ class ExtensionFilterBar extends StatelessWidget {
                 selected: lang != null,
                 onTap: () => _pickLanguage(context),
               ),
-              const SizedBox(width: DotSpace.s2),
-              DotChip(
-                label: AppText.hideNsfw,
-                selected: filter.hideNsfw,
-                onTap: () =>
-                    onChanged(filter.copyWith(hideNsfw: !filter.hideNsfw)),
-              ),
+              // A store build has no 18+ extensions to show.
+              if (!AppVariables.storeBuild) ...[
+                const SizedBox(width: DotSpace.s2),
+                DotChip(
+                  label: AppText.hideNsfw,
+                  selected: filter.hideNsfw,
+                  onTap: () =>
+                      onChanged(filter.copyWith(hideNsfw: !filter.hideNsfw)),
+                ),
+              ],
             ],
           ),
         ],

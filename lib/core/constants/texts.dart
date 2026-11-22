@@ -421,6 +421,9 @@ class AppText {
   static const String repoHintIos = 'https://…/index.json';
   static const String mihonRepoUnsupported =
       'Mihon repos need Android 9+, Windows, macOS or Linux';
+  static const String mihonRepoUnsupportedStore =
+      'Mihon repos (index.min.json, index.pb) are not supported in this '
+      'version. Add a Yoru repo (…/index.json).';
   static const String mihonRepoUnsupportedIos =
       'Mihon repos (index.min.json, index.pb) don\'t work on iOS. '
       'Add a Yoru repo (…/index.json).';

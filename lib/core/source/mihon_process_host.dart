@@ -79,7 +79,8 @@ class ProcessMihonHost implements MihonHost {
   }
 
   @override
-  Future<bool> get available async => MihonRuntime.platform != null;
+  Future<bool> get available async =>
+      !AppVariables.storeBuild && MihonRuntime.platform != null;
 
   @override
   Future<void> prepare({void Function(double progress)? onProgress}) async {

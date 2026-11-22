@@ -58,7 +58,7 @@ Desktop screenshots were taken on Windows 11 running v2.21.0.
 
 ## Features
 
-- **Sources:** pick the source in the header of Home or Explore. Two sources come bundled; more install from More → Extensions. A multi-language source becomes one source per enabled language (for example EN and ID), each with its own bookmarks and history. Installed extensions show an update badge when the repo has a newer version. On Android 9+, Mihon / Tachiyomi extensions install too (see [Extensions](#extensions)).
+- **Sources:** pick the source in the header of Home or Explore. The app ships without sources: install them from More → Extensions. A multi-language source becomes one source per enabled language (for example EN and ID), each with its own bookmarks and history. Installed extensions show an update badge when the repo has a newer version. On Android 9+, Mihon / Tachiyomi extensions install too (see [Extensions](#extensions)).
 - **Extensions:** icons, an 18+ label (18+ extensions are hidden until you show them), search by name or site, and a language picker, for installed and available extensions alike.
 - **Home:** continue reading with chapter progress, new series (or popular, when the source has no newest order) and the latest updates of the current source. Pull to refresh for a small easter egg.
 - **Explore:** title search combined with the source's own filters (type, status, sort, genres…), with infinite scroll. Long filter lists fold away behind "Show all".

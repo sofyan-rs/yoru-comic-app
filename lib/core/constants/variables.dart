@@ -1,5 +1,13 @@
 class AppVariables {
   static const String appName = 'Yoru';
+
+  /// App Store or Play Store build (`--dart-define=STORE_BUILD=true`): no
+  /// extension repo until the user adds one, no 18+ extensions, no Mihon
+  /// extensions (stores forbid running downloaded native code; JS
+  /// extensions run in an interpreter), and no self-update (the store
+  /// updates the app). On Android the build also drops the
+  /// REQUEST_INSTALL_PACKAGES permission (android/app/build.gradle).
+  static const bool storeBuild = bool.fromEnvironment('STORE_BUILD');
   static const String appDescription =
       'This app is developed by Kurodev with Flutter.';
   static const String baseUrl = String.fromEnvironment(

@@ -39,12 +39,10 @@ Future<void> main() async {
           .path;
   Hive.init(hiveDirectory);
   await configureDependencies();
-  // Before the first request: bundled extensions and the catalog go online.
+  // Before the first request: the catalog goes online.
   final settings = await getIt<GetSettings>()(const NoParams());
   await applyDnsOverHttps(settings.fold((_) => '', (s) => s.dnsOverHttps));
-  // Sources must exist before the first screen loads comics.
   final extensions = getIt<ExtensionManager>();
-  await extensions.installBundled();
   // Image hosts' headers (e.g. a CDN's Referer) before the first cover.
   _syncImageHostHeaders(extensions);
   extensions.addListener(() => _syncImageHostHeaders(extensions));

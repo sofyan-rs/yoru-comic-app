@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:app_links/app_links.dart';
+import 'package:yoru/core/constants/variables.dart';
 import 'package:yoru/app/lazy_indexed_stack.dart';
 import 'package:yoru/app/root_tabs.dart';
 import 'package:yoru/core/constants/texts.dart';
@@ -63,7 +64,10 @@ class _RootScreenState extends State<RootScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<UpdateCubit>().check(quiet: true);
+    // The App Store updates a store build.
+    if (!AppVariables.storeBuild) {
+      context.read<UpdateCubit>().check(quiet: true);
+    }
     _links = AppLinks().uriLinkStream.listen(_onLink);
   }
 

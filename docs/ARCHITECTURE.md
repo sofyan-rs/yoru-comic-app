@@ -74,12 +74,11 @@ Versions are in `pubspec.yaml`; read §10.1 before touching `freezed` or the gen
 
 | Path | What it is | Do you edit it? |
 |---|---|---|
-| `lib/main.dart` | `Hive.init` → DI → bundled extensions → `runApp` | Rarely |
+| `lib/main.dart` | `Hive.init` → DI → `runApp` | Rarely |
 | `lib/app/` | `YoruApp` (app-wide providers, listeners, theme), splash, `RootScreen` (5 tabs, update check), `RootTabs` | When wiring several features together |
 | `lib/core/` | Shared code: `constants/` (`AppText`), `theme/`, `di/`, `error/`, `network/`, `notifications/`, `source/` (§8), `storage/` (§7), `usecase/`, shared `domain/`, `data/`, `presentation/` widgets, `utils/` | When something is shared |
 | `lib/features/<name>/` | One folder per feature (table below) | Yes, most work |
 | `*.freezed.dart`, `*.g.dart`, `injection.config.dart`, `core/assets/*.gen.dart` | Generated (§10) | No |
-| `assets/extensions/` | Bundled extensions (§8.2) | Only via `bundle.ts` (CONTRIBUTION §2) |
 | `android/…/MainActivity.kt` | `yoru/hidden_webviews` channel (§8.5); registers `MihonChannel` (`yoru/mihon`); asks for the display's fastest mode at its resolution (`preferredDisplayModeId`), as some phones keep apps at 60 Hz otherwise | Rarely |
 | `android/mihon/` | Runs Mihon extension APKs (§8.9) | When Mihon's API or a host call changes |
 | `android/app/src/main/AndroidManifest.xml` | Permissions, deep links, notification action receiver | Rarely |
@@ -132,7 +131,7 @@ grep -rn "^import" lib/core/domain lib/features/*/domain | grep -E "package:flut
 ## 4. Runtime model
 
 ```
-main() ─ Hive.init ─ configureDependencies() (opens boxes) ─ installBundled() ─ runApp ─ catalog() (background)
+main() ─ Hive.init ─ configureDependencies() (opens boxes) ─ runApp ─ catalog() (background)
 
 Bloc/Cubit ─▶ UseCase ─▶ Repository ─▶ RepositoryImpl
                                         ├─ SeriesRemoteDataSource ─▶ SourceRegistry (ExtensionManager)
@@ -143,10 +142,9 @@ Bloc/Cubit ─▶ UseCase ─▶ Repository ─▶ RepositoryImpl
 ### 4.1 Startup
 1. `Hive.init` uses the app documents directory.
 2. `configureDependencies()` registers everything and opens the fourteen boxes (§7.1) before returning (`@preResolve` in `StorageModule`); the first box asked for opens all of them in parallel (`Future.wait`), so file reads overlap.
-3. `ExtensionManager.installBundled()` installs or upgrades the bundled extensions (§8.2).
-4. `runApp` shows `SplashScreen` for 2 s. Library cubits (`BookmarkCubit`, `CategoryCubit`, `HistoryCubit`, `SettingsCubit`, `DownloadCubit`) are non-lazy and `load()` when created, so the library loads during the splash. `SourcesCubit` and `SyncCubit` are eager too; `SyncCubit.start()` restores the Google account and syncs.
-5. `RootScreen` holds the tabs in a `LazyIndexedStack` (`lib/app/lazy_indexed_stack.dart`): a tab is built on its first visit, then kept alive. Startup builds and loads only Home.
-6. `ExtensionManager.catalog()` fetches the repos in the background for the update badge.
+3. `runApp` shows `SplashScreen` for 2 s. Library cubits (`BookmarkCubit`, `CategoryCubit`, `HistoryCubit`, `SettingsCubit`, `DownloadCubit`) are non-lazy and `load()` when created, so the library loads during the splash. `SourcesCubit` and `SyncCubit` are eager too; `SyncCubit.start()` restores the Google account and syncs.
+4. `RootScreen` holds the tabs in a `LazyIndexedStack` (`lib/app/lazy_indexed_stack.dart`): a tab is built on its first visit, then kept alive. Startup builds and loads only Home.
+5. `ExtensionManager.catalog()` fetches the repos in the background for the update badge.
 
 ### 4.2 Bloc scope
 - **App scope** (`lib/app/app.dart`): `HomeBloc`, `ExploreBloc`, `FilterCubit`, `SourcesCubit`, the library cubits, `BackupCubit`, `SyncCubit`, `UpdateCubit`. They outlive navigation.
@@ -351,11 +349,12 @@ A source is one site; a multi-language extension is one source per enabled langu
 ### 8.2 Extensions and repos
 `ExtensionManager` owns installed extensions, repos and runtimes.
 
-- **Repos:** `index.json` URLs (and Mihon repos' `index.min.json`, §8.9), stored in `source_settings` → `repos`; default `https://yoru-ext.kurodev.org/index.json` (the built `dist/` of `yoru-ext-source`, on a Cloudflare Worker). `addRepo` rejects non-index URLs.
+- **Repos:** `index.json` URLs (and Mihon repos' `index.min.json`, §8.9), stored in `source_settings` → `repos`; default `https://yoru-ext.kurodev.org/index.json` (the built `dist/` of `yoru-ext-source`, on a Cloudflare Worker), none in a store build. `addRepo` rejects non-index URLs.
 - **`ExtensionMeta`:** `id` (`[a-z0-9_-]`, file name and key prefix), `name`, `lang`, semver `version`, `apiVersion` (app supports `supportedExtensionApi = 1`; higher is listed but not installable), `baseUrl`, `file`, `sha256`, `nsfw`, `languages`, and optional **`urlPatterns`**: regexes whose one capture group is the slug in a series URL path (`slugFromUrl`), used by the Mihon import (§6.4).
 - **Install:** download, check `sha256`, load once in a throwaway runtime (failing scripts aren't installed), save the script and meta. Updating = installing the newer version. `catalog()` fetches repos in parallel (a failing repo shows as an error) and sets `updateCount`.
 - **Uninstall** removes the script, meta, language setting, and each source's cookies, storage and hidden page.
-- **Bundled:** `bacakomik` and `voratoon` in `assets/extensions/`, installed on first run and when the app bundles a newer version (made with `bundle.ts`, CONTRIBUTION §2).
+- **No bundled sources:** the app ships empty; every source installs from a repo. Extensions bundled by older versions stay installed.
+- **Store build** (`--dart-define=STORE_BUILD=true`, `AppVariables.storeBuild`), for the App Store and Google Play: no default repo, 18+ extensions are dropped from the catalog and the filter, Mihon extensions are off (`MihonHost.available` is false; the Mihon / Tachiyomi backup import still matches JS extensions), and the app does not check GitHub for updates. On Android, `android/app/build.gradle` reads the flag from the dart-defines and merges `src/store/AndroidManifest.xml`, which removes `REQUEST_INSTALL_PACKAGES`.
 - **Multi-language:** each enabled language is a source `<id>-<lang>`, named `<Name> (<LANG>)`. Enabled list in `source_settings` → `langs:<id>` (default English, else first). Turned-off languages still open.
 
 The `bacakomik` extension wraps the project's own bacakomik-api (`https://api-bacakomik.kurodev.org`).

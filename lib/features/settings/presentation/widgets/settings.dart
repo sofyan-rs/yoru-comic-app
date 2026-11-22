@@ -286,19 +286,20 @@ class _SettingsState extends State<Settings> {
           padding: const EdgeInsets.symmetric(horizontal: DotSpace.s4),
           child: ListGroup(
             children: [
-              ListRow(
-                icon: LucideIcons300.refreshCw,
-                title: AppText.checkUpdate,
-                value: updateAvailable
-                    ? AppText.updateAvailable
-                    : widget.appVersion.isEmpty
-                    ? null
-                    : 'v${widget.appVersion}',
-                showChevron: true,
-                onTap: checkingUpdate
-                    ? null
-                    : () => context.read<UpdateCubit>().check(),
-              ),
+              if (!AppVariables.storeBuild)
+                ListRow(
+                  icon: LucideIcons300.refreshCw,
+                  title: AppText.checkUpdate,
+                  value: updateAvailable
+                      ? AppText.updateAvailable
+                      : widget.appVersion.isEmpty
+                      ? null
+                      : 'v${widget.appVersion}',
+                  showChevron: true,
+                  onTap: checkingUpdate
+                      ? null
+                      : () => context.read<UpdateCubit>().check(),
+                ),
               ListRow(
                 icon: LucideIcons300.info,
                 title: AppText.aboutApp,

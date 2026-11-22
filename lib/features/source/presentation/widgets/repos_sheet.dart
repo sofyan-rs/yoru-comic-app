@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:yoru/core/constants/variables.dart';
 import 'package:yoru/core/constants/texts.dart';
 import 'package:yoru/core/presentation/widgets/dotline/dotline.dart';
 import 'package:yoru/core/theme/dotline_colors.dart';
@@ -105,8 +106,10 @@ class _ReposSheetState extends State<ReposSheet> {
           autocorrect: false,
           style: DotlineText.body.copyWith(color: c.ink),
           decoration: InputDecoration(
-            // iOS runs no Mihon extensions: only Yoru repos.
-            hintText: defaultTargetPlatform == TargetPlatform.iOS
+            // iOS and store builds run no Mihon extensions: only Yoru repos.
+            hintText:
+                defaultTargetPlatform == TargetPlatform.iOS ||
+                    AppVariables.storeBuild
                 ? AppText.repoHintIos
                 : AppText.repoHint,
             errorText: _error,

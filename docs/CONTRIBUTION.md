@@ -12,7 +12,7 @@ Recipes for working on Yoru. Read [ARCHITECTURE.md](ARCHITECTURE.md) once first.
 2. Use a device or emulator on Android 7.0+ (API 24); test on a recent one (API 34+) too. Mihon extensions need Android 9+ (API 28). Cloudflare sources and Cronet need Google Play services.
 3. For extension work: [Bun](https://bun.sh) and access to the private `yoru-ext-source` repo. To write your own extension without that access, use the public extension source, [sofyan-rs/yoru-ext-public-source](https://github.com/sofyan-rs/yoru-ext-public-source), served at `https://sofyan-rs.github.io/yoru-ext-public-source/index.json`.
 
-There is no server to configure. Content comes from the bundled extensions and the default repo `https://yoru-ext.kurodev.org/index.json`.
+There is no server to configure. Content comes from extensions installed from the default repo `https://yoru-ext.kurodev.org/index.json`; the app ships without any.
 
 ---
 
@@ -62,14 +62,6 @@ Example: `migration` has `ImportLibrary` (domain), `PendingReadRepositoryImpl` (
 3. `adb reverse tcp:8787 tcp:8787`, then in the app add the repo `http://localhost:8787/index.json` (More → Extensions → repos button) and install.
 
 **Bump the extension's `version` for every change** the app should pick up, including a new or changed `urlPatterns` (installed extensions keep the metadata they were installed with). Remove the local repo afterwards. Script `log()` shows in logcat as `[<sourceId>] …`.
-
-### Recipe E: Ship newer bundled extensions
-```bash
-# in yoru-ext-source
-bun run build
-bun scripts/bundle.ts ../bacakomik-app-flutter/assets/extensions bacakomik voratoon
-```
-`bundle.ts` replaces the folder and writes its `index.json`. Run `build_runner` (asset names change) and commit. Phones replace a bundled extension only when the bundled `version` is newer.
 
 ### Recipe F: Publish a release
 1. Bump `version:` in `pubspec.yaml` (e.g. `1.6.0+13`); **the build number after `+` must increase.**

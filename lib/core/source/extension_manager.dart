@@ -16,7 +16,7 @@ import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:yoru/core/constants/texts.dart';
-import 'package:flutter/services.dart';
+import 'package:yoru/core/constants/variables.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:injectable/injectable.dart';
 import 'package:path_provider/path_provider.dart';
@@ -55,9 +55,8 @@ abstract interface class SourceRegistry {
 /// runtimes.
 ///
 /// Scripts live in `<app support>/extensions/<id>.js`; their metadata in the
-/// [HiveBoxes.extensions] box. Extensions shipped in `assets/extensions/`
-/// are installed on first run and whenever the app bundles a newer version,
-/// so the app works before any repo is reachable.
+/// [HiveBoxes.extensions] box. The app ships without sources: every one is
+/// installed from a repo.
 @lazySingleton
 class ExtensionManager extends ChangeNotifier implements SourceRegistry {
   ExtensionManager(
@@ -70,10 +69,10 @@ class ExtensionManager extends ChangeNotifier implements SourceRegistry {
   }) : _mihon = mihon ?? MihonHost.platform;
 
   /// Added on first run: the built `dist/` of the private extension source
-  /// repo, served from a Cloudflare Worker.
+  /// repo, served from a Cloudflare Worker. Not in a store build, where the
+  /// user adds every repo.
   static const defaultRepo = 'https://yoru-ext.kurodev.org/index.json';
 
-  static const _bundledIndex = 'assets/extensions/index.json';
   static const _reposKey = 'repos';
   static const _activeKey = 'active';
 
@@ -237,38 +236,14 @@ class ExtensionManager extends ChangeNotifier implements SourceRegistry {
 
   List<String> get repos {
     final raw = _settings.get(_reposKey);
-    if (raw == null) return const [defaultRepo];
+    if (raw == null) {
+      return AppVariables.storeBuild ? const [] : const [defaultRepo];
+    }
     // A set: a repo saved under its old and new URL is listed once.
     return {
       for (final url in (jsonDecode(raw) as List).cast<String>())
         movedRepoUrl(url)!,
     }.toList();
-  }
-
-  /// Installs or upgrades the bundled extensions. Called once on start.
-  Future<void> installBundled() async {
-    final Map<String, dynamic> index;
-    try {
-      index = jsonDecode(await rootBundle.loadString(_bundledIndex));
-    } catch (e) {
-      debugPrint('No bundled extensions: $e');
-      return;
-    }
-    for (final json
-        in (index['extensions'] as List).cast<Map<String, dynamic>>()) {
-      final bundled = ExtensionMeta.fromJson(json);
-      final current = meta(bundled.id);
-      if (current != null && !bundled.isNewerThan(current)) continue;
-      try {
-        final script = await rootBundle.loadString(
-          'assets/extensions/${bundled.file}',
-        );
-        await _save(bundled, script);
-      } catch (e) {
-        debugPrint('Bundled extension ${bundled.id} failed: $e');
-      }
-    }
-    notifyListeners();
   }
 
   /// The loaded engine of [sourceId], loading it on first use. Callers
@@ -371,6 +346,7 @@ class ExtensionManager extends ChangeNotifier implements SourceRegistry {
     // someone else's build.
     final signers = {for (final e in extensions) e.id: ?e.signer};
     for (final e in result.expand((r) => r.repo?.extensions ?? const [])) {
+      if (AppVariables.storeBuild && e.nsfw) continue;
       if (signers[e.id] case final signer? when e.signer != signer) continue;
       final seen = offered[e.id];
       if (seen == null || e.isNewerThan(seen)) offered[e.id] = e;
@@ -381,9 +357,9 @@ class ExtensionManager extends ChangeNotifier implements SourceRegistry {
     return result;
   }
 
-  /// Gives installed extensions without an icon (bundled ones have no repo
-  /// to resolve one from) the repo's, as an absolute URL, so it shows
-  /// offline too.
+  /// Gives installed extensions without an icon (ones bundled by older
+  /// versions had no repo to resolve one from) the repo's, as an absolute
+  /// URL, so it shows offline too.
   Future<void> _keepIcons(Map<String, ExtensionMeta> offered) async {
     for (final e in extensions) {
       if (e.iconUrl != null) continue;
@@ -433,7 +409,9 @@ class ExtensionManager extends ChangeNotifier implements SourceRegistry {
       if (mihon != null) {
         if (!await _mihon.available) {
           throw ServerException(
-            Platform.isIOS
+            AppVariables.storeBuild
+                ? AppText.mihonRepoUnsupportedStore
+                : Platform.isIOS
                 ? AppText.mihonRepoUnsupportedIos
                 : AppText.mihonRepoUnsupported,
           );
