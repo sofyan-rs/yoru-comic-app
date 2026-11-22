@@ -596,18 +596,22 @@ class _ComicDetailsViewState extends State<_ComicDetailsView> {
               Expanded(
                 child: Column(
                   children: [
+                    // Pull to refresh works over either half.
                     Expanded(
-                      child: CustomScrollView(
-                        primary: false,
-                        slivers: [
-                          if (loaded != null)
-                            _chapters(
-                              loaded.comicDetails,
-                              loaded.chaptersLoading,
-                              top: 0,
-                            ),
-                          end,
-                        ],
+                      child: _refreshable(
+                        CustomScrollView(
+                          primary: false,
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          slivers: [
+                            if (loaded != null)
+                              _chapters(
+                                loaded.comicDetails,
+                                loaded.chaptersLoading,
+                                top: 0,
+                              ),
+                            end,
+                          ],
+                        ),
                       ),
                     ),
                     ?bar,
