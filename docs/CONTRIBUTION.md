@@ -29,6 +29,8 @@ flutter test
 
 Generated files are committed: **commit them with the change that caused them.**
 
+Android builds use JDK 17, as CI does. Flutter otherwise picks Android Studio's bundled JDK (newer), and a plugin can build there but not on CI or the other way round: `flutter config --jdk-dir="<path to JDK 17>"` once.
+
 Google Drive sync on desktop needs an OAuth client of type "Desktop app": put `GOOGLE_DESKTOP_CLIENT_ID` and `GOOGLE_DESKTOP_CLIENT_SECRET` in `dart_defines.local.json` (git-ignored); without them the desktop build hides sync. iOS sign-in uses the iOS client in `ios/Runner/Info.plist` and needs nothing local.
 
 `integration_test/` holds a desktop smoke test against live sources: `flutter test integration_test/desktop_smoke_test.dart -d macos`.
@@ -62,6 +64,16 @@ Example: `migration` has `ImportLibrary` (domain), `PendingReadRepositoryImpl` (
 3. `adb reverse tcp:8787 tcp:8787`, then in the app add the repo `http://localhost:8787/index.json` (More → Extensions → repos button) and install.
 
 **Bump the extension's `version` for every change** the app should pick up, including a new or changed `urlPatterns` (installed extensions keep the metadata they were installed with). Remove the local repo afterwards. Script `log()` shows in logcat as `[<sourceId>] …`.
+
+### Recipe E: Build for the App Store or Google Play
+Add `--dart-define=STORE_BUILD=true` to the build (ARCHITECTURE §8.2, `AppVariables.storeBuild`):
+
+```bash
+flutter build appbundle --release --dart-define=STORE_BUILD=true   # Google Play
+flutter build ipa --release --dart-define=STORE_BUILD=true         # App Store (needs signing)
+```
+
+The flag leaves out the default extension repo, 18+ extensions, Mihon extensions, the GitHub update check (the store updates the app) and the Ko-fi link; on Android, `android/app/build.gradle` also drops `REQUEST_INSTALL_PACKAGES`. Same `version:` as the GitHub release; the store rejects a build number (after `+`) it already has. CI builds only the GitHub (sideload) files: store builds are built and uploaded by hand. For Google Play, upload the release keystore as the app signing key, so the Play build and the GitHub APK share a signature and users can move between them without losing data.
 
 ### Recipe F: Publish a release
 1. Bump `version:` in `pubspec.yaml` (e.g. `1.6.0+13`); **the build number after `+` must increase.**
@@ -195,7 +207,7 @@ PR checklist (also in `.github/pull_request_template.md`):
 - [ ] New domain logic and repositories have tests.
 - [ ] Data-safety rules (§4) respected; storage/backup/sync changes tested with an upgrade install.
 - [ ] UI checked in light and dark theme, on a phone and on a wide screen if layout changed.
-- [ ] Bundled extensions updated (§2) if the change needs newer extension versions.
+- [ ] Store builds checked (Recipe E) if the change touches what `STORE_BUILD` turns off.
 - [ ] ARCHITECTURE.md updated if the design changed.
 
 ---

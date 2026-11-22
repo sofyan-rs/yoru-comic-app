@@ -38,7 +38,7 @@ const ISSUES =
   'https://github.com/sofyan-rs/yoru-comic-app/issues/new';
 
 // Shown on the privacy page. Bump when the policy text changes.
-const PRIVACY_UPDATED = '12 November 2026';
+const PRIVACY_UPDATED = '22 November 2026';
 
 // Display names of the extension sources the app ships; others show their id.
 const SOURCE_NAMES = { voratoon: 'VoraToon' };
@@ -672,11 +672,12 @@ export function privacyPage() {
 
     <h2 id="comic-content-and-sources">Comic content and sources</h2>
     <p>Comic lists, details and chapter pages come from the source you pick.
-    The bundled source for the site bacakomik.my reads from our server
-    <code>api-bacakomik.kurodev.org</code>. Other sources are extensions:
-    small scripts the app installs from an extension repo (by default
-    <code>yoru-ext.kurodev.org</code>, or a repo you add) and that
-    connect directly to the comic site they read. These requests do not carry
+    Sources are extensions: small scripts the app installs from an
+    extension repo (by default <code>yoru-ext.kurodev.org</code>, or a repo
+    you add). Most connect directly to the comic site they read; the source
+    for the site bacakomik.my reads from our server
+    <code>api-bacakomik.kurodev.org</code>. Comics you import from files are
+    read from your device only. These requests do not carry
     your Google account, bookmarks or reading history. Like any web server,
     our server and the comic sites can log your IP address and the time of a
     request for technical purposes. Extensions from repos you add yourself
