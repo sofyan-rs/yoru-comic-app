@@ -48,109 +48,115 @@ class ChapterEnd extends StatelessWidget {
             DotSpace.s5 +
             MediaQuery.paddingOf(context).bottom,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Center(
-            child: DotMeter(
-              value: pageCount,
-              total: pageCount,
-              dots: pageCount.clamp(1, 22),
-            ),
-          ),
-          const SizedBox(height: DotSpace.s3),
-          Text(
-            '${AppText.t.finished} · $pageCount ${AppText.t.pages}'
-                .toUpperCase(),
-            style: DotlineText.label.copyWith(color: c.inkFaint),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: DotSpace.s2),
-          Text(
-            '${AppText.t.chapter} $chapterNumber ${AppText.t.finishedLower}',
-            style: DotlineText.title.copyWith(color: c.ink),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: DotSpace.s5),
-          if (next != null) ...[
-            Pressable(
-              semanticLabel: AppText.chapterName(next.number, next.title),
-              onTap: onNext,
-              child: Container(
-                padding: const EdgeInsets.all(DotSpace.s4),
-                decoration: BoxDecoration(
-                  color: c.surface,
-                  borderRadius: BorderRadius.circular(DotRadius.tile),
-                ),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 56,
-                      child: ComicCover(imageUrl: cover, radius: DotRadius.s),
-                    ),
-                    const SizedBox(width: DotSpace.s4),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          NewBadge(label: AppText.t.nextChapter),
-                          const SizedBox(height: DotSpace.s1),
-                          Text(
-                            AppText.chapterName(next.number, next.title),
-                            style: DotlineText.headline.copyWith(color: c.ink),
-                          ),
-                          if (next.date != '-')
-                            Text(
-                              '${AppText.t.releasedOn} ${ChapterDate.display(next.date)}',
-                              style: DotlineText.data.copyWith(
-                                color: c.inkFaint,
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                    Icon(
-                      LucideIcons300.chevronRight,
-                      size: DotSize.iconSmall,
-                      color: c.inkFaint,
-                    ),
-                  ],
-                ),
+      // On a wide screen the buttons would stretch across it.
+      child: CenteredContent(
+        maxWidth: DotSize.dialogMaxWidth,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: DotMeter(
+                value: pageCount,
+                total: pageCount,
+                dots: pageCount.clamp(1, 22),
               ),
             ),
-            const SizedBox(height: DotSpace.s4),
-            DotButton(
-              label: '${AppText.t.continueTo} ${next.number}',
-              trailing: LucideIcons300.arrowRight,
-              onTap: onNext,
-            ),
-          ] else
+            const SizedBox(height: DotSpace.s3),
             Text(
-              AppText.t.latestChapterReached,
-              style: DotlineText.body.copyWith(color: c.inkMuted),
+              '${AppText.t.finished} · $pageCount ${AppText.t.pages}'
+                  .toUpperCase(),
+              style: DotlineText.label.copyWith(color: c.inkFaint),
               textAlign: TextAlign.center,
             ),
-          const SizedBox(height: DotSpace.s3),
-          Row(
-            children: [
-              Expanded(
-                child: DotButton.outline(
-                  label: AppText.t.chapterList,
-                  size: DotButtonSize.medium,
-                  onTap: onChapterList,
+            const SizedBox(height: DotSpace.s2),
+            Text(
+              '${AppText.t.chapter} $chapterNumber ${AppText.t.finishedLower}',
+              style: DotlineText.title.copyWith(color: c.ink),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: DotSpace.s5),
+            if (next != null) ...[
+              Pressable(
+                semanticLabel: AppText.chapterName(next.number, next.title),
+                onTap: onNext,
+                child: Container(
+                  padding: const EdgeInsets.all(DotSpace.s4),
+                  decoration: BoxDecoration(
+                    color: c.surface,
+                    borderRadius: BorderRadius.circular(DotRadius.tile),
+                  ),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 56,
+                        child: ComicCover(imageUrl: cover, radius: DotRadius.s),
+                      ),
+                      const SizedBox(width: DotSpace.s4),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            NewBadge(label: AppText.t.nextChapter),
+                            const SizedBox(height: DotSpace.s1),
+                            Text(
+                              AppText.chapterName(next.number, next.title),
+                              style: DotlineText.headline.copyWith(
+                                color: c.ink,
+                              ),
+                            ),
+                            if (next.date != '-')
+                              Text(
+                                '${AppText.t.releasedOn} ${ChapterDate.display(next.date)}',
+                                style: DotlineText.data.copyWith(
+                                  color: c.inkFaint,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      Icon(
+                        LucideIcons300.chevronRight,
+                        size: DotSize.iconSmall,
+                        color: c.inkFaint,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(width: DotSpace.s3),
-              Expanded(
-                child: DotButton.outline(
-                  label: AppText.t.backToSeries,
-                  size: DotButtonSize.medium,
-                  onTap: onBackToSeries,
-                ),
+              const SizedBox(height: DotSpace.s4),
+              DotButton(
+                label: '${AppText.t.continueTo} ${next.number}',
+                trailing: LucideIcons300.arrowRight,
+                onTap: onNext,
               ),
-            ],
-          ),
-        ],
+            ] else
+              Text(
+                AppText.t.latestChapterReached,
+                style: DotlineText.body.copyWith(color: c.inkMuted),
+                textAlign: TextAlign.center,
+              ),
+            const SizedBox(height: DotSpace.s3),
+            Row(
+              children: [
+                Expanded(
+                  child: DotButton.outline(
+                    label: AppText.t.chapterList,
+                    size: DotButtonSize.medium,
+                    onTap: onChapterList,
+                  ),
+                ),
+                const SizedBox(width: DotSpace.s3),
+                Expanded(
+                  child: DotButton.outline(
+                    label: AppText.t.backToSeries,
+                    size: DotButtonSize.medium,
+                    onTap: onBackToSeries,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
