@@ -118,5 +118,28 @@ abstract class AppSettings with _$AppSettings {
     /// DNS over HTTPS: '' (off, the system DNS), a preset id from
     /// `dohPresets`, or a custom `https://…/dns-query` URL.
     @Default('') String dnsOverHttps,
+
+    /// Page translation (`features/translate`), turned on in the reader's
+    /// menu: an OpenAI-compatible API root, e.g. `https://api.openai.com/v1` or a
+    /// local `http://192.168.1.2:11434/v1` (Ollama).
+    @Default('') String translateBaseUrl,
+
+    /// Sent as `Authorization: Bearer`; empty for local servers. Stays on
+    /// the device: settings are not in backups or sync.
+    @Default('') String translateApiKey,
+
+    /// Model id, e.g. `gpt-4o-mini` or `qwen2.5vl:7b`.
+    @Default('') String translateModel,
+
+    /// Language to translate into, in English (`Indonesian`); empty for
+    /// the app's language.
+    @Default('') String translateLanguage,
+
+    /// Translations lettered in capitals, as comics usually are.
+    @Default(true) bool translateUppercase,
+
+    /// A font file the user imported for the translations (stored in the
+    /// app's support directory); empty for the bundled Comic Neue.
+    @Default('') String translateFontPath,
   }) = _AppSettings;
 }

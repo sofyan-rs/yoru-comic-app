@@ -576,5 +576,29 @@
         "type": "int"
       }
     }
-  }
+  },
+  "translatePages": "Translate pages",
+  "translatePagesDescription": "Lay a translation over each page with an AI model",
+  "translateNotSet": "Not set up",
+  "translateServer": "Server (OpenAI-compatible)",
+  "translateApiKey": "API key",
+  "translateApiKeyHint": "Empty for Ollama or LM Studio",
+  "translateShowKey": "Show key",
+  "translateModel": "Model",
+  "translateModelHint": "A model that reads images",
+  "translateLanguage": "Translate into",
+  "translateMissing": "Set both a server and a model, or leave both empty",
+  "translatePrivacy": "Pages you read are sent to this server to be translated. The key stays on this device and is not in backups or sync. Translations are kept in the cache, so a page is translated once.",
+  "translating": "Translating",
+  "translateFailed": "Not translated · retry",
+  "showOriginal": "Show original",
+  "translateAppLanguage": "App language",
+  "translation": "Translation",
+  "translateLettering": "Lettering",
+  "translateUppercase": "All caps",
+  "translateUppercaseHint": "Capital letters, like comic lettering",
+  "translateFont": "Font",
+  "translateFontHint": "Import a .ttf or .otf you have a licence for",
+  "translateFontInvalid": "Not a .ttf or .otf font",
+  "translateFontImport": "Import…"
 }

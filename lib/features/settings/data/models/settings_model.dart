@@ -25,6 +25,12 @@ class SettingsModel {
     this.bookmarkSort = BookmarkSort.updated,
     this.bookmarkSortDirection = SortDirection.descending,
     this.dnsOverHttps = '',
+    this.translateBaseUrl = '',
+    this.translateApiKey = '',
+    this.translateModel = '',
+    this.translateLanguage = '',
+    this.translateUppercase = true,
+    this.translateFontPath = '',
   });
 
   factory SettingsModel.fromEntity(AppSettings e) => SettingsModel(
@@ -46,6 +52,12 @@ class SettingsModel {
     bookmarkSort: e.bookmarkSort,
     bookmarkSortDirection: e.bookmarkSortDirection,
     dnsOverHttps: e.dnsOverHttps,
+    translateBaseUrl: e.translateBaseUrl,
+    translateApiKey: e.translateApiKey,
+    translateModel: e.translateModel,
+    translateLanguage: e.translateLanguage,
+    translateUppercase: e.translateUppercase,
+    translateFontPath: e.translateFontPath,
   );
 
   factory SettingsModel.fromJson(Map<String, dynamic> json) =>
@@ -87,6 +99,12 @@ class SettingsModel {
   final SortDirection bookmarkSortDirection;
 
   final String dnsOverHttps;
+  final String translateBaseUrl;
+  final String translateApiKey;
+  final String translateModel;
+  final String translateLanguage;
+  final bool translateUppercase;
+  final String translateFontPath;
 
   Map<String, dynamic> toJson() => _$SettingsModelToJson(this);
 
@@ -109,5 +127,11 @@ class SettingsModel {
     bookmarkSort: bookmarkSort,
     bookmarkSortDirection: bookmarkSortDirection,
     dnsOverHttps: dnsOverHttps,
+    translateBaseUrl: translateBaseUrl,
+    translateApiKey: translateApiKey,
+    translateModel: translateModel,
+    translateLanguage: translateLanguage,
+    translateUppercase: translateUppercase,
+    translateFontPath: translateFontPath,
   );
 }

@@ -16,6 +16,7 @@ import 'package:yoru/features/settings/presentation/widgets/clear_cache_sheet.da
 import 'package:yoru/features/settings/presentation/widgets/dns_sheet.dart';
 import 'package:yoru/features/settings/presentation/widgets/language_sheet.dart';
 import 'package:yoru/features/sync/presentation/widgets/sync_section.dart';
+import 'package:yoru/features/translate/presentation/pages/translate_settings_screen.dart';
 import 'package:yoru/features/update/presentation/bloc/update_cubit.dart';
 import 'package:yoru/features/migration/presentation/pages/import_screen.dart';
 import 'package:yoru/features/migration/presentation/pages/source_migration_screen.dart';
@@ -27,7 +28,7 @@ import 'package:yoru/features/category/presentation/pages/categories_screen.dart
 import 'package:yoru/core/network/image_cache.dart';
 
 /// More groups: incognito mode, SOURCES (extensions, migrate source),
-/// LIBRARY (categories, downloads, cache), SYNC, BACKUP (file, restore,
+/// LIBRARY (categories, downloads, cache), TRANSLATION, SYNC, BACKUP (file, restore,
 /// import), APPEARANCE, ABOUT.
 class Settings extends StatefulWidget {
   const Settings({super.key, this.appVersion = ''});
@@ -104,6 +105,9 @@ class _SettingsState extends State<Settings> {
         context.read<SettingsCubit>().update((s) => s.copyWith(incognito: on));
     final dnsSetting = context.select<SettingsCubit, String>(
       (s) => s.state.dnsOverHttps,
+    );
+    final translateLabel = context.select<SettingsCubit, String>(
+      (s) => translateSettingLabel(s.state),
     );
     final kururinSound = context.select<SettingsCubit, bool>(
       (s) => s.state.kururinSound,
@@ -213,6 +217,23 @@ class _SettingsState extends State<Settings> {
                 value: _cacheBytes == 0 ? null : formatBytes(_cacheBytes),
                 showChevron: false,
                 onTap: () => _clearCache(context),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: DotSpace.s3),
+        SectionLabel(label: AppText.t.translation),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: DotSpace.s4),
+          child: ListGroup(
+            children: [
+              ListRow(
+                icon: LucideIcons300.languages,
+                title: AppText.t.translatePages,
+                subtitle: AppText.t.translatePagesDescription,
+                value: translateLabel,
+                showChevron: true,
+                onTap: () => TranslateSettingsScreen.open(context),
               ),
             ],
           ),

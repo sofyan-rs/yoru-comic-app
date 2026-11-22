@@ -2929,6 +2929,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{n} d'**
   String daysShort(int n);
+
+  /// No description provided for @translatePages.
+  ///
+  /// In en, this message translates to:
+  /// **'Translate pages'**
+  String get translatePages;
+
+  /// No description provided for @translatePagesDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Lay a translation over each page with an AI model'**
+  String get translatePagesDescription;
+
+  /// No description provided for @translateNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set up'**
+  String get translateNotSet;
+
+  /// No description provided for @translateServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Server (OpenAI-compatible)'**
+  String get translateServer;
+
+  /// No description provided for @translateApiKey.
+  ///
+  /// In en, this message translates to:
+  /// **'API key'**
+  String get translateApiKey;
+
+  /// No description provided for @translateApiKeyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty for Ollama or LM Studio'**
+  String get translateApiKeyHint;
+
+  /// No description provided for @translateShowKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Show key'**
+  String get translateShowKey;
+
+  /// No description provided for @translateModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Model'**
+  String get translateModel;
+
+  /// No description provided for @translateModelHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A model that reads images'**
+  String get translateModelHint;
+
+  /// No description provided for @translateLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Translate into'**
+  String get translateLanguage;
+
+  /// No description provided for @translateMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Set both a server and a model, or leave both empty'**
+  String get translateMissing;
+
+  /// No description provided for @translatePrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages you read are sent to this server to be translated. The key stays on this device and is not in backups or sync. Translations are kept in the cache, so a page is translated once.'**
+  String get translatePrivacy;
+
+  /// No description provided for @translating.
+  ///
+  /// In en, this message translates to:
+  /// **'Translating'**
+  String get translating;
+
+  /// No description provided for @translateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Not translated · retry'**
+  String get translateFailed;
+
+  /// No description provided for @showOriginal.
+  ///
+  /// In en, this message translates to:
+  /// **'Show original'**
+  String get showOriginal;
+
+  /// No description provided for @translateAppLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'App language'**
+  String get translateAppLanguage;
+
+  /// No description provided for @translation.
+  ///
+  /// In en, this message translates to:
+  /// **'Translation'**
+  String get translation;
+
+  /// No description provided for @translateLettering.
+  ///
+  /// In en, this message translates to:
+  /// **'Lettering'**
+  String get translateLettering;
+
+  /// No description provided for @translateUppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'All caps'**
+  String get translateUppercase;
+
+  /// No description provided for @translateUppercaseHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Capital letters, like comic lettering'**
+  String get translateUppercaseHint;
+
+  /// No description provided for @translateFont.
+  ///
+  /// In en, this message translates to:
+  /// **'Font'**
+  String get translateFont;
+
+  /// No description provided for @translateFontHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Import a .ttf or .otf you have a licence for'**
+  String get translateFontHint;
+
+  /// No description provided for @translateFontInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a .ttf or .otf font'**
+  String get translateFontInvalid;
+
+  /// No description provided for @translateFontImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Import…'**
+  String get translateFontImport;
 }
 
 class _AppLocalizationsDelegate

@@ -1551,4 +1551,80 @@ class AppLocalizationsEn extends AppLocalizations {
   String daysShort(int n) {
     return '$n d';
   }
+
+  @override
+  String get translatePages => 'Translate pages';
+
+  @override
+  String get translatePagesDescription =>
+      'Lay a translation over each page with an AI model';
+
+  @override
+  String get translateNotSet => 'Not set up';
+
+  @override
+  String get translateServer => 'Server (OpenAI-compatible)';
+
+  @override
+  String get translateApiKey => 'API key';
+
+  @override
+  String get translateApiKeyHint => 'Empty for Ollama or LM Studio';
+
+  @override
+  String get translateShowKey => 'Show key';
+
+  @override
+  String get translateModel => 'Model';
+
+  @override
+  String get translateModelHint => 'A model that reads images';
+
+  @override
+  String get translateLanguage => 'Translate into';
+
+  @override
+  String get translateMissing =>
+      'Set both a server and a model, or leave both empty';
+
+  @override
+  String get translatePrivacy =>
+      'Pages you read are sent to this server to be translated. The key stays on this device and is not in backups or sync. Translations are kept in the cache, so a page is translated once.';
+
+  @override
+  String get translating => 'Translating';
+
+  @override
+  String get translateFailed => 'Not translated · retry';
+
+  @override
+  String get showOriginal => 'Show original';
+
+  @override
+  String get translateAppLanguage => 'App language';
+
+  @override
+  String get translation => 'Translation';
+
+  @override
+  String get translateLettering => 'Lettering';
+
+  @override
+  String get translateUppercase => 'All caps';
+
+  @override
+  String get translateUppercaseHint => 'Capital letters, like comic lettering';
+
+  @override
+  String get translateFont => 'Font';
+
+  @override
+  String get translateFontHint =>
+      'Import a .ttf or .otf you have a licence for';
+
+  @override
+  String get translateFontInvalid => 'Not a .ttf or .otf font';
+
+  @override
+  String get translateFontImport => 'Import…';
 }

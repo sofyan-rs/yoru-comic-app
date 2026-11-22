@@ -74,6 +74,12 @@ SettingsModel _$SettingsModelFromJson(Map<String, dynamic> json) =>
           ) ??
           SortDirection.descending,
       dnsOverHttps: json['dnsOverHttps'] as String? ?? '',
+      translateBaseUrl: json['translateBaseUrl'] as String? ?? '',
+      translateApiKey: json['translateApiKey'] as String? ?? '',
+      translateModel: json['translateModel'] as String? ?? '',
+      translateLanguage: json['translateLanguage'] as String? ?? '',
+      translateUppercase: json['translateUppercase'] as bool? ?? true,
+      translateFontPath: json['translateFontPath'] as String? ?? '',
     );
 
 Map<String, dynamic> _$SettingsModelToJson(SettingsModel instance) =>
@@ -97,6 +103,12 @@ Map<String, dynamic> _$SettingsModelToJson(SettingsModel instance) =>
       'bookmarkSortDirection':
           _$SortDirectionEnumMap[instance.bookmarkSortDirection]!,
       'dnsOverHttps': instance.dnsOverHttps,
+      'translateBaseUrl': instance.translateBaseUrl,
+      'translateApiKey': instance.translateApiKey,
+      'translateModel': instance.translateModel,
+      'translateLanguage': instance.translateLanguage,
+      'translateUppercase': instance.translateUppercase,
+      'translateFontPath': instance.translateFontPath,
     };
 
 const _$AppThemeModeEnumMap = {

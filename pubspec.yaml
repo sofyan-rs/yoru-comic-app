@@ -120,6 +120,17 @@ flutter:
           weight: 700
         - asset: assets/fonts/Doto-Black.ttf
           weight: 900
+    # Page translations (features/translate). Komika Hand: freeware by
+    # Apostrophic Labs, used unmodified (assets/fonts/Komika-readme.txt).
+    - family: KomikaHand
+      fonts:
+        - asset: assets/fonts/KomikaHand-Bold.ttf
+          weight: 700
+    # SIL OFL 1.1, assets/fonts/ComicNeue-OFL.txt.
+    - family: ComicNeue
+      fonts:
+        - asset: assets/fonts/ComicNeue-Bold.ttf
+          weight: 700
 
 # Native launch screen: black, matching the Flutter splash. Android 12+ shows
 # the launcher icon on black. Regenerate with `dart run flutter_native_splash:create`.

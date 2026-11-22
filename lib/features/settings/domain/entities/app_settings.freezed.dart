@@ -30,7 +30,18 @@ mixin _$AppSettings {
 /// ends, instead of stopping when the refresh finishes.
  bool get lalalaUntilFinish; BookmarkGrouping get bookmarkGrouping; BookmarkSort get bookmarkSort; SortDirection get bookmarkSortDirection;/// DNS over HTTPS: '' (off, the system DNS), a preset id from
 /// `dohPresets`, or a custom `https://…/dns-query` URL.
- String get dnsOverHttps;
+ String get dnsOverHttps;/// Page translation (`features/translate`), turned on in the reader's
+/// menu: an OpenAI-compatible API root, e.g. `https://api.openai.com/v1` or a
+/// local `http://192.168.1.2:11434/v1` (Ollama).
+ String get translateBaseUrl;/// Sent as `Authorization: Bearer`; empty for local servers. Stays on
+/// the device: settings are not in backups or sync.
+ String get translateApiKey;/// Model id, e.g. `gpt-4o-mini` or `qwen2.5vl:7b`.
+ String get translateModel;/// Language to translate into, in English (`Indonesian`); empty for
+/// the app's language.
+ String get translateLanguage;/// Translations lettered in capitals, as comics usually are.
+ bool get translateUppercase;/// A font file the user imported for the translations (stored in the
+/// app's support directory); empty for the bundled Comic Neue.
+ String get translateFontPath;
 /// Create a copy of AppSettings
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -42,20 +53,20 @@ $AppSettingsCopyWith<AppSettings> get copyWith => _$AppSettingsCopyWithImpl<AppS
 @override
 bool operator ==(Object other) {
   final _this = this as AppSettings;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppSettings&&(identical(other.themeMode, _this.themeMode) || other.themeMode == _this.themeMode)&&(identical(other.language, _this.language) || other.language == _this.language)&&(identical(other.readingDirection, _this.readingDirection) || other.readingDirection == _this.readingDirection)&&(identical(other.pageFit, _this.pageFit) || other.pageFit == _this.pageFit)&&(identical(other.readerWidth, _this.readerWidth) || other.readerWidth == _this.readerWidth)&&(identical(other.twoPages, _this.twoPages) || other.twoPages == _this.twoPages)&&(identical(other.keepScreenOn, _this.keepScreenOn) || other.keepScreenOn == _this.keepScreenOn)&&(identical(other.pageGap, _this.pageGap) || other.pageGap == _this.pageGap)&&(identical(other.progressBar, _this.progressBar) || other.progressBar == _this.progressBar)&&(identical(other.infiniteScroll, _this.infiniteScroll) || other.infiniteScroll == _this.infiniteScroll)&&(identical(other.autoScrollSpeed, _this.autoScrollSpeed) || other.autoScrollSpeed == _this.autoScrollSpeed)&&(identical(other.incognito, _this.incognito) || other.incognito == _this.incognito)&&(identical(other.kururinSound, _this.kururinSound) || other.kururinSound == _this.kururinSound)&&(identical(other.lalalaUntilFinish, _this.lalalaUntilFinish) || other.lalalaUntilFinish == _this.lalalaUntilFinish)&&(identical(other.bookmarkGrouping, _this.bookmarkGrouping) || other.bookmarkGrouping == _this.bookmarkGrouping)&&(identical(other.bookmarkSort, _this.bookmarkSort) || other.bookmarkSort == _this.bookmarkSort)&&(identical(other.bookmarkSortDirection, _this.bookmarkSortDirection) || other.bookmarkSortDirection == _this.bookmarkSortDirection)&&(identical(other.dnsOverHttps, _this.dnsOverHttps) || other.dnsOverHttps == _this.dnsOverHttps));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppSettings&&(identical(other.themeMode, _this.themeMode) || other.themeMode == _this.themeMode)&&(identical(other.language, _this.language) || other.language == _this.language)&&(identical(other.readingDirection, _this.readingDirection) || other.readingDirection == _this.readingDirection)&&(identical(other.pageFit, _this.pageFit) || other.pageFit == _this.pageFit)&&(identical(other.readerWidth, _this.readerWidth) || other.readerWidth == _this.readerWidth)&&(identical(other.twoPages, _this.twoPages) || other.twoPages == _this.twoPages)&&(identical(other.keepScreenOn, _this.keepScreenOn) || other.keepScreenOn == _this.keepScreenOn)&&(identical(other.pageGap, _this.pageGap) || other.pageGap == _this.pageGap)&&(identical(other.progressBar, _this.progressBar) || other.progressBar == _this.progressBar)&&(identical(other.infiniteScroll, _this.infiniteScroll) || other.infiniteScroll == _this.infiniteScroll)&&(identical(other.autoScrollSpeed, _this.autoScrollSpeed) || other.autoScrollSpeed == _this.autoScrollSpeed)&&(identical(other.incognito, _this.incognito) || other.incognito == _this.incognito)&&(identical(other.kururinSound, _this.kururinSound) || other.kururinSound == _this.kururinSound)&&(identical(other.lalalaUntilFinish, _this.lalalaUntilFinish) || other.lalalaUntilFinish == _this.lalalaUntilFinish)&&(identical(other.bookmarkGrouping, _this.bookmarkGrouping) || other.bookmarkGrouping == _this.bookmarkGrouping)&&(identical(other.bookmarkSort, _this.bookmarkSort) || other.bookmarkSort == _this.bookmarkSort)&&(identical(other.bookmarkSortDirection, _this.bookmarkSortDirection) || other.bookmarkSortDirection == _this.bookmarkSortDirection)&&(identical(other.dnsOverHttps, _this.dnsOverHttps) || other.dnsOverHttps == _this.dnsOverHttps)&&(identical(other.translateBaseUrl, _this.translateBaseUrl) || other.translateBaseUrl == _this.translateBaseUrl)&&(identical(other.translateApiKey, _this.translateApiKey) || other.translateApiKey == _this.translateApiKey)&&(identical(other.translateModel, _this.translateModel) || other.translateModel == _this.translateModel)&&(identical(other.translateLanguage, _this.translateLanguage) || other.translateLanguage == _this.translateLanguage)&&(identical(other.translateUppercase, _this.translateUppercase) || other.translateUppercase == _this.translateUppercase)&&(identical(other.translateFontPath, _this.translateFontPath) || other.translateFontPath == _this.translateFontPath));
 }
 
 
 @override
 int get hashCode {
   final _this = this as AppSettings;
-  return Object.hash(runtimeType,_this.themeMode,_this.language,_this.readingDirection,_this.pageFit,_this.readerWidth,_this.twoPages,_this.keepScreenOn,_this.pageGap,_this.progressBar,_this.infiniteScroll,_this.autoScrollSpeed,_this.incognito,_this.kururinSound,_this.lalalaUntilFinish,_this.bookmarkGrouping,_this.bookmarkSort,_this.bookmarkSortDirection,_this.dnsOverHttps);
+  return Object.hashAll([runtimeType,_this.themeMode,_this.language,_this.readingDirection,_this.pageFit,_this.readerWidth,_this.twoPages,_this.keepScreenOn,_this.pageGap,_this.progressBar,_this.infiniteScroll,_this.autoScrollSpeed,_this.incognito,_this.kururinSound,_this.lalalaUntilFinish,_this.bookmarkGrouping,_this.bookmarkSort,_this.bookmarkSortDirection,_this.dnsOverHttps,_this.translateBaseUrl,_this.translateApiKey,_this.translateModel,_this.translateLanguage,_this.translateUppercase,_this.translateFontPath]);
 }
 
 @override
 String toString() {
   final _this = this as AppSettings;
-  return 'AppSettings(themeMode: ${_this.themeMode}, language: ${_this.language}, readingDirection: ${_this.readingDirection}, pageFit: ${_this.pageFit}, readerWidth: ${_this.readerWidth}, twoPages: ${_this.twoPages}, keepScreenOn: ${_this.keepScreenOn}, pageGap: ${_this.pageGap}, progressBar: ${_this.progressBar}, infiniteScroll: ${_this.infiniteScroll}, autoScrollSpeed: ${_this.autoScrollSpeed}, incognito: ${_this.incognito}, kururinSound: ${_this.kururinSound}, lalalaUntilFinish: ${_this.lalalaUntilFinish}, bookmarkGrouping: ${_this.bookmarkGrouping}, bookmarkSort: ${_this.bookmarkSort}, bookmarkSortDirection: ${_this.bookmarkSortDirection}, dnsOverHttps: ${_this.dnsOverHttps})';
+  return 'AppSettings(themeMode: ${_this.themeMode}, language: ${_this.language}, readingDirection: ${_this.readingDirection}, pageFit: ${_this.pageFit}, readerWidth: ${_this.readerWidth}, twoPages: ${_this.twoPages}, keepScreenOn: ${_this.keepScreenOn}, pageGap: ${_this.pageGap}, progressBar: ${_this.progressBar}, infiniteScroll: ${_this.infiniteScroll}, autoScrollSpeed: ${_this.autoScrollSpeed}, incognito: ${_this.incognito}, kururinSound: ${_this.kururinSound}, lalalaUntilFinish: ${_this.lalalaUntilFinish}, bookmarkGrouping: ${_this.bookmarkGrouping}, bookmarkSort: ${_this.bookmarkSort}, bookmarkSortDirection: ${_this.bookmarkSortDirection}, dnsOverHttps: ${_this.dnsOverHttps}, translateBaseUrl: ${_this.translateBaseUrl}, translateApiKey: ${_this.translateApiKey}, translateModel: ${_this.translateModel}, translateLanguage: ${_this.translateLanguage}, translateUppercase: ${_this.translateUppercase}, translateFontPath: ${_this.translateFontPath})';
 }
 
 
@@ -66,7 +77,7 @@ abstract mixin class $AppSettingsCopyWith<$Res>  {
   factory $AppSettingsCopyWith(AppSettings value, $Res Function(AppSettings) _then) = _$AppSettingsCopyWithImpl;
 @useResult
 $Res call({
- AppThemeMode themeMode, AppLanguage language, ReadingDirection readingDirection, PageFit pageFit, ReaderWidth readerWidth, bool twoPages, bool keepScreenOn, bool pageGap, bool progressBar, bool infiniteScroll, int autoScrollSpeed, bool incognito, bool kururinSound, bool lalalaUntilFinish, BookmarkGrouping bookmarkGrouping, BookmarkSort bookmarkSort, SortDirection bookmarkSortDirection, String dnsOverHttps
+ AppThemeMode themeMode, AppLanguage language, ReadingDirection readingDirection, PageFit pageFit, ReaderWidth readerWidth, bool twoPages, bool keepScreenOn, bool pageGap, bool progressBar, bool infiniteScroll, int autoScrollSpeed, bool incognito, bool kururinSound, bool lalalaUntilFinish, BookmarkGrouping bookmarkGrouping, BookmarkSort bookmarkSort, SortDirection bookmarkSortDirection, String dnsOverHttps, String translateBaseUrl, String translateApiKey, String translateModel, String translateLanguage, bool translateUppercase, String translateFontPath
 });
 
 
@@ -83,7 +94,7 @@ class _$AppSettingsCopyWithImpl<$Res>
 
 /// Create a copy of AppSettings
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? themeMode = null,Object? language = null,Object? readingDirection = null,Object? pageFit = null,Object? readerWidth = null,Object? twoPages = null,Object? keepScreenOn = null,Object? pageGap = null,Object? progressBar = null,Object? infiniteScroll = null,Object? autoScrollSpeed = null,Object? incognito = null,Object? kururinSound = null,Object? lalalaUntilFinish = null,Object? bookmarkGrouping = null,Object? bookmarkSort = null,Object? bookmarkSortDirection = null,Object? dnsOverHttps = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? themeMode = null,Object? language = null,Object? readingDirection = null,Object? pageFit = null,Object? readerWidth = null,Object? twoPages = null,Object? keepScreenOn = null,Object? pageGap = null,Object? progressBar = null,Object? infiniteScroll = null,Object? autoScrollSpeed = null,Object? incognito = null,Object? kururinSound = null,Object? lalalaUntilFinish = null,Object? bookmarkGrouping = null,Object? bookmarkSort = null,Object? bookmarkSortDirection = null,Object? dnsOverHttps = null,Object? translateBaseUrl = null,Object? translateApiKey = null,Object? translateModel = null,Object? translateLanguage = null,Object? translateUppercase = null,Object? translateFontPath = null,}) {
   return _then(AppSettings(
 themeMode: null == themeMode ? _self.themeMode : themeMode // ignore: cast_nullable_to_non_nullable
 as AppThemeMode,language: null == language ? _self.language : language // ignore: cast_nullable_to_non_nullable
@@ -103,6 +114,12 @@ as bool,bookmarkGrouping: null == bookmarkGrouping ? _self.bookmarkGrouping : bo
 as BookmarkGrouping,bookmarkSort: null == bookmarkSort ? _self.bookmarkSort : bookmarkSort // ignore: cast_nullable_to_non_nullable
 as BookmarkSort,bookmarkSortDirection: null == bookmarkSortDirection ? _self.bookmarkSortDirection : bookmarkSortDirection // ignore: cast_nullable_to_non_nullable
 as SortDirection,dnsOverHttps: null == dnsOverHttps ? _self.dnsOverHttps : dnsOverHttps // ignore: cast_nullable_to_non_nullable
+as String,translateBaseUrl: null == translateBaseUrl ? _self.translateBaseUrl : translateBaseUrl // ignore: cast_nullable_to_non_nullable
+as String,translateApiKey: null == translateApiKey ? _self.translateApiKey : translateApiKey // ignore: cast_nullable_to_non_nullable
+as String,translateModel: null == translateModel ? _self.translateModel : translateModel // ignore: cast_nullable_to_non_nullable
+as String,translateLanguage: null == translateLanguage ? _self.translateLanguage : translateLanguage // ignore: cast_nullable_to_non_nullable
+as String,translateUppercase: null == translateUppercase ? _self.translateUppercase : translateUppercase // ignore: cast_nullable_to_non_nullable
+as bool,translateFontPath: null == translateFontPath ? _self.translateFontPath : translateFontPath // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
@@ -188,10 +205,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( AppThemeMode themeMode,  AppLanguage language,  ReadingDirection readingDirection,  PageFit pageFit,  ReaderWidth readerWidth,  bool twoPages,  bool keepScreenOn,  bool pageGap,  bool progressBar,  bool infiniteScroll,  int autoScrollSpeed,  bool incognito,  bool kururinSound,  bool lalalaUntilFinish,  BookmarkGrouping bookmarkGrouping,  BookmarkSort bookmarkSort,  SortDirection bookmarkSortDirection,  String dnsOverHttps)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( AppThemeMode themeMode,  AppLanguage language,  ReadingDirection readingDirection,  PageFit pageFit,  ReaderWidth readerWidth,  bool twoPages,  bool keepScreenOn,  bool pageGap,  bool progressBar,  bool infiniteScroll,  int autoScrollSpeed,  bool incognito,  bool kururinSound,  bool lalalaUntilFinish,  BookmarkGrouping bookmarkGrouping,  BookmarkSort bookmarkSort,  SortDirection bookmarkSortDirection,  String dnsOverHttps,  String translateBaseUrl,  String translateApiKey,  String translateModel,  String translateLanguage,  bool translateUppercase,  String translateFontPath)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AppSettings() when $default != null:
-return $default(_that.themeMode,_that.language,_that.readingDirection,_that.pageFit,_that.readerWidth,_that.twoPages,_that.keepScreenOn,_that.pageGap,_that.progressBar,_that.infiniteScroll,_that.autoScrollSpeed,_that.incognito,_that.kururinSound,_that.lalalaUntilFinish,_that.bookmarkGrouping,_that.bookmarkSort,_that.bookmarkSortDirection,_that.dnsOverHttps);case _:
+return $default(_that.themeMode,_that.language,_that.readingDirection,_that.pageFit,_that.readerWidth,_that.twoPages,_that.keepScreenOn,_that.pageGap,_that.progressBar,_that.infiniteScroll,_that.autoScrollSpeed,_that.incognito,_that.kururinSound,_that.lalalaUntilFinish,_that.bookmarkGrouping,_that.bookmarkSort,_that.bookmarkSortDirection,_that.dnsOverHttps,_that.translateBaseUrl,_that.translateApiKey,_that.translateModel,_that.translateLanguage,_that.translateUppercase,_that.translateFontPath);case _:
   return orElse();
 
 }
@@ -209,10 +226,10 @@ return $default(_that.themeMode,_that.language,_that.readingDirection,_that.page
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( AppThemeMode themeMode,  AppLanguage language,  ReadingDirection readingDirection,  PageFit pageFit,  ReaderWidth readerWidth,  bool twoPages,  bool keepScreenOn,  bool pageGap,  bool progressBar,  bool infiniteScroll,  int autoScrollSpeed,  bool incognito,  bool kururinSound,  bool lalalaUntilFinish,  BookmarkGrouping bookmarkGrouping,  BookmarkSort bookmarkSort,  SortDirection bookmarkSortDirection,  String dnsOverHttps)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( AppThemeMode themeMode,  AppLanguage language,  ReadingDirection readingDirection,  PageFit pageFit,  ReaderWidth readerWidth,  bool twoPages,  bool keepScreenOn,  bool pageGap,  bool progressBar,  bool infiniteScroll,  int autoScrollSpeed,  bool incognito,  bool kururinSound,  bool lalalaUntilFinish,  BookmarkGrouping bookmarkGrouping,  BookmarkSort bookmarkSort,  SortDirection bookmarkSortDirection,  String dnsOverHttps,  String translateBaseUrl,  String translateApiKey,  String translateModel,  String translateLanguage,  bool translateUppercase,  String translateFontPath)  $default,) {final _that = this;
 switch (_that) {
 case _AppSettings():
-return $default(_that.themeMode,_that.language,_that.readingDirection,_that.pageFit,_that.readerWidth,_that.twoPages,_that.keepScreenOn,_that.pageGap,_that.progressBar,_that.infiniteScroll,_that.autoScrollSpeed,_that.incognito,_that.kururinSound,_that.lalalaUntilFinish,_that.bookmarkGrouping,_that.bookmarkSort,_that.bookmarkSortDirection,_that.dnsOverHttps);case _:
+return $default(_that.themeMode,_that.language,_that.readingDirection,_that.pageFit,_that.readerWidth,_that.twoPages,_that.keepScreenOn,_that.pageGap,_that.progressBar,_that.infiniteScroll,_that.autoScrollSpeed,_that.incognito,_that.kururinSound,_that.lalalaUntilFinish,_that.bookmarkGrouping,_that.bookmarkSort,_that.bookmarkSortDirection,_that.dnsOverHttps,_that.translateBaseUrl,_that.translateApiKey,_that.translateModel,_that.translateLanguage,_that.translateUppercase,_that.translateFontPath);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -229,10 +246,10 @@ return $default(_that.themeMode,_that.language,_that.readingDirection,_that.page
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( AppThemeMode themeMode,  AppLanguage language,  ReadingDirection readingDirection,  PageFit pageFit,  ReaderWidth readerWidth,  bool twoPages,  bool keepScreenOn,  bool pageGap,  bool progressBar,  bool infiniteScroll,  int autoScrollSpeed,  bool incognito,  bool kururinSound,  bool lalalaUntilFinish,  BookmarkGrouping bookmarkGrouping,  BookmarkSort bookmarkSort,  SortDirection bookmarkSortDirection,  String dnsOverHttps)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( AppThemeMode themeMode,  AppLanguage language,  ReadingDirection readingDirection,  PageFit pageFit,  ReaderWidth readerWidth,  bool twoPages,  bool keepScreenOn,  bool pageGap,  bool progressBar,  bool infiniteScroll,  int autoScrollSpeed,  bool incognito,  bool kururinSound,  bool lalalaUntilFinish,  BookmarkGrouping bookmarkGrouping,  BookmarkSort bookmarkSort,  SortDirection bookmarkSortDirection,  String dnsOverHttps,  String translateBaseUrl,  String translateApiKey,  String translateModel,  String translateLanguage,  bool translateUppercase,  String translateFontPath)?  $default,) {final _that = this;
 switch (_that) {
 case _AppSettings() when $default != null:
-return $default(_that.themeMode,_that.language,_that.readingDirection,_that.pageFit,_that.readerWidth,_that.twoPages,_that.keepScreenOn,_that.pageGap,_that.progressBar,_that.infiniteScroll,_that.autoScrollSpeed,_that.incognito,_that.kururinSound,_that.lalalaUntilFinish,_that.bookmarkGrouping,_that.bookmarkSort,_that.bookmarkSortDirection,_that.dnsOverHttps);case _:
+return $default(_that.themeMode,_that.language,_that.readingDirection,_that.pageFit,_that.readerWidth,_that.twoPages,_that.keepScreenOn,_that.pageGap,_that.progressBar,_that.infiniteScroll,_that.autoScrollSpeed,_that.incognito,_that.kururinSound,_that.lalalaUntilFinish,_that.bookmarkGrouping,_that.bookmarkSort,_that.bookmarkSortDirection,_that.dnsOverHttps,_that.translateBaseUrl,_that.translateApiKey,_that.translateModel,_that.translateLanguage,_that.translateUppercase,_that.translateFontPath);case _:
   return null;
 
 }
@@ -244,7 +261,7 @@ return $default(_that.themeMode,_that.language,_that.readingDirection,_that.page
 
 
 class _AppSettings implements AppSettings {
-  const _AppSettings({this.themeMode = AppThemeMode.system, this.language = AppLanguage.english, this.readingDirection = ReadingDirection.vertical, this.pageFit = PageFit.width, this.readerWidth = ReaderWidth.medium, this.twoPages = false, this.keepScreenOn = true, this.pageGap = false, this.progressBar = true, this.infiniteScroll = false, this.autoScrollSpeed = 3, this.incognito = false, this.kururinSound = true, this.lalalaUntilFinish = false, this.bookmarkGrouping = BookmarkGrouping.status, this.bookmarkSort = BookmarkSort.updated, this.bookmarkSortDirection = SortDirection.descending, this.dnsOverHttps = ''});
+  const _AppSettings({this.themeMode = AppThemeMode.system, this.language = AppLanguage.english, this.readingDirection = ReadingDirection.vertical, this.pageFit = PageFit.width, this.readerWidth = ReaderWidth.medium, this.twoPages = false, this.keepScreenOn = true, this.pageGap = false, this.progressBar = true, this.infiniteScroll = false, this.autoScrollSpeed = 3, this.incognito = false, this.kururinSound = true, this.lalalaUntilFinish = false, this.bookmarkGrouping = BookmarkGrouping.status, this.bookmarkSort = BookmarkSort.updated, this.bookmarkSortDirection = SortDirection.descending, this.dnsOverHttps = '', this.translateBaseUrl = '', this.translateApiKey = '', this.translateModel = '', this.translateLanguage = '', this.translateUppercase = true, this.translateFontPath = ''});
   
 
 @override@JsonKey() final  AppThemeMode themeMode;
@@ -280,6 +297,23 @@ class _AppSettings implements AppSettings {
 /// DNS over HTTPS: '' (off, the system DNS), a preset id from
 /// `dohPresets`, or a custom `https://…/dns-query` URL.
 @override@JsonKey() final  String dnsOverHttps;
+/// Page translation (`features/translate`), turned on in the reader's
+/// menu: an OpenAI-compatible API root, e.g. `https://api.openai.com/v1` or a
+/// local `http://192.168.1.2:11434/v1` (Ollama).
+@override@JsonKey() final  String translateBaseUrl;
+/// Sent as `Authorization: Bearer`; empty for local servers. Stays on
+/// the device: settings are not in backups or sync.
+@override@JsonKey() final  String translateApiKey;
+/// Model id, e.g. `gpt-4o-mini` or `qwen2.5vl:7b`.
+@override@JsonKey() final  String translateModel;
+/// Language to translate into, in English (`Indonesian`); empty for
+/// the app's language.
+@override@JsonKey() final  String translateLanguage;
+/// Translations lettered in capitals, as comics usually are.
+@override@JsonKey() final  bool translateUppercase;
+/// A font file the user imported for the translations (stored in the
+/// app's support directory); empty for the bundled Comic Neue.
+@override@JsonKey() final  String translateFontPath;
 
 /// Create a copy of AppSettings
 /// with the given fields replaced by the non-null parameter values.
@@ -291,18 +325,18 @@ _$AppSettingsCopyWith<_AppSettings> get copyWith => __$AppSettingsCopyWithImpl<_
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppSettings&&(identical(other.themeMode, themeMode) || other.themeMode == themeMode)&&(identical(other.language, language) || other.language == language)&&(identical(other.readingDirection, readingDirection) || other.readingDirection == readingDirection)&&(identical(other.pageFit, pageFit) || other.pageFit == pageFit)&&(identical(other.readerWidth, readerWidth) || other.readerWidth == readerWidth)&&(identical(other.twoPages, twoPages) || other.twoPages == twoPages)&&(identical(other.keepScreenOn, keepScreenOn) || other.keepScreenOn == keepScreenOn)&&(identical(other.pageGap, pageGap) || other.pageGap == pageGap)&&(identical(other.progressBar, progressBar) || other.progressBar == progressBar)&&(identical(other.infiniteScroll, infiniteScroll) || other.infiniteScroll == infiniteScroll)&&(identical(other.autoScrollSpeed, autoScrollSpeed) || other.autoScrollSpeed == autoScrollSpeed)&&(identical(other.incognito, incognito) || other.incognito == incognito)&&(identical(other.kururinSound, kururinSound) || other.kururinSound == kururinSound)&&(identical(other.lalalaUntilFinish, lalalaUntilFinish) || other.lalalaUntilFinish == lalalaUntilFinish)&&(identical(other.bookmarkGrouping, bookmarkGrouping) || other.bookmarkGrouping == bookmarkGrouping)&&(identical(other.bookmarkSort, bookmarkSort) || other.bookmarkSort == bookmarkSort)&&(identical(other.bookmarkSortDirection, bookmarkSortDirection) || other.bookmarkSortDirection == bookmarkSortDirection)&&(identical(other.dnsOverHttps, dnsOverHttps) || other.dnsOverHttps == dnsOverHttps));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppSettings&&(identical(other.themeMode, themeMode) || other.themeMode == themeMode)&&(identical(other.language, language) || other.language == language)&&(identical(other.readingDirection, readingDirection) || other.readingDirection == readingDirection)&&(identical(other.pageFit, pageFit) || other.pageFit == pageFit)&&(identical(other.readerWidth, readerWidth) || other.readerWidth == readerWidth)&&(identical(other.twoPages, twoPages) || other.twoPages == twoPages)&&(identical(other.keepScreenOn, keepScreenOn) || other.keepScreenOn == keepScreenOn)&&(identical(other.pageGap, pageGap) || other.pageGap == pageGap)&&(identical(other.progressBar, progressBar) || other.progressBar == progressBar)&&(identical(other.infiniteScroll, infiniteScroll) || other.infiniteScroll == infiniteScroll)&&(identical(other.autoScrollSpeed, autoScrollSpeed) || other.autoScrollSpeed == autoScrollSpeed)&&(identical(other.incognito, incognito) || other.incognito == incognito)&&(identical(other.kururinSound, kururinSound) || other.kururinSound == kururinSound)&&(identical(other.lalalaUntilFinish, lalalaUntilFinish) || other.lalalaUntilFinish == lalalaUntilFinish)&&(identical(other.bookmarkGrouping, bookmarkGrouping) || other.bookmarkGrouping == bookmarkGrouping)&&(identical(other.bookmarkSort, bookmarkSort) || other.bookmarkSort == bookmarkSort)&&(identical(other.bookmarkSortDirection, bookmarkSortDirection) || other.bookmarkSortDirection == bookmarkSortDirection)&&(identical(other.dnsOverHttps, dnsOverHttps) || other.dnsOverHttps == dnsOverHttps)&&(identical(other.translateBaseUrl, translateBaseUrl) || other.translateBaseUrl == translateBaseUrl)&&(identical(other.translateApiKey, translateApiKey) || other.translateApiKey == translateApiKey)&&(identical(other.translateModel, translateModel) || other.translateModel == translateModel)&&(identical(other.translateLanguage, translateLanguage) || other.translateLanguage == translateLanguage)&&(identical(other.translateUppercase, translateUppercase) || other.translateUppercase == translateUppercase)&&(identical(other.translateFontPath, translateFontPath) || other.translateFontPath == translateFontPath));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,themeMode,language,readingDirection,pageFit,readerWidth,twoPages,keepScreenOn,pageGap,progressBar,infiniteScroll,autoScrollSpeed,incognito,kururinSound,lalalaUntilFinish,bookmarkGrouping,bookmarkSort,bookmarkSortDirection,dnsOverHttps);
+    return Object.hashAll([runtimeType,themeMode,language,readingDirection,pageFit,readerWidth,twoPages,keepScreenOn,pageGap,progressBar,infiniteScroll,autoScrollSpeed,incognito,kururinSound,lalalaUntilFinish,bookmarkGrouping,bookmarkSort,bookmarkSortDirection,dnsOverHttps,translateBaseUrl,translateApiKey,translateModel,translateLanguage,translateUppercase,translateFontPath]);
 }
 
 @override
 String toString() {
-    return 'AppSettings(themeMode: $themeMode, language: $language, readingDirection: $readingDirection, pageFit: $pageFit, readerWidth: $readerWidth, twoPages: $twoPages, keepScreenOn: $keepScreenOn, pageGap: $pageGap, progressBar: $progressBar, infiniteScroll: $infiniteScroll, autoScrollSpeed: $autoScrollSpeed, incognito: $incognito, kururinSound: $kururinSound, lalalaUntilFinish: $lalalaUntilFinish, bookmarkGrouping: $bookmarkGrouping, bookmarkSort: $bookmarkSort, bookmarkSortDirection: $bookmarkSortDirection, dnsOverHttps: $dnsOverHttps)';
+    return 'AppSettings(themeMode: $themeMode, language: $language, readingDirection: $readingDirection, pageFit: $pageFit, readerWidth: $readerWidth, twoPages: $twoPages, keepScreenOn: $keepScreenOn, pageGap: $pageGap, progressBar: $progressBar, infiniteScroll: $infiniteScroll, autoScrollSpeed: $autoScrollSpeed, incognito: $incognito, kururinSound: $kururinSound, lalalaUntilFinish: $lalalaUntilFinish, bookmarkGrouping: $bookmarkGrouping, bookmarkSort: $bookmarkSort, bookmarkSortDirection: $bookmarkSortDirection, dnsOverHttps: $dnsOverHttps, translateBaseUrl: $translateBaseUrl, translateApiKey: $translateApiKey, translateModel: $translateModel, translateLanguage: $translateLanguage, translateUppercase: $translateUppercase, translateFontPath: $translateFontPath)';
 }
 
 
@@ -313,7 +347,7 @@ abstract mixin class _$AppSettingsCopyWith<$Res> implements $AppSettingsCopyWith
   factory _$AppSettingsCopyWith(_AppSettings value, $Res Function(_AppSettings) _then) = __$AppSettingsCopyWithImpl;
 @override @useResult
 $Res call({
- AppThemeMode themeMode, AppLanguage language, ReadingDirection readingDirection, PageFit pageFit, ReaderWidth readerWidth, bool twoPages, bool keepScreenOn, bool pageGap, bool progressBar, bool infiniteScroll, int autoScrollSpeed, bool incognito, bool kururinSound, bool lalalaUntilFinish, BookmarkGrouping bookmarkGrouping, BookmarkSort bookmarkSort, SortDirection bookmarkSortDirection, String dnsOverHttps
+ AppThemeMode themeMode, AppLanguage language, ReadingDirection readingDirection, PageFit pageFit, ReaderWidth readerWidth, bool twoPages, bool keepScreenOn, bool pageGap, bool progressBar, bool infiniteScroll, int autoScrollSpeed, bool incognito, bool kururinSound, bool lalalaUntilFinish, BookmarkGrouping bookmarkGrouping, BookmarkSort bookmarkSort, SortDirection bookmarkSortDirection, String dnsOverHttps, String translateBaseUrl, String translateApiKey, String translateModel, String translateLanguage, bool translateUppercase, String translateFontPath
 });
 
 
@@ -330,7 +364,7 @@ class __$AppSettingsCopyWithImpl<$Res>
 
 /// Create a copy of AppSettings
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? themeMode = null,Object? language = null,Object? readingDirection = null,Object? pageFit = null,Object? readerWidth = null,Object? twoPages = null,Object? keepScreenOn = null,Object? pageGap = null,Object? progressBar = null,Object? infiniteScroll = null,Object? autoScrollSpeed = null,Object? incognito = null,Object? kururinSound = null,Object? lalalaUntilFinish = null,Object? bookmarkGrouping = null,Object? bookmarkSort = null,Object? bookmarkSortDirection = null,Object? dnsOverHttps = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? themeMode = null,Object? language = null,Object? readingDirection = null,Object? pageFit = null,Object? readerWidth = null,Object? twoPages = null,Object? keepScreenOn = null,Object? pageGap = null,Object? progressBar = null,Object? infiniteScroll = null,Object? autoScrollSpeed = null,Object? incognito = null,Object? kururinSound = null,Object? lalalaUntilFinish = null,Object? bookmarkGrouping = null,Object? bookmarkSort = null,Object? bookmarkSortDirection = null,Object? dnsOverHttps = null,Object? translateBaseUrl = null,Object? translateApiKey = null,Object? translateModel = null,Object? translateLanguage = null,Object? translateUppercase = null,Object? translateFontPath = null,}) {
   return _then(_AppSettings(
 themeMode: null == themeMode ? _self.themeMode : themeMode // ignore: cast_nullable_to_non_nullable
 as AppThemeMode,language: null == language ? _self.language : language // ignore: cast_nullable_to_non_nullable
@@ -350,6 +384,12 @@ as bool,bookmarkGrouping: null == bookmarkGrouping ? _self.bookmarkGrouping : bo
 as BookmarkGrouping,bookmarkSort: null == bookmarkSort ? _self.bookmarkSort : bookmarkSort // ignore: cast_nullable_to_non_nullable
 as BookmarkSort,bookmarkSortDirection: null == bookmarkSortDirection ? _self.bookmarkSortDirection : bookmarkSortDirection // ignore: cast_nullable_to_non_nullable
 as SortDirection,dnsOverHttps: null == dnsOverHttps ? _self.dnsOverHttps : dnsOverHttps // ignore: cast_nullable_to_non_nullable
+as String,translateBaseUrl: null == translateBaseUrl ? _self.translateBaseUrl : translateBaseUrl // ignore: cast_nullable_to_non_nullable
+as String,translateApiKey: null == translateApiKey ? _self.translateApiKey : translateApiKey // ignore: cast_nullable_to_non_nullable
+as String,translateModel: null == translateModel ? _self.translateModel : translateModel // ignore: cast_nullable_to_non_nullable
+as String,translateLanguage: null == translateLanguage ? _self.translateLanguage : translateLanguage // ignore: cast_nullable_to_non_nullable
+as String,translateUppercase: null == translateUppercase ? _self.translateUppercase : translateUppercase // ignore: cast_nullable_to_non_nullable
+as bool,translateFontPath: null == translateFontPath ? _self.translateFontPath : translateFontPath // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }

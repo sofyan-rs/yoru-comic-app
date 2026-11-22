@@ -1531,4 +1531,80 @@ class AppLocalizationsId extends AppLocalizations {
   String daysShort(int n) {
     return '$n hr';
   }
+
+  @override
+  String get translatePages => 'Terjemahkan halaman';
+
+  @override
+  String get translatePagesDescription =>
+      'Tampilkan terjemahan di atas setiap halaman dengan model AI';
+
+  @override
+  String get translateNotSet => 'Belum diatur';
+
+  @override
+  String get translateServer => 'Server (kompatibel OpenAI)';
+
+  @override
+  String get translateApiKey => 'Kunci API';
+
+  @override
+  String get translateApiKeyHint => 'Kosongkan untuk Ollama atau LM Studio';
+
+  @override
+  String get translateShowKey => 'Tampilkan kunci';
+
+  @override
+  String get translateModel => 'Model';
+
+  @override
+  String get translateModelHint => 'Model yang bisa membaca gambar';
+
+  @override
+  String get translateLanguage => 'Terjemahkan ke';
+
+  @override
+  String get translateMissing =>
+      'Isi server dan model, atau kosongkan keduanya';
+
+  @override
+  String get translatePrivacy =>
+      'Halaman yang kamu baca dikirim ke server ini untuk diterjemahkan. Kunci tetap di perangkat ini dan tidak ikut cadangan atau sinkronisasi. Terjemahan disimpan di cache, jadi satu halaman hanya diterjemahkan sekali.';
+
+  @override
+  String get translating => 'Menerjemahkan';
+
+  @override
+  String get translateFailed => 'Gagal · coba lagi';
+
+  @override
+  String get showOriginal => 'Tampilkan asli';
+
+  @override
+  String get translateAppLanguage => 'Bahasa aplikasi';
+
+  @override
+  String get translation => 'Terjemahan';
+
+  @override
+  String get translateLettering => 'Huruf';
+
+  @override
+  String get translateUppercase => 'Huruf kapital semua';
+
+  @override
+  String get translateUppercaseHint => 'Seperti lettering komik';
+
+  @override
+  String get translateFont => 'Font';
+
+  @override
+  String get translateFontHint =>
+      'Impor .ttf atau .otf yang lisensinya kamu punya';
+
+  @override
+  String get translateFontInvalid => 'Bukan font .ttf atau .otf';
+
+  @override
+  String get translateFontImport => 'Impor…';
 }

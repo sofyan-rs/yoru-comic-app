@@ -20,6 +20,9 @@ import 'package:yoru/features/reader/presentation/reader_wakelock.dart';
 import 'package:yoru/features/reader/presentation/widgets/chapter_end.dart';
 import 'package:yoru/features/reader/presentation/widgets/chapter_image.dart';
 import 'package:yoru/features/reader/presentation/widgets/reader_settings_sheet.dart';
+import 'package:yoru/features/translate/domain/entities/translator_config.dart';
+import 'package:yoru/features/translate/presentation/reader_translation.dart';
+import 'package:yoru/features/translate/presentation/pages/translate_settings_screen.dart';
 import 'package:yoru/features/settings/domain/entities/app_settings.dart';
 import 'package:yoru/features/settings/presentation/bloc/settings_cubit.dart';
 import 'package:yoru/features/source/presentation/pages/web_view_screen.dart';
@@ -613,10 +616,40 @@ class _ReadChapterViewState extends State<_ReadChapterView>
 
   /// Reading close to the last opened page opens the next batch early;
   /// close to the end of the list, the next chapter is fetched.
+  /// Whether this comic's pages are translated (the menu's toggle).
+  bool get _translating => translatedComics.contains(widget.comicSlug);
+
+  /// What [ChapterImg] translates with; null while translation is off.
+  TranslatorConfig? _translator(AppSettings settings) =>
+      _translating ? TranslatorConfig.configured(settings) : null;
+
+  void _translateAhead(_Segment segment, int page) => translateAhead(
+    pages: segment.images.skip(page + 1).take(translateAheadPages),
+    isFile: segment.content.isOffline,
+    headers: segment.content.imageHeaders,
+    config: _translator(_settings.state),
+  );
+
+  /// Turns translation on or off for this comic. Before a server and model
+  /// are set, it opens the translation settings first.
+  Future<void> _toggleTranslation() async {
+    if (_translating) {
+      setState(() => translatedComics.remove(widget.comicSlug));
+      return;
+    }
+    if (TranslatorConfig.configured(_settings.state) == null) {
+      final saved = await TranslateSettingsScreen.open(context);
+      if (saved != true || !mounted) return;
+    }
+    setState(() => translatedComics.add(widget.comicSlug));
+    if (_current case final segment?) _translateAhead(segment, _page.value);
+  }
+
   void _onPageReached(int page) {
     final segment = _current;
     if (segment == null) return;
     if (page >= segment.loadLimit - 2) _loadNextBatch(segment);
+    _translateAhead(segment, page);
     if (identical(segment, _segments.last) &&
         page >= segment.images.length - 3) {
       _fetchNext();
@@ -1315,6 +1348,7 @@ class _ReadChapterViewState extends State<_ReadChapterView>
               fit: settings.pageFit,
               fitHeight: height,
               maxWidth: _pageWidth(settings),
+              translator: _translator(settings),
             ),
           ),
         ),
@@ -1406,6 +1440,7 @@ class _ReadChapterViewState extends State<_ReadChapterView>
           fitHeight: fitHeight,
           maxWidth: _pageWidth(settings),
           alignment: alignment,
+          translator: _translator(settings),
         );
 
     final viewCount = useSpreads ? spreads.count : pages.length;
@@ -1596,6 +1631,16 @@ class _ReadChapterViewState extends State<_ReadChapterView>
                 DotMenuButton(
                   iconSize: DotSize.iconSmall,
                   items: [
+                    if (chapter != null)
+                      DotMenuItem(
+                        label: _translating
+                            ? AppText.t.showOriginal
+                            : AppText.t.translatePages,
+                        icon: _translating
+                            ? LucideIcons300.image
+                            : LucideIcons300.languages,
+                        onTap: _toggleTranslation,
+                      ),
                     DotMenuItem(
                       label: AppText.t.readerSettings,
                       icon: LucideIcons300.slidersHorizontal,

@@ -6,6 +6,8 @@ import 'package:yoru/core/theme/dotline_tokens.dart';
 import 'package:yoru/core/utils/image_support.dart';
 import 'package:yoru/core/utils/utils.dart';
 import 'package:yoru/features/settings/domain/entities/app_settings.dart';
+import 'package:yoru/features/translate/domain/entities/translator_config.dart';
+import 'package:yoru/features/translate/presentation/widgets/translated_page.dart';
 
 import 'dart:async';
 import 'dart:io';
@@ -37,8 +39,13 @@ class ChapterImg extends StatefulWidget {
     this.alignment = Alignment.center,
     this.headers = const {},
     this.onOpenWeb,
+    this.translator,
     @visibleForTesting this.cacheManager,
   });
+
+  /// Translates the page once shown and lays the text over it; null for
+  /// none (translation off in the reader's menu).
+  final TranslatorConfig? translator;
 
   /// Opens the chapter on its site; offered on a page in a format this
   /// device cannot show (AVIF before Android 12, on the desktops).
@@ -129,6 +136,32 @@ class _ChapterImgState extends State<ChapterImg> {
     }
     if (mounted) setState(() => _attempt++);
   }
+
+  /// The page's bytes: the file, or the copy the image cache keeps.
+  Future<Uint8List> _readImage() async {
+    if (widget.isFile) return File(widget.chapterImage).readAsBytes();
+    final cached = await _cache.getFileFromCache(widget.chapterImage);
+    final file =
+        cached?.file ??
+        await _cache.getSingleFile(
+          widget.chapterImage,
+          key: widget.chapterImage,
+          headers: widget.headers,
+        );
+    return file.readAsBytes();
+  }
+
+  /// [image] (the laid-out page) with its translation over it.
+  Widget _translated(Widget image, BoxFit fit) => widget.translator == null
+      ? image
+      : TranslatedPage(
+          pageId: widget.chapterImage,
+          readImage: _readImage,
+          config: widget.translator,
+          fit: fit,
+          alignment: widget.alignment,
+          child: image,
+        );
 
   void _showSaveSheet(BuildContext context) {
     showDotSheet<void>(
@@ -333,7 +366,10 @@ class _ChapterImgState extends State<ChapterImg> {
             alignment: widget.alignment,
             frameBuilder: (_, child, frame, sync) => frame == null && !sync
                 ? placeholder()
-                : _ReportSize(onSize: measured, child: child),
+                : _translated(
+                    _ReportSize(onSize: measured, child: child),
+                    boxFit,
+                  ),
             errorBuilder: (_, _, _) {
               unawaited(_checkFormat());
               return _avifUnsupported ? unsupported() : error();
@@ -351,15 +387,18 @@ class _ChapterImgState extends State<ChapterImg> {
             memCacheHeight: cacheHeight,
             fit: boxFit,
             alignment: widget.alignment,
-            imageBuilder: (_, provider) => _ReportSize(
-              onSize: measured,
-              child: Image(
-                image: provider,
-                width: double.infinity,
-                height: widget.fitHeight,
-                fit: boxFit,
-                alignment: widget.alignment,
+            imageBuilder: (_, provider) => _translated(
+              _ReportSize(
+                onSize: measured,
+                child: Image(
+                  image: provider,
+                  width: double.infinity,
+                  height: widget.fitHeight,
+                  fit: boxFit,
+                  alignment: widget.alignment,
+                ),
               ),
+              boxFit,
             ),
             fadeInDuration: DotMotion.press,
             progressIndicatorBuilder: (_, _, p) =>
