@@ -28,6 +28,24 @@ subprojects {
         }
     }
 }
+// flutter_avif_android ships its plugin class twice, in Java and in Kotlin,
+// and applies no Kotlin plugin, so only the Java one is meant to build. The
+// Flutter Gradle plugin applies Kotlin to every plugin, which then compiles
+// both (a redeclaration) and targets the JDK running Gradle while Java stays
+// on 11 (an inconsistent JVM target). Skip the Kotlin copy and align the
+// target. Its compileSdk (31) is also older than its AndroidX dependencies
+// accept, so it compiles against the app's.
+subprojects {
+    if (project.name == 'flutter_avif_android') {
+        project.afterEvaluate {
+            project.android.compileSdkVersion rootProject.project(':app').android.compileSdkVersion
+        }
+        project.tasks.matching { it.name.startsWith('compile') && it.name.endsWith('Kotlin') }.configureEach {
+            it.exclude('**/FlutterAvifPlugin.kt')
+            it.compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+        }
+    }
+}
 subprojects {
     project.evaluationDependsOn(':app')
 }
