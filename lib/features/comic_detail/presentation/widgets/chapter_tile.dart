@@ -103,7 +103,7 @@ class ChapterTile extends StatelessWidget {
           ),
         ),
         if (isNew) ...[
-          const NewBadge(label: AppText.newLabel),
+          NewBadge(label: AppText.t.newLabel),
           const SizedBox(width: DotSpace.s3),
         ] else if (isRead) ...[
           Icon(LucideIcons300.check, size: 18, color: c.inkFaint),

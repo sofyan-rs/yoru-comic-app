@@ -39,12 +39,12 @@ class RootScreen extends StatefulWidget {
 }
 
 class _RootScreenState extends State<RootScreen> {
-  static const _items = [
-    FloatingNavItem(icon: LucideIcons300.house, label: AppText.home),
-    FloatingNavItem(icon: LucideIcons300.compass, label: AppText.explore),
-    FloatingNavItem(icon: LucideIcons300.bookmark, label: AppText.bookmark),
-    FloatingNavItem(icon: LucideIcons300.history, label: AppText.historyTab),
-    FloatingNavItem(icon: LucideIcons300.settings2, label: AppText.more),
+  static List<FloatingNavItem> get _items => [
+    FloatingNavItem(icon: LucideIcons300.house, label: AppText.t.home),
+    FloatingNavItem(icon: LucideIcons300.compass, label: AppText.t.explore),
+    FloatingNavItem(icon: LucideIcons300.bookmark, label: AppText.t.bookmark),
+    FloatingNavItem(icon: LucideIcons300.history, label: AppText.t.historyTab),
+    FloatingNavItem(icon: LucideIcons300.settings2, label: AppText.t.more),
   ];
 
   /// A tab's screen. Each is built on its first visit (startup builds and
@@ -96,9 +96,9 @@ class _RootScreenState extends State<RootScreen> {
           builder: (_) => UpdateSheet(release: release),
         );
       case UpdateUpToDate():
-        showSnackBar(context: context, message: AppText.upToDate);
+        showSnackBar(context: context, message: AppText.t.upToDate);
       case UpdateCheckFailed():
-        showSnackBar(context: context, message: AppText.checkUpdateFailed);
+        showSnackBar(context: context, message: AppText.t.checkUpdateFailed);
       default:
     }
   }

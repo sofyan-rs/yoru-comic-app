@@ -14,7 +14,7 @@ import 'package:yoru/features/settings/presentation/bloc/settings_cubit.dart';
 /// The DNS over HTTPS setting as shown in More: "Off", a preset's name, or
 /// a custom server's host.
 String dnsSettingLabel(String setting) =>
-    DohServer.fromSetting(setting)?.shortName ?? AppText.dnsOff;
+    DohServer.fromSetting(setting)?.shortName ?? AppText.t.dnsOff;
 
 /// Picks the DNS over HTTPS server: off, a preset, or a custom URL.
 Future<void> showDnsSheet(BuildContext context) =>
@@ -62,7 +62,7 @@ class _DnsSheetState extends State<_DnsSheet> {
   void _useCustom() {
     final url = DohServer.normalizeCustomUrl(_url.text);
     if (url == null) {
-      setState(() => _error = AppText.dnsCustomInvalid);
+      setState(() => _error = AppText.t.dnsCustomInvalid);
       return;
     }
     _url.text = url;
@@ -80,9 +80,9 @@ class _DnsSheetState extends State<_DnsSheet> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const ActionSheetHeader(
+        ActionSheetHeader(
           icon: LucideIcons300.globeLock,
-          title: AppText.dnsOverHttps,
+          title: AppText.t.dnsOverHttps,
         ),
         const SizedBox(height: DotSpace.s4),
         Flexible(
@@ -96,8 +96,8 @@ class _DnsSheetState extends State<_DnsSheet> {
                   children: [
                     ListRow(
                       icon: LucideIcons300.globe,
-                      title: AppText.dnsOff,
-                      subtitle: AppText.dnsOffDescription,
+                      title: AppText.t.dnsOff,
+                      subtitle: AppText.t.dnsOffDescription,
                       showChevron: false,
                       trailing: check(!_custom && current.isEmpty),
                       onTap: () => _pick(''),
@@ -113,10 +113,10 @@ class _DnsSheetState extends State<_DnsSheet> {
                       ),
                     ListRow(
                       icon: LucideIcons300.pencil,
-                      title: AppText.dnsCustom,
+                      title: AppText.t.dnsCustom,
                       subtitle: !_isPreset(current)
                           ? Uri.parse(current).host
-                          : AppText.dnsCustomDescription,
+                          : AppText.t.dnsCustomDescription,
                       showChevron: false,
                       trailing: check(_custom),
                       onTap: () => setState(() => _custom = true),
@@ -132,7 +132,7 @@ class _DnsSheetState extends State<_DnsSheet> {
                     autocorrect: false,
                     style: DotlineText.body.copyWith(color: c.ink),
                     decoration: InputDecoration(
-                      hintText: AppText.dnsCustomHint,
+                      hintText: AppText.t.dnsCustomHint,
                       errorText: _error,
                     ),
                     onChanged: (_) {
@@ -142,7 +142,7 @@ class _DnsSheetState extends State<_DnsSheet> {
                   ),
                   const SizedBox(height: DotSpace.s3),
                   DotButton(
-                    label: AppText.dnsUseCustom,
+                    label: AppText.t.dnsUseCustom,
                     leading: LucideIcons300.check,
                     onTap: _useCustom,
                   ),
@@ -150,8 +150,8 @@ class _DnsSheetState extends State<_DnsSheet> {
                 const SizedBox(height: DotSpace.s4),
                 Text(
                   Platform.isAndroid
-                      ? '${AppText.dnsCoverageAndroid} ${AppText.dnsPrivateDnsHint}'
-                      : AppText.dnsCoverageDesktop,
+                      ? '${AppText.t.dnsCoverageAndroid} ${AppText.t.dnsPrivateDnsHint}'
+                      : AppText.t.dnsCoverageDesktop,
                   style: DotlineText.bodyS.copyWith(color: c.inkFaint),
                 ),
               ],

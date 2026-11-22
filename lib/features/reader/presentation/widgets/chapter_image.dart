@@ -139,12 +139,12 @@ class _ChapterImgState extends State<ChapterImg> {
         children: [
           ActionSheetHeader(
             icon: LucideIcons300.image,
-            title: AppText.saveImg,
-            subtitle: '${AppText.pageShort} ${widget.page}',
+            title: AppText.t.saveImg,
+            subtitle: '${AppText.t.pageShort} ${widget.page}',
           ),
           const SizedBox(height: DotSpace.s5),
           DotButton(
-            label: AppText.saveImg,
+            label: AppText.t.saveImg,
             leading: LucideIcons300.download,
             onTap: () {
               Navigator.of(sheetContext).pop();
@@ -165,7 +165,7 @@ class _ChapterImgState extends State<ChapterImg> {
   Widget build(BuildContext context) {
     final c = Dotline.of(context);
     final label = Text(
-      '${AppText.pageShort} ${widget.page}'.toUpperCase(),
+      '${AppText.t.pageShort} ${widget.page}'.toUpperCase(),
       style: DotlineText.data.copyWith(color: c.inkFaint),
     );
 
@@ -258,14 +258,14 @@ class _ChapterImgState extends State<ChapterImg> {
                   Icon(LucideIcons300.imageOff, color: c.inkFaint, size: 32),
                   const SizedBox(height: DotSpace.s2),
                   Text(
-                    AppText.avifNotSupported,
+                    AppText.t.avifNotSupported,
                     textAlign: TextAlign.center,
                     style: DotlineText.data.copyWith(color: c.inkFaint),
                   ),
                   if (widget.onOpenWeb case final open?) ...[
                     const SizedBox(height: DotSpace.s4),
                     DotButton.outline(
-                      label: AppText.openInBrowser,
+                      label: AppText.t.openInBrowser,
                       leading: LucideIcons300.globe,
                       size: DotButtonSize.medium,
                       expand: false,
@@ -299,12 +299,12 @@ class _ChapterImgState extends State<ChapterImg> {
                   Icon(LucideIcons300.imageOff, color: c.inkFaint, size: 32),
                   const SizedBox(height: DotSpace.s2),
                   Text(
-                    AppText.pageNotLoaded,
+                    AppText.t.pageNotLoaded,
                     style: DotlineText.data.copyWith(color: c.inkFaint),
                   ),
                   const SizedBox(height: DotSpace.s4),
                   DotButton.outline(
-                    label: AppText.retry,
+                    label: AppText.t.retry,
                     leading: LucideIcons300.rotateCw,
                     size: DotButtonSize.medium,
                     expand: false,

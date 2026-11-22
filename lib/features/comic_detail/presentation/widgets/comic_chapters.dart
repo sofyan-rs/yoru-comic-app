@@ -122,10 +122,10 @@ class _ComicChaptersState extends State<ComicChapters> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const ActionSheetHeader(
+          ActionSheetHeader(
             icon: LucideIcons300.gitMerge,
-            title: AppText.chapterSources,
-            subtitle: AppText.chapterSourcesHint,
+            title: AppText.t.chapterSources,
+            subtitle: AppText.t.chapterSourcesHint,
           ),
           const SizedBox(height: DotSpace.s4),
           Flexible(
@@ -138,7 +138,7 @@ class _ComicChaptersState extends State<ComicChapters> {
                     for (final key in [null, ...widget.sources])
                       ListRow(
                         title: key == null
-                            ? AppText.allSources
+                            ? AppText.t.allSources
                             : context.sourceNameOf(key),
                         trailing: key == _shownSource
                             ? Icon(LucideIcons300.check, color: c.ink)
@@ -153,11 +153,11 @@ class _ComicChaptersState extends State<ComicChapters> {
                   background: c.bg,
                   children: [
                     ListRow(
-                      title: AppText.dedupeChapters,
-                      subtitle: AppText.dedupeChaptersHint,
+                      title: AppText.t.dedupeChapters,
+                      subtitle: AppText.t.dedupeChaptersHint,
                       trailing: DotSwitch(
                         value: !widget.keepDuplicates,
-                        semanticLabel: AppText.dedupeChapters,
+                        semanticLabel: AppText.t.dedupeChapters,
                         onChanged: (dedupe) =>
                             Navigator.of(context)
                                 .pop((key: _shownSource, keep: !dedupe)),
@@ -210,7 +210,7 @@ class _ComicChaptersState extends State<ComicChapters> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      AppText.chapter,
+                      AppText.t.chapter,
                       style: DotlineText.title.copyWith(color: c.ink),
                     ),
                     const SizedBox(width: DotSpace.s2),
@@ -222,7 +222,7 @@ class _ComicChaptersState extends State<ComicChapters> {
                     if (widget.sources.length > 1) ...[
                       RoundIconButton(
                         icon: LucideIcons300.gitMerge,
-                        semanticLabel: AppText.chapterSources,
+                        semanticLabel: AppText.t.chapterSources,
                         iconSize: DotSize.iconSmall,
                         // Filled while one source is picked.
                         background: _shownSource == null ? null : c.ink,
@@ -234,7 +234,7 @@ class _ComicChaptersState extends State<ComicChapters> {
                     if (widget.onScanlators case final onTap?) ...[
                       RoundIconButton(
                         icon: LucideIcons300.users,
-                        semanticLabel: AppText.scanlators,
+                        semanticLabel: AppText.t.scanlators,
                         iconSize: DotSize.iconSmall,
                         onTap: onTap,
                       ),
@@ -244,14 +244,14 @@ class _ComicChaptersState extends State<ComicChapters> {
                       icon: _searching
                           ? LucideIcons300.x
                           : LucideIcons300.search,
-                      semanticLabel: AppText.searchChapter,
+                      semanticLabel: AppText.t.searchChapter,
                       iconSize: DotSize.iconSmall,
                       onTap: _toggleSearch,
                     ),
                     const SizedBox(width: DotSpace.s2),
                     RoundIconButton(
                       icon: LucideIcons300.arrowDownUp,
-                      semanticLabel: AppText.sortChapter,
+                      semanticLabel: AppText.t.sortChapter,
                       iconSize: DotSize.iconSmall,
                       onTap: () => setState(() => _newestFirst = !_newestFirst),
                     ),
@@ -260,7 +260,7 @@ class _ComicChaptersState extends State<ComicChapters> {
                 if (_searching) ...[
                   const SizedBox(height: DotSpace.s3),
                   SearchField(
-                    hint: AppText.searchChapterHint,
+                    hint: AppText.t.searchChapterHint,
                     controller: _query,
                     autofocus: true,
                     onChanged: (_) => setState(() {}),

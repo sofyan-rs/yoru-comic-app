@@ -24,14 +24,14 @@ class ClearCacheSheet extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const ActionSheetHeader(
+        ActionSheetHeader(
           icon: LucideIcons300.trash2,
-          title: AppText.clearCache,
-          subtitle: AppText.clearCacheScope,
+          title: AppText.t.clearCache,
+          subtitle: AppText.t.clearCacheScope,
         ),
         const SizedBox(height: DotSpace.s4),
         Text(
-          AppText.clearCacheConfirmation,
+          AppText.t.clearCacheConfirmation,
           style: DotlineText.body.copyWith(color: c.inkMuted),
         ),
         const SizedBox(height: DotSpace.s4),
@@ -40,39 +40,39 @@ class ClearCacheSheet extends StatelessWidget {
           children: [
             ListRow(
               icon: LucideIcons300.image,
-              title: AppText.cacheImages,
-              trailing: status(AppText.removed, c.accentText),
+              title: AppText.t.cacheImages,
+              trailing: status(AppText.t.removed, c.accentText),
             ),
             ListRow(
               icon: LucideIcons300.bookImage,
-              title: AppText.cacheCovers,
-              trailing: status(AppText.kept, c.inkFaint),
+              title: AppText.t.cacheCovers,
+              trailing: status(AppText.t.kept, c.inkFaint),
             ),
             ListRow(
               icon: LucideIcons300.bookmark,
-              title: AppText.bookmark,
-              trailing: status(AppText.kept, c.inkFaint),
+              title: AppText.t.bookmark,
+              trailing: status(AppText.t.kept, c.inkFaint),
             ),
             ListRow(
               icon: LucideIcons300.history,
-              title: AppText.history,
-              trailing: status(AppText.kept, c.inkFaint),
+              title: AppText.t.history,
+              trailing: status(AppText.t.kept, c.inkFaint),
             ),
             ListRow(
               icon: LucideIcons300.download,
-              title: AppText.downloads,
-              trailing: status(AppText.kept, c.inkFaint),
+              title: AppText.t.downloads,
+              trailing: status(AppText.t.kept, c.inkFaint),
             ),
           ],
         ),
         const SizedBox(height: DotSpace.s5),
         DotButton.destructive(
-          label: AppText.clearCache,
+          label: AppText.t.clearCache,
           onTap: () => Navigator.of(context).pop(true),
         ),
         const SizedBox(height: DotSpace.s3),
         DotButton.outline(
-          label: AppText.cancel,
+          label: AppText.t.cancel,
           onTap: () => Navigator.of(context).pop(false),
         ),
       ],

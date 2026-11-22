@@ -39,7 +39,7 @@ Google Drive sync on desktop needs an OAuth client of type "Desktop app": put `G
 1. Create `lib/features/<name>/` with the layers it needs (ARCHITECTURE §3).
 2. Domain first: entity, repository interface, use cases. Put real rules here.
 3. Data: data source and `*RepositoryImpl` (`@LazySingleton(as: …)`, `runRemote` / `runLocal`).
-4. Presentation: bloc or cubit (`@injectable`), provided by its screen; page built from Dotline widgets, strings in `AppText` (ARCHITECTURE §5).
+4. Presentation: bloc or cubit (`@injectable`), provided by its screen; page built from Dotline widgets, strings as messages in `lib/l10n/app_*.arb`, read with `AppText.t` (ARCHITECTURE §5).
 5. Run `build_runner`, add tests (§5), run analyze, test and the domain grep.
 6. Update ARCHITECTURE.md (§3, §6, §7.1) if the design changed.
 
@@ -140,7 +140,7 @@ Reading order: run the app; ARCHITECTURE §3–§4; `features/home/` end to end 
 - `flutter analyze` clean (`flutter_lints`). `dart format` new files; in old files format only what you change (ARCHITECTURE §12).
 - `package:yoru/...` imports. Comment *why*; `///` on public and non-obvious things.
 - No `!` on values that can be null, no empty `catch`: return a `Failure` or `debugPrint`.
-- Strings in `AppText`, colours from `Dotline.of(context)`.
+- Strings in `lib/l10n/app_*.arb` (English and Indonesian both), read with `AppText.t`; colours from `Dotline.of(context)`.
 
 **Layers and blocs**
 - Domain is plain Dart (ARCHITECTURE §3 grep). Repositories return `Either` via `runRemote` / `runLocal`.

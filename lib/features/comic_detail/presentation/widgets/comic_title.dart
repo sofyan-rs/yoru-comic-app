@@ -16,14 +16,14 @@ class ComicTitle extends StatelessWidget {
     HapticFeedback.mediumImpact();
     await Clipboard.setData(ClipboardData(text: title));
     if (!context.mounted) return;
-    showSnackBar(context: context, message: AppText.titleCopied);
+    showSnackBar(context: context, message: AppText.t.titleCopied);
   }
 
   @override
   Widget build(BuildContext context) {
     final c = Dotline.of(context);
     return Semantics(
-      onLongPressHint: AppText.copyTitle,
+      onLongPressHint: AppText.t.copyTitle,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onLongPress: () => _copy(context),

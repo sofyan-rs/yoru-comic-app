@@ -27,8 +27,8 @@ class DownloadsScreen extends StatelessWidget {
     final cubit = context.read<DownloadCubit>();
     final confirmed = await showConfirmDeleteSheet(
       context,
-      title: AppText.clearDownloads,
-      message: AppText.clearDownloadsConfirmation,
+      title: AppText.t.clearDownloads,
+      message: AppText.t.clearDownloadsConfirmation,
     );
     if (confirmed) await cubit.clear();
   }
@@ -47,12 +47,12 @@ class DownloadsScreen extends StatelessWidget {
           children: [
             // Outside the scroll view so the title stays put.
             DotTopBar(
-              title: AppText.downloads,
+              title: AppText.t.downloads,
               actions: [
                 if (library.chapters.isNotEmpty)
                   RoundIconButton(
                     icon: LucideIcons300.trash2,
-                    semanticLabel: AppText.clearDownloads,
+                    semanticLabel: AppText.t.clearDownloads,
                     iconSize: DotSize.iconSmall,
                     onTap: () => _confirmClear(context),
                   ),
@@ -74,11 +74,11 @@ class DownloadsScreen extends StatelessWidget {
                           sliver: SliverToBoxAdapter(child: _stats(library)),
                         ),
                         if (library.chapters.isEmpty)
-                          const SliverToBoxAdapter(
+                          SliverToBoxAdapter(
                             child: EmptyState(
                               icon: LucideIcons300.download,
-                              title: AppText.downloadsEmpty,
-                              message: AppText.downloadsEmptyHint,
+                              title: AppText.t.downloadsEmpty,
+                              message: AppText.t.downloadsEmptyHint,
                             ),
                           ),
                         if (pending.isNotEmpty)
@@ -115,7 +115,7 @@ class DownloadsScreen extends StatelessWidget {
       Expanded(
         child: StatTile(
           value: '${library.completedCount}',
-          label: AppText.downloadedChapters,
+          label: AppText.t.downloadedChapters,
           labelOnTop: true,
         ),
       ),
@@ -123,7 +123,7 @@ class DownloadsScreen extends StatelessWidget {
       Expanded(
         child: StatTile(
           value: formatBytes(library.totalBytes),
-          label: AppText.storageUsed,
+          label: AppText.t.storageUsed,
           labelOnTop: true,
         ),
       ),
@@ -142,8 +142,8 @@ class DownloadsScreen extends StatelessWidget {
     return [
       SliverToBoxAdapter(
         child: SectionLabel(
-          label: AppText.downloadQueue,
-          actionLabel: failed.isEmpty ? null : AppText.downloadRetryAll,
+          label: AppText.t.downloadQueue,
+          actionLabel: failed.isEmpty ? null : AppText.t.downloadRetryAll,
           onAction: failed.isEmpty
               ? null
               : () => context.read<DownloadCubit>().retry(failed),
@@ -176,10 +176,10 @@ class _PendingRow extends StatelessWidget {
     final cubit = context.read<DownloadCubit>();
     final failed = chapter.status == DownloadStatus.failed;
     final status = switch (chapter.status) {
-      DownloadStatus.queued => AppText.downloadWaiting,
-      DownloadStatus.failed => AppText.downloadFailed,
+      DownloadStatus.queued => AppText.t.downloadWaiting,
+      DownloadStatus.failed => AppText.t.downloadFailed,
       _ when chapter.pageCount == 0 => '…',
-      _ => '${chapter.savedPages}/${chapter.pageCount} ${AppText.pages}',
+      _ => '${chapter.savedPages}/${chapter.pageCount} ${AppText.t.pages}',
     };
 
     return ListRow(
@@ -218,7 +218,7 @@ class _PendingRow extends StatelessWidget {
           if (failed) ...[
             RoundIconButton(
               icon: LucideIcons300.rotateCw,
-              semanticLabel: AppText.downloadRetry,
+              semanticLabel: AppText.t.downloadRetry,
               iconSize: DotSize.iconSmall,
               onTap: () => cubit.retry([chapter.slug]),
             ),
@@ -226,7 +226,7 @@ class _PendingRow extends StatelessWidget {
           ],
           RoundIconButton(
             icon: LucideIcons300.x,
-            semanticLabel: AppText.downloadCancel,
+            semanticLabel: AppText.t.downloadCancel,
             iconSize: DotSize.iconSmall,
             onTap: () => cubit.delete([chapter.slug]),
           ),

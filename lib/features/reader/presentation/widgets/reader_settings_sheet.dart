@@ -44,53 +44,53 @@ class ReaderSettingsSheet extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          AppText.readerSettings,
+          AppText.t.readerSettings,
           style: DotlineText.title.copyWith(color: c.ink),
         ),
-        label(AppText.readingDirection),
+        label(AppText.t.readingDirection),
         SegmentedControl<ReadingDirection>(
           background: c.bg,
           selected: settings.readingDirection,
           onChanged: (d) =>
               cubit.update((s) => s.copyWith(readingDirection: d)),
-          segments: const [
+          segments: [
             Segment(
               value: ReadingDirection.vertical,
-              label: AppText.directionVertical,
+              label: AppText.t.directionVertical,
             ),
             Segment(
               value: ReadingDirection.rightToLeft,
-              label: AppText.directionRtl,
+              label: AppText.t.directionRtl,
             ),
             Segment(
               value: ReadingDirection.leftToRight,
-              label: AppText.directionLtr,
+              label: AppText.t.directionLtr,
             ),
           ],
         ),
         if (!spreads) ...[
-          label(AppText.pageSize),
+          label(AppText.t.pageSize),
           SegmentedControl<PageFit>(
             background: c.bg,
             selected: settings.pageFit,
             onChanged: (f) => cubit.update((s) => s.copyWith(pageFit: f)),
-            segments: const [
-              Segment(value: PageFit.width, label: AppText.fitWidth),
-              Segment(value: PageFit.height, label: AppText.fitHeight),
+            segments: [
+              Segment(value: PageFit.width, label: AppText.t.fitWidth),
+              Segment(value: PageFit.height, label: AppText.t.fitHeight),
             ],
           ),
         ],
         if (wide && !spreads && settings.pageFit == PageFit.width) ...[
-          label(AppText.pageWidth),
+          label(AppText.t.pageWidth),
           SegmentedControl<ReaderWidth>(
             background: c.bg,
             selected: settings.readerWidth,
             onChanged: (w) => cubit.update((s) => s.copyWith(readerWidth: w)),
-            segments: const [
-              Segment(value: ReaderWidth.narrow, label: AppText.widthNarrow),
-              Segment(value: ReaderWidth.medium, label: AppText.widthMedium),
-              Segment(value: ReaderWidth.wide, label: AppText.widthWide),
-              Segment(value: ReaderWidth.full, label: AppText.widthFull),
+            segments: [
+              Segment(value: ReaderWidth.narrow, label: AppText.t.widthNarrow),
+              Segment(value: ReaderWidth.medium, label: AppText.t.widthMedium),
+              Segment(value: ReaderWidth.wide, label: AppText.t.widthWide),
+              Segment(value: ReaderWidth.full, label: AppText.t.widthFull),
             ],
           ),
         ],
@@ -99,11 +99,11 @@ class ReaderSettingsSheet extends StatelessWidget {
           background: c.bg,
           children: [
             ListRow(
-              title: AppText.keepScreenOn,
-              subtitle: AppText.keepScreenOnHint,
+              title: AppText.t.keepScreenOn,
+              subtitle: AppText.t.keepScreenOnHint,
               trailing: DotSwitch(
                 value: settings.keepScreenOn,
-                semanticLabel: AppText.keepScreenOn,
+                semanticLabel: AppText.t.keepScreenOn,
                 onChanged: (v) =>
                     cubit.update((s) => s.copyWith(keepScreenOn: v)),
               ),
@@ -113,11 +113,11 @@ class ReaderSettingsSheet extends StatelessWidget {
             ),
             if (wide && !vertical)
               ListRow(
-                title: AppText.twoPages,
-                subtitle: AppText.twoPagesHint,
+                title: AppText.t.twoPages,
+                subtitle: AppText.t.twoPagesHint,
                 trailing: DotSwitch(
                   value: settings.twoPages,
-                  semanticLabel: AppText.twoPages,
+                  semanticLabel: AppText.t.twoPages,
                   onChanged: (v) =>
                       cubit.update((s) => s.copyWith(twoPages: v)),
                 ),
@@ -125,21 +125,21 @@ class ReaderSettingsSheet extends StatelessWidget {
                     cubit.update((s) => s.copyWith(twoPages: !s.twoPages)),
               ),
             ListRow(
-              title: AppText.pageGap,
-              subtitle: AppText.pageGapHint,
+              title: AppText.t.pageGap,
+              subtitle: AppText.t.pageGapHint,
               trailing: DotSwitch(
                 value: settings.pageGap,
-                semanticLabel: AppText.pageGap,
+                semanticLabel: AppText.t.pageGap,
                 onChanged: (v) => cubit.update((s) => s.copyWith(pageGap: v)),
               ),
               onTap: () => cubit.update((s) => s.copyWith(pageGap: !s.pageGap)),
             ),
             ListRow(
-              title: AppText.progressBar,
-              subtitle: AppText.progressBarHint,
+              title: AppText.t.progressBar,
+              subtitle: AppText.t.progressBarHint,
               trailing: DotSwitch(
                 value: settings.progressBar,
-                semanticLabel: AppText.progressBar,
+                semanticLabel: AppText.t.progressBar,
                 onChanged: (v) =>
                     cubit.update((s) => s.copyWith(progressBar: v)),
               ),
@@ -148,11 +148,11 @@ class ReaderSettingsSheet extends StatelessWidget {
             ),
             if (vertical) ...[
               ListRow(
-                title: AppText.infiniteScroll,
-                subtitle: AppText.infiniteScrollHint,
+                title: AppText.t.infiniteScroll,
+                subtitle: AppText.t.infiniteScrollHint,
                 trailing: DotSwitch(
                   value: settings.infiniteScroll,
-                  semanticLabel: AppText.infiniteScroll,
+                  semanticLabel: AppText.t.infiniteScroll,
                   onChanged: (v) =>
                       cubit.update((s) => s.copyWith(infiniteScroll: v)),
                 ),
@@ -161,8 +161,8 @@ class ReaderSettingsSheet extends StatelessWidget {
                 ),
               ),
               ListRow(
-                title: AppText.autoScrollSpeed,
-                subtitle: AppText.autoScrollHint,
+                title: AppText.t.autoScrollSpeed,
+                subtitle: AppText.t.autoScrollHint,
                 trailing: _SpeedStepper(
                   value: settings.autoScrollSpeed,
                   onChanged: (v) =>
@@ -192,7 +192,7 @@ class _SpeedStepper extends StatelessWidget {
       children: [
         RoundIconButton(
           icon: LucideIcons300.minus,
-          semanticLabel: AppText.slower,
+          semanticLabel: AppText.t.slower,
           size: 36,
           iconSize: DotSize.iconSmall,
           onTap: value > autoScrollMin ? () => onChanged(value - 1) : null,
@@ -207,7 +207,7 @@ class _SpeedStepper extends StatelessWidget {
         ),
         RoundIconButton(
           icon: LucideIcons300.plus,
-          semanticLabel: AppText.faster,
+          semanticLabel: AppText.t.faster,
           size: 36,
           iconSize: DotSize.iconSmall,
           onTap: value < autoScrollMax ? () => onChanged(value + 1) : null,

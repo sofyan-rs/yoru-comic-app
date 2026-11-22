@@ -1,3 +1,4 @@
+import 'package:yoru/core/constants/texts.dart';
 import 'package:yoru/core/theme/dotline_colors.dart';
 import 'package:yoru/core/theme/dotline_tokens.dart';
 import 'package:material_ui/material_ui.dart';
@@ -43,7 +44,7 @@ class _DotLoaderState extends State<DotLoader>
   Widget build(BuildContext context) {
     final c = Dotline.of(context);
     return Semantics(
-      label: 'Loading',
+      label: AppText.t.loading,
       child: AnimatedBuilder(
         animation: _controller,
         builder: (context, _) {

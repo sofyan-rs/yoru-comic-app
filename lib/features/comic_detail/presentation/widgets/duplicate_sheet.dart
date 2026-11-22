@@ -30,40 +30,40 @@ Future<DuplicateChoice?> showDuplicateSheet(
         children: [
           ActionSheetHeader(
             icon: LucideIcons300.copy,
-            title: AppText.duplicateTitle,
+            title: AppText.t.duplicateTitle,
             subtitle: '${existing.comicDetails.title} · $source',
           ),
           const SizedBox(height: DotSpace.s4),
           Text(
-            '${AppText.duplicateMessagePrefix} $source. '
-            '${AppText.duplicateMessage}',
+            '${AppText.t.duplicateMessagePrefix} $source. '
+            '${AppText.t.duplicateMessage}',
             style: DotlineText.body.copyWith(color: c.inkMuted),
           ),
           const SizedBox(height: DotSpace.s5),
           DotButton(
-            label: AppText.migrate,
+            label: AppText.t.migrate,
             leading: LucideIcons300.arrowRightLeft,
             onTap: () => Navigator.of(context).pop(DuplicateChoice.migrate),
           ),
           const SizedBox(height: DotSpace.s3),
           DotButton.outline(
-            label: AppText.mergeSources,
+            label: AppText.t.mergeSources,
             leading: LucideIcons300.gitMerge,
             onTap: () => Navigator.of(context).pop(DuplicateChoice.merge),
           ),
           const SizedBox(height: DotSpace.s3),
           DotButton.outline(
-            label: AppText.addAnyway,
+            label: AppText.t.addAnyway,
             onTap: () => Navigator.of(context).pop(DuplicateChoice.add),
           ),
           const SizedBox(height: DotSpace.s3),
           DotButton.outline(
-            label: AppText.viewBookmarkedSeries,
+            label: AppText.t.viewBookmarkedSeries,
             onTap: () => Navigator.of(context).pop(DuplicateChoice.open),
           ),
           const SizedBox(height: DotSpace.s3),
           DotButton.outline(
-            label: AppText.cancel,
+            label: AppText.t.cancel,
             onTap: () => Navigator.of(context).pop(),
           ),
         ],

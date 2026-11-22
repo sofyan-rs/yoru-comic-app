@@ -243,15 +243,15 @@ class _ExploreScreenState extends State<ExploreScreen> {
   Widget _header(ComicListState state) {
     final source = context.watch<SourcesCubit>().state.active;
     return ScreenHeader(
-      overline: AppText.explore,
-      title: source?.baseName ?? AppText.explore,
-      titleSemanticLabel: AppText.changeSource,
+      overline: AppText.t.explore,
+      title: source?.baseName ?? AppText.t.explore,
+      titleSemanticLabel: AppText.t.changeSource,
       onTitleTap: () => showSourcePicker(context),
       actions: [
         if (source != null && source.baseUrl.isNotEmpty)
           RoundIconButton(
             icon: LucideIcons300.globe,
-            semanticLabel: AppText.openWebView,
+            semanticLabel: AppText.t.openWebView,
             onTap: () => WebViewScreen.open(
               context,
               sourceId: source.id,
@@ -260,7 +260,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
           ),
         RoundIconButton(
           icon: _searching ? LucideIcons300.x : LucideIcons300.search,
-          semanticLabel: AppText.exploreSearchHint,
+          semanticLabel: AppText.t.exploreSearchHint,
           onTap: _toggleSearch,
         ),
       ],
@@ -332,7 +332,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
         children: [
           if (_searching) ...[
             SearchField(
-              hint: AppText.exploreSearchHint,
+              hint: AppText.t.exploreSearchHint,
               controller: _query,
               focusNode: _queryFocus,
               onChanged: _onQueryChanged,
@@ -353,7 +353,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 children: [
                   RoundIconButton(
                     icon: LucideIcons300.funnel,
-                    semanticLabel: AppText.filter,
+                    semanticLabel: AppText.t.filter,
                     outlined: true,
                     onTap: () => showFilterSheet(context, onApply: _load),
                   ),
@@ -386,10 +386,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
       SliverToBoxAdapter(
         child: EmptyState(
           icon: LucideIcons300.searchX,
-          title: AppText.comicNotFound,
+          title: AppText.t.comicNotFound,
           message: _query.text.trim().isEmpty
-              ? AppText.comicNotFoundFilter
-              : AppText.comicNotFoundSearch,
+              ? AppText.t.comicNotFoundFilter
+              : AppText.t.comicNotFoundSearch,
         ),
       ),
     ],

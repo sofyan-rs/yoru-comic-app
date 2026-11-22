@@ -96,12 +96,12 @@ class _MatchSearchSheetState extends State<_MatchSearchSheet> {
         children: [
           ActionSheetHeader(
             icon: LucideIcons300.search,
-            title: AppText.pickMatch,
+            title: AppText.t.pickMatch,
             subtitle: widget.title,
           ),
           const SizedBox(height: DotSpace.s4),
           SearchField(
-            hint: AppText.searchHint,
+            hint: AppText.t.searchHint,
             controller: _query,
             onSubmitted: (_) => _search(),
             onClear: _query.clear,
@@ -134,7 +134,7 @@ class _MatchSearchSheetState extends State<_MatchSearchSheet> {
                 : _error != null || _results.isEmpty
                 ? Center(
                     child: Text(
-                      _error ?? AppText.noResults,
+                      _error ?? AppText.t.noResults,
                       style: DotlineText.body.copyWith(color: c.inkMuted),
                       textAlign: TextAlign.center,
                     ),
@@ -161,7 +161,7 @@ class _MatchSearchSheetState extends State<_MatchSearchSheet> {
           ),
           const SizedBox(height: DotSpace.s3),
           DotButton.outline(
-            label: AppText.skip,
+            label: AppText.t.skip,
             onTap: () => Navigator.of(context).pop(const MatchPick(null)),
           ),
         ],

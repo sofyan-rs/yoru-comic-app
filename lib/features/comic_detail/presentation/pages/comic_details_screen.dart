@@ -160,10 +160,10 @@ class _ComicDetailsViewState extends State<_ComicDetailsView> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const ActionSheetHeader(
+          ActionSheetHeader(
             icon: LucideIcons300.users,
-            title: AppText.scanlators,
-            subtitle: AppText.scanlatorsHint,
+            title: AppText.t.scanlators,
+            subtitle: AppText.t.scanlatorsHint,
           ),
           const SizedBox(height: DotSpace.s4),
           Flexible(
@@ -175,7 +175,7 @@ class _ComicDetailsViewState extends State<_ComicDetailsView> {
                   children: [
                     for (final name in [null, ..._scanlators])
                       ListRow(
-                        title: name ?? AppText.sourceOrder,
+                        title: name ?? AppText.t.sourceOrder,
                         trailing: name == _scanlator
                             ? Icon(LucideIcons300.check, color: c.ink)
                             : null,
@@ -320,14 +320,14 @@ class _ComicDetailsViewState extends State<_ComicDetailsView> {
   Future<void> _deleteLocal(String title) async {
     final confirmed = await showConfirmDeleteSheet(
       context,
-      title: AppText.deleteFromDevice,
+      title: AppText.t.deleteFromDevice,
       subtitle: title,
-      message: AppText.deleteLocalComicMessage,
+      message: AppText.t.deleteLocalComicMessage,
     );
     if (!confirmed || !mounted) return;
     await getIt<ExtensionManager>().local.delete(ComicKey.slugOf(widget.slug));
     if (!mounted) return;
-    showSnackBar(context: context, message: AppText.localComicDeleted);
+    showSnackBar(context: context, message: AppText.t.localComicDeleted);
     Navigator.of(context).maybePop();
   }
 
@@ -338,7 +338,7 @@ class _ComicDetailsViewState extends State<_ComicDetailsView> {
     if (bookmark != null && bookmark.isMerged) {
       final picked = await showSourceChoiceSheet(
         context,
-        title: AppText.openWebView,
+        title: AppText.t.openWebView,
         choices: [
           for (final k in bookmark.sourceKeys)
             (id: k, name: context.sourceNameOf(k), detail: null),
@@ -382,7 +382,7 @@ class _ComicDetailsViewState extends State<_ComicDetailsView> {
     if (!mounted) return;
     await history.load();
     if (edit.added.isNotEmpty && mounted) {
-      showSnackBar(context: context, message: AppText.merged);
+      showSnackBar(context: context, message: AppText.t.merged);
     }
     await _load();
   }
@@ -420,7 +420,7 @@ class _ComicDetailsViewState extends State<_ComicDetailsView> {
     final link = DeepLinks.comic(widget.slug);
     shareText(
       context,
-      text: '$title — ${AppText.shareSuffix}\n$link',
+      text: '$title — ${AppText.t.shareSuffix}\n$link',
       subject: title,
     );
   }
@@ -445,7 +445,7 @@ class _ComicDetailsViewState extends State<_ComicDetailsView> {
         _slowNote = ScaffoldMessenger.of(this.context);
         showSnackBar(
           context: this.context,
-          message: AppText.chaptersLoadingSlow,
+          message: AppText.t.chaptersLoadingSlow,
           duration: const Duration(minutes: 5),
         );
       });
@@ -627,11 +627,11 @@ class _ComicDetailsViewState extends State<_ComicDetailsView> {
     actions: [
       if (!_sourceMissing)
         DotMenuButton(
-          semanticLabel: AppText.more,
+          semanticLabel: AppText.t.more,
           items: [
             if (bookmark != null)
               DotMenuItem(
-                label: AppText.mergedSources,
+                label: AppText.t.mergedSources,
                 icon: LucideIcons300.gitMerge,
                 onTap: () =>
                     _editSources(bookmark, details?.title ?? widget.title),
@@ -639,7 +639,7 @@ class _ComicDetailsViewState extends State<_ComicDetailsView> {
             // Migrating would drop the other merged sources.
             if (bookmark != null && !bookmark.isMerged)
               DotMenuItem(
-                label: AppText.migrateSource,
+                label: AppText.t.migrateSource,
                 icon: LucideIcons300.arrowRightLeft,
                 onTap: () =>
                     SourceMigrationScreen.open(context, keys: {widget.slug}),
@@ -648,29 +648,29 @@ class _ComicDetailsViewState extends State<_ComicDetailsView> {
             // on another device.
             if (!_isLocal) ...[
               DotMenuItem(
-                label: AppText.openWebView,
+                label: AppText.t.openWebView,
                 icon: LucideIcons300.globe,
                 onTap: () => _openWebView(bookmark),
               ),
               DotMenuItem(
-                label: AppText.share,
+                label: AppText.t.share,
                 icon: LucideIcons300.share2,
                 onTap: () => _share(details?.title ?? widget.title),
               ),
             ] else ...[
               DotMenuItem(
-                label: AppText.addChapters,
+                label: AppText.t.addChapters,
                 icon: LucideIcons300.filePlus,
                 onTap: () => _addLocalChapters(details?.title ?? widget.title),
               ),
               if (details != null)
                 DotMenuItem(
-                  label: AppText.editDetails,
+                  label: AppText.t.editDetails,
                   icon: LucideIcons300.pencil,
                   onTap: () => _editLocal(details),
                 ),
               DotMenuItem(
-                label: AppText.deleteFromDevice,
+                label: AppText.t.deleteFromDevice,
                 icon: LucideIcons300.trash2,
                 onTap: () => _deleteLocal(details?.title ?? widget.title),
               ),

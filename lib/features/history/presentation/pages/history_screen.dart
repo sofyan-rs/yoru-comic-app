@@ -25,23 +25,23 @@ class HistoryScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const ActionSheetHeader(
+            ActionSheetHeader(
               icon: LucideIcons300.trash2,
-              title: AppText.clearHistory,
+              title: AppText.t.clearHistory,
             ),
             const SizedBox(height: DotSpace.s4),
             Text(
-              AppText.clearHistoryConfirmation,
+              AppText.t.clearHistoryConfirmation,
               style: DotlineText.body.copyWith(color: c.inkMuted),
             ),
             const SizedBox(height: DotSpace.s5),
             DotButton.destructive(
-              label: AppText.clearHistory,
+              label: AppText.t.clearHistory,
               onTap: () => Navigator.of(context).pop(true),
             ),
             const SizedBox(height: DotSpace.s3),
             DotButton.outline(
-              label: AppText.cancel,
+              label: AppText.t.cancel,
               onTap: () => Navigator.of(context).pop(false),
             ),
           ],
@@ -66,16 +66,16 @@ class HistoryScreen extends StatelessWidget {
             // Outside the scroll view so the title stays put.
             CenteredContent(
               child: ScreenHeader(
-                title: AppText.historyTab,
+                title: AppText.t.historyTab,
                 subtitle: latest.isEmpty
                     ? null
-                    : '${AppText.count(latest.length, AppText.comic, AppText.comics)} · '
-                          '${AppText.swipeToDelete}',
+                    : '${AppText.t.comicCount(latest.length)} · '
+                          '${AppText.t.swipeToDelete}',
                 actions: [
                   if (latest.isNotEmpty)
                     RoundIconButton(
                       icon: LucideIcons300.trash2,
-                      semanticLabel: AppText.clearHistory,
+                      semanticLabel: AppText.t.clearHistory,
                       iconSize: DotSize.iconSmall,
                       onTap: () => _confirmClearAll(context),
                     ),
@@ -89,11 +89,11 @@ class HistoryScreen extends StatelessWidget {
                     SliverCenteredContent(
                       slivers: [
                         if (latest.isEmpty)
-                          const SliverToBoxAdapter(
+                          SliverToBoxAdapter(
                             child: EmptyState(
                               icon: LucideIcons300.history,
-                              title: AppText.historyEmpty,
-                              message: AppText.historyEmptyHint,
+                              title: AppText.t.historyEmpty,
+                              message: AppText.t.historyEmptyHint,
                             ),
                           ),
                         for (final day in days) ...[

@@ -37,7 +37,7 @@ class DetailCover extends StatelessWidget {
             ),
             const SizedBox(height: DotSpace.s4),
             DotButton(
-              label: AppText.saveImg,
+              label: AppText.t.saveImg,
               leading: LucideIcons300.download,
               size: DotButtonSize.medium,
               onTap: () {
@@ -58,7 +58,7 @@ class DetailCover extends StatelessWidget {
       child: SizedBox(
         width: width,
         child: Pressable(
-          semanticLabel: AppText.seeCover,
+          semanticLabel: AppText.t.seeCover,
           onTap: url.isEmpty ? null : () => _showLarge(context, url),
           child: switch (heroTag) {
             final tag? => Hero(

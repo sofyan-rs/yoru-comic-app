@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:yoru/features/comic_detail/presentation/widgets/chapter_date.dart';
 import 'package:yoru/core/source/local/local_source.dart';
 import 'package:yoru/core/constants/texts.dart';
 import 'package:yoru/core/di/injection.dart';
@@ -905,7 +906,7 @@ class _ReadChapterViewState extends State<_ReadChapterView>
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                AppText.chapterList,
+                AppText.t.chapterList,
                 style: DotlineText.title.copyWith(color: c.ink),
               ),
               const SizedBox(height: DotSpace.s4),
@@ -958,7 +959,7 @@ class _ReadChapterViewState extends State<_ReadChapterView>
                                       const SizedBox(width: DotSpace.s3),
                                     ],
                                     Text(
-                                      chapter.date,
+                                      ChapterDate.display(chapter.date),
                                       style: DotlineText.data.copyWith(
                                         color: c.inkFaint,
                                       ),
@@ -1218,8 +1219,8 @@ class _ReadChapterViewState extends State<_ReadChapterView>
       child: Column(
         children: [
           Text(
-            '${AppText.chapter} ${segment.content.chapterNumber} '
-                    '${AppText.finishedLower}'
+            '${AppText.t.chapter} ${segment.content.chapterNumber} '
+                    '${AppText.t.finishedLower}'
                 .toUpperCase(),
             style: DotlineText.label.copyWith(color: c.inkFaint),
             textAlign: TextAlign.center,
@@ -1255,13 +1256,13 @@ class _ReadChapterViewState extends State<_ReadChapterView>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    AppText.chapterLoadFailed,
+                    AppText.t.chapterLoadFailed,
                     style: DotlineText.body.copyWith(color: c.inkMuted),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: DotSpace.s3),
                   DotButton.outline(
-                    label: AppText.retry,
+                    label: AppText.t.retry,
                     size: DotButtonSize.medium,
                     onTap: retry,
                   ),
@@ -1581,14 +1582,14 @@ class _ReadChapterViewState extends State<_ReadChapterView>
                         ? LucideIcons300.pause
                         : LucideIcons300.play,
                     semanticLabel: _autoScroll
-                        ? AppText.autoScrollStop
-                        : AppText.autoScrollStart,
+                        ? AppText.t.autoScrollStop
+                        : AppText.t.autoScrollStart,
                     iconSize: DotSize.iconSmall,
                     onTap: () => _setAutoScroll(!_autoScroll),
                   ),
                 RoundIconButton(
                   icon: LucideIcons300.list,
-                  semanticLabel: AppText.chapterList,
+                  semanticLabel: AppText.t.chapterList,
                   iconSize: DotSize.iconSmall,
                   onTap: () => _showChapterList(_current?.slug ?? widget.slug),
                 ),
@@ -1596,7 +1597,7 @@ class _ReadChapterViewState extends State<_ReadChapterView>
                   iconSize: DotSize.iconSmall,
                   items: [
                     DotMenuItem(
-                      label: AppText.readerSettings,
+                      label: AppText.t.readerSettings,
                       icon: LucideIcons300.slidersHorizontal,
                       onTap: _showSettings,
                     ),
@@ -1608,7 +1609,7 @@ class _ReadChapterViewState extends State<_ReadChapterView>
                           ),
                         ))
                       DotMenuItem(
-                        label: AppText.openWebView,
+                        label: AppText.t.openWebView,
                         icon: LucideIcons300.globe,
                         onTap: _openWebView,
                       ),
@@ -1686,7 +1687,7 @@ class _ReadChapterViewState extends State<_ReadChapterView>
             children: [
               RoundIconButton(
                 icon: LucideIcons300.chevronLeft,
-                semanticLabel: AppText.previousChapter,
+                semanticLabel: AppText.t.previousChapter,
                 size: DotSize.navCircle,
                 background: Colors.transparent,
                 onTap: previous == null ? null : () => _openChapter(previous),
@@ -1714,7 +1715,7 @@ class _ReadChapterViewState extends State<_ReadChapterView>
                           ),
                           const SizedBox(height: DotSpace.s1),
                           Text(
-                            '${AppText.pageShort} $shown / $pageCount'
+                            '${AppText.t.pageShort} $shown / $pageCount'
                                 .toUpperCase(),
                             style: DotlineText.data.copyWith(color: c.inkMuted),
                           ),
@@ -1726,7 +1727,7 @@ class _ReadChapterViewState extends State<_ReadChapterView>
               ),
               RoundIconButton(
                 icon: LucideIcons300.chevronRight,
-                semanticLabel: AppText.nextChapter,
+                semanticLabel: AppText.t.nextChapter,
                 size: DotSize.navCircle,
                 background: c.navSelected,
                 onTap: next == null ? null : () => _openChapter(next),

@@ -59,7 +59,7 @@ class _MihonImportView extends StatelessWidget {
               child: Column(
                 children: [
                   // Outside the scroll view so the title stays put.
-                  const DotTopBar(title: AppText.importMihon),
+                  DotTopBar(title: AppText.t.importMihon),
                   Expanded(
                     child: CustomScrollView(
                       slivers: [
@@ -78,14 +78,14 @@ class _MihonImportView extends StatelessWidget {
                                     MihonImportPhase.finished => switch (state
                                         .result) {
                                       final r? =>
-                                        '${AppText.importDone} · ${r.added} ${AppText.added}'
-                                            '${r.existing > 0 ? ' · ${r.existing} ${AppText.alreadyInLibrary}' : ''}'
-                                            '${r.sameTitle > 0 ? ' · ${r.sameTitle} ${AppText.sameTitleElsewhere}' : ''}'
-                                            '${r.chaptersRead > 0 ? ' · ${r.chaptersRead} ${AppText.chaptersMarkedRead}' : ''}. '
-                                            '${AppText.mihonLoadHint}',
-                                      null => AppText.importDone,
+                                        '${AppText.t.importDone} · ${r.added} ${AppText.t.added}'
+                                            '${r.existing > 0 ? ' · ${r.existing} ${AppText.t.alreadyInLibrary}' : ''}'
+                                            '${r.sameTitle > 0 ? ' · ${r.sameTitle} ${AppText.t.sameTitleElsewhere}' : ''}'
+                                            '${r.chaptersRead > 0 ? ' · ${r.chaptersRead} ${AppText.t.chaptersMarkedRead}' : ''}. '
+                                            '${AppText.t.mihonLoadHint}',
+                                      null => AppText.t.importDone,
                                     },
-                                    _ => AppText.mihonHint,
+                                    _ => AppText.t.mihonHint,
                                   },
                                   style: DotlineText.bodyS.copyWith(
                                     color: c.inkFaint,
@@ -101,8 +101,8 @@ class _MihonImportView extends StatelessWidget {
                                 ),
                               ),
                             if (state.supported.isNotEmpty) ...[
-                              const SliverToBoxAdapter(
-                                child: SectionLabel(label: AppText.sources),
+                              SliverToBoxAdapter(
+                                child: SectionLabel(label: AppText.t.sources),
                               ),
                               SliverListGroup(
                                 itemCount: state.supported.length,
@@ -113,9 +113,9 @@ class _MihonImportView extends StatelessWidget {
                               ),
                             ],
                             if (state.unsupported.isNotEmpty) ...[
-                              const SliverToBoxAdapter(
+                              SliverToBoxAdapter(
                                 child: SectionLabel(
-                                  label: AppText.notAvailableHere,
+                                  label: AppText.t.notAvailableHere,
                                 ),
                               ),
                               SliverToBoxAdapter(
@@ -155,8 +155,8 @@ class _MihonImportView extends StatelessWidget {
                     MihonImportPhase.idle ||
                     MihonImportPhase.reading => DotButton(
                       label: state.phase == MihonImportPhase.reading
-                          ? AppText.readingFile
-                          : AppText.chooseFile,
+                          ? AppText.t.readingFile
+                          : AppText.t.chooseFile,
                       leading: LucideIcons300.fileUp,
                       onTap: state.phase == MihonImportPhase.reading
                           ? null
@@ -164,16 +164,16 @@ class _MihonImportView extends StatelessWidget {
                     ),
                     MihonImportPhase.loaded => DotButton(
                       label:
-                          '${AppText.importCount} '
-                          '${AppText.count(state.selectedCount, AppText.comic, AppText.comics)}',
+                          '${AppText.t.importCount} '
+                          '${AppText.t.comicCount(state.selectedCount)}',
                       onTap: state.selectedCount == 0 ? null : cubit.import,
                     ),
-                    MihonImportPhase.importing => const DotButton(
-                      label: AppText.importing,
+                    MihonImportPhase.importing => DotButton(
+                      label: AppText.t.importing,
                       onTap: null,
                     ),
                     MihonImportPhase.finished => DotButton(
-                      label: AppText.done,
+                      label: AppText.t.done,
                       onTap: () => Navigator.of(context).pop(),
                     ),
                   },
@@ -205,10 +205,10 @@ class _GroupRow extends StatelessWidget {
     return ListRow(
       title: source.name,
       subtitle: [
-        AppText.count(group.entries.length, AppText.comic, AppText.comics),
+        AppText.t.comicCount(group.entries.length),
         if (group.unreadable > 0)
-          '${group.unreadable} ${AppText.unreadableLinks}',
-        if (!installed) AppText.needsInstall,
+          '${group.unreadable} ${AppText.t.unreadableLinks}',
+        if (!installed) AppText.t.needsInstall,
       ].join(' · '),
       onTap: editable ? () => cubit.toggle(group.id) : null,
       trailing: Row(
@@ -216,7 +216,7 @@ class _GroupRow extends StatelessWidget {
         children: [
           if (!installed && editable)
             DotButton.outline(
-              label: installing ? AppText.installing : AppText.install,
+              label: installing ? AppText.t.installing : AppText.t.install,
               size: DotButtonSize.medium,
               expand: false,
               onTap: installing ? null : () => cubit.install(group),

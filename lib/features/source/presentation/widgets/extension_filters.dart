@@ -102,7 +102,7 @@ class ExtensionFilterBar extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SearchField(
-            hint: AppText.searchExtensions,
+            hint: AppText.t.searchExtensions,
             controller: controller,
             onChanged: (q) => onChanged(filter.copyWith(query: q)),
             onClear: () {
@@ -114,7 +114,9 @@ class ExtensionFilterBar extends StatelessWidget {
           Row(
             children: [
               DotChip(
-                label: lang == null ? AppText.allLanguages : languageName(lang),
+                label: lang == null
+                    ? AppText.t.allLanguages
+                    : languageName(lang),
                 trailing: LucideIcons300.chevronDown,
                 selected: lang != null,
                 onTap: () => _pickLanguage(context),
@@ -123,7 +125,7 @@ class ExtensionFilterBar extends StatelessWidget {
               if (!AppVariables.storeBuild) ...[
                 const SizedBox(width: DotSpace.s2),
                 DotChip(
-                  label: AppText.hideNsfw,
+                  label: AppText.t.hideNsfw,
                   selected: filter.hideNsfw,
                   onTap: () =>
                       onChanged(filter.copyWith(hideNsfw: !filter.hideNsfw)),
@@ -183,9 +185,9 @@ class _LanguageSheet extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const ActionSheetHeader(
+        ActionSheetHeader(
           icon: LucideIcons300.languages,
-          title: AppText.languages,
+          title: AppText.t.languages,
         ),
         const SizedBox(height: DotSpace.s4),
         Flexible(
@@ -195,7 +197,7 @@ class _LanguageSheet extends StatelessWidget {
               ListGroup(
                 background: Dotline.of(context).bg,
                 children: [
-                  row(AppText.allLanguages, total, null),
+                  row(AppText.t.allLanguages, total, null),
                   for (final l in langs) row(languageName(l), counts[l]!, l),
                 ],
               ),
@@ -204,7 +206,7 @@ class _LanguageSheet extends StatelessWidget {
         ),
         const SizedBox(height: DotSpace.s2),
         Text(
-          AppText.languageFilterHint,
+          AppText.t.languageFilterHint,
           style: DotlineText.bodyS.copyWith(color: c.inkFaint),
         ),
       ],

@@ -30,16 +30,16 @@ class SourceSubtitle extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = Dotline.of(context);
     final (label, color) = switch (status) {
-      SourceStatus.connecting => (AppText.sourceConnecting, c.inkFaint),
-      SourceStatus.online => (AppText.sourceOnline, c.positive),
-      SourceStatus.offline => (AppText.sourceOffline, c.inkFaint),
-      SourceStatus.error => (AppText.sourceError, c.accentText),
+      SourceStatus.connecting => (AppText.t.sourceConnecting, c.inkFaint),
+      SourceStatus.online => (AppText.t.sourceOnline, c.positive),
+      SourceStatus.offline => (AppText.t.sourceOffline, c.inkFaint),
+      SourceStatus.error => (AppText.t.sourceError, c.accentText),
     };
     final style = DotlineText.data.copyWith(color: c.inkFaint);
-    if (source == null) return Text(AppText.noSourceShort, style: style);
+    if (source == null) return Text(AppText.t.noSourceShort, style: style);
     // Needs no connection, so no status either.
     if (LocalSource.isLocalKey(source!.id)) {
-      return Text(AppText.onThisDevice, style: style);
+      return Text(AppText.t.onThisDevice, style: style);
     }
     return Row(
       children: [
@@ -132,17 +132,17 @@ class _SourcePickerSheetState extends State<SourcePickerSheet> {
           children: [
             Expanded(
               child: Text(
-                AppText.changeSource,
+                AppText.t.changeSource,
                 style: DotlineText.title.copyWith(color: c.ink),
               ),
             ),
             Pressable(
-              semanticLabel: AppText.manage,
+              semanticLabel: AppText.t.manage,
               onTap: _manage,
               child: Padding(
                 padding: const EdgeInsets.all(DotSpace.s3),
                 child: Text(
-                  AppText.manage,
+                  AppText.t.manage,
                   style: DotlineText.body.copyWith(color: c.inkMuted),
                 ),
               ),
@@ -158,7 +158,7 @@ class _SourcePickerSheetState extends State<SourcePickerSheet> {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: DotSpace.s5),
                   child: Text(
-                    AppText.noSourceShort,
+                    AppText.t.noSourceShort,
                     style: DotlineText.body.copyWith(color: c.inkMuted),
                     textAlign: TextAlign.center,
                   ),
@@ -178,15 +178,15 @@ class _SourcePickerSheetState extends State<SourcePickerSheet> {
         ),
         const SizedBox(height: DotSpace.s3),
         DotButton.outline(
-          label: AppText.addSource,
+          label: AppText.t.addSource,
           leading: LucideIcons300.plus,
           onTap: () => _manage(available: true),
         ),
         const SizedBox(height: DotSpace.s3),
         DotButton(
           label: picked == null
-              ? AppText.openSource
-              : '${AppText.openSource} ${picked.name}',
+              ? AppText.t.openSource
+              : '${AppText.t.openSource} ${picked.name}',
           onTap: picked == null ? null : _open,
           loading: _opening,
         ),
@@ -257,7 +257,7 @@ class _SourceCard extends StatelessWidget {
 /// `mangadex.org · MULTI · 18+ · v1.0.0`; a multi-language extension says
 /// MULTI, an adult one 18+. The version comes last: an update follows it.
 String extensionLine(ExtensionMeta meta) => LocalSource.isLocalKey(meta.id)
-    ? AppText.onThisDevice
+    ? AppText.t.onThisDevice
     : '${meta.domain} · ${meta.languages.isEmpty ? meta.lang.toUpperCase() : 'MULTI'} · ${meta.nsfw ? '18+ · ' : ''}v${meta.version}';
 
 /// [extensionLine] with its `18+` in red, and [suffix] (an update's
@@ -274,7 +274,7 @@ class ExtensionLine extends StatelessWidget {
     final c = Dotline.of(context);
     if (LocalSource.isLocalKey(meta.id)) {
       return Text(
-        AppText.onThisDevice,
+        AppText.t.onThisDevice,
         style: style ?? DotlineText.bodyS.copyWith(color: c.inkMuted),
       );
     }

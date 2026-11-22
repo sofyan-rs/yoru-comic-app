@@ -75,13 +75,13 @@ class _EditSheetState extends State<_EditSheet> {
         genres: _genres.text.split(','),
       );
       if (!mounted) return;
-      showSnackBar(context: context, message: AppText.detailsSaved);
+      showSnackBar(context: context, message: AppText.t.detailsSaved);
       Navigator.of(context).pop(true);
     } catch (e) {
       debugPrint('Editing ${widget.comicKey} failed: $e');
       if (!mounted) return;
       setState(() => _saving = false);
-      showSnackBar(context: context, message: AppText.saveFailed);
+      showSnackBar(context: context, message: AppText.t.saveFailed);
     }
   }
 
@@ -90,7 +90,7 @@ class _EditSheetState extends State<_EditSheet> {
     String? path;
     if (pick) {
       final files = await FilePicker.pickFiles(
-        dialogTitle: AppText.chooseCoverImage,
+        dialogTitle: AppText.t.chooseCoverImage,
         type: FileType.image,
       );
       path = files.firstOrNull?.path;
@@ -99,11 +99,13 @@ class _EditSheetState extends State<_EditSheet> {
     try {
       await getIt<ExtensionManager>().local.setCover(_slug, path);
       if (!mounted) return;
-      showSnackBar(context: context, message: AppText.coverChanged);
+      showSnackBar(context: context, message: AppText.t.coverChanged);
       Navigator.of(context).pop(true);
     } catch (e) {
       debugPrint('Cover of ${widget.comicKey} failed: $e');
-      if (mounted) showSnackBar(context: context, message: AppText.saveFailed);
+      if (mounted) {
+        showSnackBar(context: context, message: AppText.t.saveFailed);
+      }
     } finally {
       if (pick) FilePicker.clearTemporaryFiles().ignore();
     }
@@ -134,9 +136,9 @@ class _EditSheetState extends State<_EditSheet> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const ActionSheetHeader(
+        ActionSheetHeader(
           icon: LucideIcons300.pencil,
-          title: AppText.editDetails,
+          title: AppText.t.editDetails,
         ),
         const SizedBox(height: DotSpace.s4),
         Flexible(
@@ -144,17 +146,17 @@ class _EditSheetState extends State<_EditSheet> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                field(_title, AppText.comicTitle),
-                field(_author, AppText.comicAuthor),
-                field(_synopsis, AppText.synopsis, maxLines: 6),
+                field(_title, AppText.t.comicTitle),
+                field(_author, AppText.t.comicAuthor),
+                field(_synopsis, AppText.t.synopsis, maxLines: 6),
                 field(
                   _genres,
-                  AppText.comicGenres,
-                  hint: AppText.comicGenresHint,
+                  AppText.t.comicGenres,
+                  hint: AppText.t.comicGenresHint,
                 ),
                 const SizedBox(height: DotSpace.s2),
                 Text(
-                  AppText.coverLabel,
+                  AppText.t.coverLabel,
                   style: DotlineText.label.copyWith(color: c.inkFaint),
                 ),
                 const SizedBox(height: DotSpace.s2),
@@ -162,14 +164,14 @@ class _EditSheetState extends State<_EditSheet> {
                   children: [
                     Expanded(
                       child: DotButton.outline(
-                        label: AppText.chooseCoverImage,
+                        label: AppText.t.chooseCoverImage,
                         onTap: () => _setCover(pick: true),
                       ),
                     ),
                     const SizedBox(width: DotSpace.s3),
                     Expanded(
                       child: DotButton.outline(
-                        label: AppText.useFirstPage,
+                        label: AppText.t.useFirstPage,
                         onTap: () => _setCover(pick: false),
                       ),
                     ),
@@ -180,7 +182,7 @@ class _EditSheetState extends State<_EditSheet> {
           ),
         ),
         const SizedBox(height: DotSpace.s5),
-        DotButton(label: AppText.save, onTap: _saving ? null : _save),
+        DotButton(label: AppText.t.save, onTap: _saving ? null : _save),
       ],
     );
   }

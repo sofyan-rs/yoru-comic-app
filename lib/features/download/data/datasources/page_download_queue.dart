@@ -97,17 +97,17 @@ class BackgroundPageDownloadQueue implements PageDownloadQueue {
     );
     _downloader.configureNotificationForGroup(
       _group,
-      running: const TaskNotification(
-        AppText.downloadNotificationRunning,
-        '{numFinished}/{numTotal} ${AppText.pages}',
+      running: TaskNotification(
+        AppText.t.downloadNotificationRunning,
+        '{numFinished}/{numTotal} ${AppText.t.pages}',
       ),
-      complete: const TaskNotification(
-        AppText.downloadNotificationDone,
-        '{numTotal} ${AppText.pages}',
+      complete: TaskNotification(
+        AppText.t.downloadNotificationDone,
+        '{numTotal} ${AppText.t.pages}',
       ),
-      error: const TaskNotification(
-        AppText.downloadNotificationFailed,
-        '{numFailed}/{numTotal} ${AppText.pages}',
+      error: TaskNotification(
+        AppText.t.downloadNotificationFailed,
+        '{numFailed}/{numTotal} ${AppText.t.pages}',
       ),
       progressBar: true,
       groupNotificationId: _group,

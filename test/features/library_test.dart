@@ -659,7 +659,7 @@ void main() {
 
       await cubit.updateBookmarkList(['a', 'b']);
 
-      expect(notifier.calls.last, 'finish ${AppText.bookmarksUpdated}');
+      expect(notifier.calls.last, 'finish ${AppText.t.bookmarksUpdated}');
     });
 
     test('Cancel in the notification stops the run', () async {

@@ -426,10 +426,10 @@ class ExtensionManager extends ChangeNotifier implements SourceRegistry {
         if (!await _mihon.available) {
           throw ServerException(
             AppVariables.storeBuild
-                ? AppText.mihonRepoUnsupportedStore
+                ? AppText.t.mihonRepoUnsupportedStore
                 : Platform.isIOS
-                ? AppText.mihonRepoUnsupportedIos
-                : AppText.mihonRepoUnsupported,
+                ? AppText.t.mihonRepoUnsupportedIos
+                : AppText.t.mihonRepoUnsupported,
           );
         }
         clean = mihon;

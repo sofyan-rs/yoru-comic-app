@@ -25,8 +25,8 @@ class LatestChapter extends StatelessWidget {
         SectionLabel(
           label:
               context.watch<SourcesCubit>().state.features.latestLabel ??
-              AppText.latest,
-          actionLabel: AppText.seeAll,
+              AppText.t.latest,
+          actionLabel: AppText.t.seeAll,
           onAction: () => Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => const LatestChapterScreen()),
           ),

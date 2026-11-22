@@ -164,9 +164,9 @@ class _BookmarksScreenState extends State<BookmarksScreen> {
       context: context,
       builder: (context) => _ConfirmSheet(
         icon: LucideIcons300.trash2,
-        title: AppText.deleteBookmark,
-        description: AppText.deleteBookmarkDescription,
-        confirmLabel: AppText.delete,
+        title: AppText.t.deleteBookmark,
+        description: AppText.t.deleteBookmarkDescription,
+        confirmLabel: AppText.t.delete,
         count: count,
       ),
     );
@@ -188,14 +188,14 @@ class _BookmarksScreenState extends State<BookmarksScreen> {
   ) => [
     ...switch (grouping) {
       BookmarkGrouping.status => [
-        const Segment(value: _allTab, label: AppText.filterAll),
+        Segment(value: _allTab, label: AppText.t.filterAll),
         Segment(
           value: BookmarkFilter.updated.name,
-          label: AppText.filterUpdated,
+          label: AppText.t.filterUpdated,
         ),
         Segment(
           value: BookmarkFilter.finished.name,
-          label: AppText.filterFinished,
+          label: AppText.t.filterFinished,
         ),
       ],
       BookmarkGrouping.source => [
@@ -213,7 +213,7 @@ class _BookmarksScreenState extends State<BookmarksScreen> {
         for (final category in categories.categories)
           Segment(value: category.id, label: category.name),
         if (all.any((i) => categories.idsOf(i.bookmark.slug).isEmpty))
-          const Segment(value: _uncategorizedTab, label: AppText.uncategorized),
+          Segment(value: _uncategorizedTab, label: AppText.t.uncategorized),
       ],
     },
   ];
@@ -286,8 +286,8 @@ class _BookmarksScreenState extends State<BookmarksScreen> {
     showSnackBar(
       context: context,
       message:
-          '${AppText.count(selected.length, AppText.comic, AppText.comics)} '
-          '${AppText.markedAllRead}',
+          '${AppText.t.comicCount(selected.length)} '
+          '${AppText.t.markedAllRead}',
     );
   }
 
@@ -299,9 +299,9 @@ class _BookmarksScreenState extends State<BookmarksScreen> {
       context: context,
       builder: (context) => _ConfirmSheet(
         icon: LucideIcons300.rotateCcw,
-        title: AppText.markAllUnread,
-        description: AppText.markAllUnreadDescription,
-        confirmLabel: AppText.markUnread,
+        title: AppText.t.markAllUnread,
+        description: AppText.t.markAllUnreadDescription,
+        confirmLabel: AppText.t.markUnread,
         count: selected.length,
       ),
     );
@@ -312,8 +312,8 @@ class _BookmarksScreenState extends State<BookmarksScreen> {
     showSnackBar(
       context: context,
       message:
-          '${AppText.count(selected.length, AppText.comic, AppText.comics)} '
-          '${AppText.markedAllUnread}',
+          '${AppText.t.comicCount(selected.length)} '
+          '${AppText.t.markedAllUnread}',
     );
   }
 
@@ -409,7 +409,7 @@ class _BookmarksScreenState extends State<BookmarksScreen> {
                       DotSpace.s4,
                     ),
                     child: SearchField(
-                      hint: AppText.searchBookmarkHint,
+                      hint: AppText.t.searchBookmarkHint,
                       controller: _query,
                       focusNode: _queryFocus,
                       autofocus: true,
@@ -516,27 +516,27 @@ class _BookmarksScreenState extends State<BookmarksScreen> {
 
   Widget _header(int count, int updated, {required bool refreshing}) {
     return ScreenHeader(
-      title: AppText.bookmark,
+      title: AppText.t.bookmark,
       subtitle: count == 0
           ? null
-          : '${AppText.count(count, AppText.comic, AppText.comics)} · '
-                '$updated ${AppText.hasUpdate}',
+          : '${AppText.t.comicCount(count)} · '
+                '$updated ${AppText.t.hasUpdate}',
       actions: [
         if (refreshing)
           RoundIconButton(
             icon: LucideIcons300.circleStop,
-            semanticLabel: AppText.stopRefresh,
+            semanticLabel: AppText.t.stopRefresh,
             onTap: context.read<BookmarkCubit>().cancelRefresh,
           ),
         if (count > 0) ...[
           RoundIconButton(
             icon: LucideIcons300.layers,
-            semanticLabel: AppText.groupAndSort,
+            semanticLabel: AppText.t.groupAndSort,
             onTap: () => showGroupBySheet(context),
           ),
           RoundIconButton(
             icon: _searching ? LucideIcons300.x : LucideIcons300.search,
-            semanticLabel: AppText.searchBookmarkHint,
+            semanticLabel: AppText.t.searchBookmarkHint,
             onTap: _toggleSearch,
           ),
         ],
@@ -557,40 +557,40 @@ class _BookmarksScreenState extends State<BookmarksScreen> {
         children: [
           RoundIconButton(
             icon: LucideIcons300.x,
-            semanticLabel: AppText.cancel,
+            semanticLabel: AppText.t.cancel,
             onTap: () => setState(_selected.clear),
           ),
           const SizedBox(width: DotSpace.s3),
           Expanded(
             child: Text(
-              '${_selected.length} ${AppText.selected}'.toUpperCase(),
+              '${_selected.length} ${AppText.t.selected}'.toUpperCase(),
               style: DotlineText.label.copyWith(color: c.ink),
             ),
           ),
           DotMenuButton(
             items: [
               DotMenuItem(
-                label: AppText.markRead,
+                label: AppText.t.markRead,
                 icon: LucideIcons300.checkCheck,
                 onTap: _markAllRead,
               ),
               DotMenuItem(
-                label: AppText.markUnread,
+                label: AppText.t.markUnread,
                 icon: LucideIcons300.rotateCcw,
                 onTap: _markAllUnread,
               ),
               DotMenuItem(
-                label: AppText.setCategories,
+                label: AppText.t.setCategories,
                 icon: LucideIcons300.folder,
                 onTap: _setCategories,
               ),
               DotMenuItem(
-                label: AppText.migrateSource,
+                label: AppText.t.migrateSource,
                 icon: LucideIcons300.arrowRightLeft,
                 onTap: _migrate,
               ),
               DotMenuItem(
-                label: AppText.deleteBookmark,
+                label: AppText.t.deleteBookmark,
                 icon: LucideIcons300.trash2,
                 onTap: _confirmDelete,
                 destructive: true,
@@ -604,16 +604,16 @@ class _BookmarksScreenState extends State<BookmarksScreen> {
 
   Widget _empty(bool noBookmarks) {
     if (noBookmarks) {
-      return const EmptyState(
+      return EmptyState(
         icon: LucideIcons300.bookmark,
-        title: AppText.bookmarkEmpty,
-        message: AppText.bookmarkEmptyHint,
+        title: AppText.t.bookmarkEmpty,
+        message: AppText.t.bookmarkEmptyHint,
       );
     }
     return EmptyState(
       icon: LucideIcons300.searchX,
-      title: AppText.comicNotFound,
-      message: _query.text.isEmpty ? null : AppText.comicNotFoundSearch,
+      title: AppText.t.comicNotFound,
+      message: _query.text.isEmpty ? null : AppText.t.comicNotFoundSearch,
     );
   }
 }
@@ -662,7 +662,7 @@ class _ConfirmSheet extends StatelessWidget {
         ActionSheetHeader(
           icon: icon,
           title: title,
-          subtitle: AppText.count(count, AppText.comic, AppText.comics),
+          subtitle: AppText.t.comicCount(count),
         ),
         const SizedBox(height: DotSpace.s4),
         Text(description, style: DotlineText.body.copyWith(color: c.inkMuted)),
@@ -673,7 +673,7 @@ class _ConfirmSheet extends StatelessWidget {
         ),
         const SizedBox(height: DotSpace.s3),
         DotButton.outline(
-          label: AppText.cancel,
+          label: AppText.t.cancel,
           onTap: () => Navigator.of(context).pop(false),
         ),
       ],

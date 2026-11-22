@@ -1,3 +1,4 @@
+import 'package:yoru/core/constants/texts.dart';
 import 'package:yoru/core/presentation/widgets/dotline/pressable.dart';
 import 'package:yoru/core/theme/dotline_colors.dart';
 import 'package:yoru/core/theme/dotline_text.dart';
@@ -79,7 +80,7 @@ class SearchField extends StatelessWidget {
                       onTap: onClear,
                       child: Semantics(
                         button: true,
-                        label: 'Clear',
+                        label: AppText.t.clear,
                         child: Icon(
                           LucideIcons300.x,
                           size: DotSize.iconSmall,

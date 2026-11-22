@@ -158,10 +158,10 @@ class BookmarkRefreshQueue {
       if (_disposed) return;
       await notifier.finish(
         id,
-        title: _updated > 0 ? AppText.bookmarksUpdated : null,
+        title: _updated > 0 ? AppText.t.bookmarksUpdated : null,
         body:
-            '${AppText.count(_updated, AppText.comic, AppText.comics)} '
-            '${AppText.haveNewChapters}',
+            '${AppText.t.comicCount(_updated)} '
+            '${AppText.t.haveNewChapters}',
       );
     } while (_queue.isNotEmpty && !_disposed);
   }
@@ -191,7 +191,7 @@ class BookmarkRefreshQueue {
     unawaited(
       notifier.progress(
         ProgressIds.bookmarkRefresh,
-        title: AppText.updatingBookmarks,
+        title: AppText.t.updatingBookmarks,
         done: progress.$1,
         total: progress.$2,
         cancelable: true,

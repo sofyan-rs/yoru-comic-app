@@ -35,30 +35,30 @@ void main() {
   testWidgets('iOS asks for a Yoru repo only', (tester) async {
     debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
     await pump(tester);
-    expect(find.text(AppText.repoHintIos), findsOneWidget);
-    expect(find.text(AppText.repoHint), findsNothing);
+    expect(find.text(AppText.t.repoHintIos), findsOneWidget);
+    expect(find.text(AppText.t.repoHint), findsNothing);
     debugDefaultTargetPlatformOverride = null;
   });
 
   testWidgets('Android lists the Mihon formats too', (tester) async {
     debugDefaultTargetPlatformOverride = TargetPlatform.android;
     await pump(tester);
-    expect(find.text(AppText.repoHint), findsOneWidget);
+    expect(find.text(AppText.t.repoHint), findsOneWidget);
     debugDefaultTargetPlatformOverride = null;
   });
 
   testWidgets('shows why a repo was turned away, in full', (tester) async {
     debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
     when(() => cubit.addRepo(any()))
-        .thenAnswer((_) async => AppText.mihonRepoUnsupportedIos);
+        .thenAnswer((_) async => AppText.t.mihonRepoUnsupportedIos);
     await pump(tester);
     await tester.enterText(
       find.byType(TextField),
       'https://github.com/keiyoushi/extensions/raw/repo/index.pb',
     );
-    await tester.tap(find.text(AppText.addRepo));
+    await tester.tap(find.text(AppText.t.addRepo));
     await tester.pumpAndSettle();
-    expect(find.text(AppText.mihonRepoUnsupportedIos), findsOneWidget);
+    expect(find.text(AppText.t.mihonRepoUnsupportedIos), findsOneWidget);
     final text = tester.widget<TextField>(find.byType(TextField));
     expect(text.decoration?.errorMaxLines, 3);
     debugDefaultTargetPlatformOverride = null;

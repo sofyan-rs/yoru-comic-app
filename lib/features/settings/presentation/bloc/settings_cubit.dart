@@ -1,3 +1,4 @@
+import 'package:yoru/core/constants/texts.dart';
 import 'package:yoru/core/usecase/usecase.dart';
 import 'package:yoru/features/settings/domain/entities/app_settings.dart';
 import 'package:yoru/features/settings/domain/usecases/settings_usecases.dart';
@@ -15,11 +16,21 @@ class SettingsCubit extends Cubit<AppSettings> {
 
   Future<void> load() async {
     final result = await _getSettings(const NoParams());
-    result.fold((f) => debugPrint('SettingsCubit: $f'), emit);
+    result.fold((f) => debugPrint('SettingsCubit: $f'), (settings) {
+      AppText.language = settings.language;
+      emit(settings);
+    });
   }
 
   Future<void> changeThemeMode(AppThemeMode themeMode) =>
       update((s) => s.copyWith(themeMode: themeMode));
+
+  /// Switches the app's text to [language]. `YoruApp` rebuilds every
+  /// screen when it changes.
+  Future<void> changeLanguage(AppLanguage language) {
+    AppText.language = language;
+    return update((s) => s.copyWith(language: language));
+  }
 
   /// Applies [change] and saves the result (reader settings sheet).
   Future<void> update(AppSettings Function(AppSettings) change) async {

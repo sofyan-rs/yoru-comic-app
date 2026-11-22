@@ -24,7 +24,7 @@ void main() {
     );
     await tester.pump();
     expect(
-      find.text('${AppText.downloadingMihonBrowser} · 42%'),
+      find.text('${AppText.t.downloadingMihonBrowser} · 42%'),
       findsOneWidget,
     );
 

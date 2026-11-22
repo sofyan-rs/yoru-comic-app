@@ -1,5 +1,9 @@
+import 'package:yoru/core/constants/texts.dart';
+
 /// Reads the relative dates made by `ApiFormat.relativeDate` ("Just now",
 /// "12 min ago", "3 h ago", "1 day ago", "7 days ago", "01/02/2025").
+/// They are stored in English, the form [parse] reads; [display] and
+/// [short] give them in the app's language.
 abstract final class ChapterDate {
   /// Released less than 24 hours ago.
   static bool isNew(String date) =>
@@ -7,20 +11,37 @@ abstract final class ChapterDate {
       date.endsWith(' min ago') ||
       date.endsWith(' h ago');
 
-  /// Compact form for chapter rows: `12 min`, `3 h`, `7 d`.
-  static String short(String date) {
-    if (date == 'Just now') return 'new';
-    for (final (long, short) in const [
-      (' min ago', ' min'),
-      (' h ago', ' h'),
-      (' days ago', ' d'),
-      (' day ago', ' d'),
-    ]) {
-      if (date.endsWith(long)) {
-        return date.substring(0, date.length - long.length) + short;
-      }
+  /// [date] in the app's language: `3 h ago`, `3 jam lalu`. Dates in no
+  /// known form are shown as they are.
+  static String display(String date) {
+    if (date == 'Just now') return AppText.t.justNow;
+    if (_relativeParts(date) case (final n, final unit)) {
+      return switch (unit) {
+        'min' => AppText.t.minutesAgo(n),
+        'h' => AppText.t.hoursAgo(n),
+        _ => AppText.t.daysAgo(n),
+      };
     }
     return date;
+  }
+
+  /// Compact form for chapter rows: `12 min`, `3 h`, `7 d`.
+  static String short(String date) {
+    if (date == 'Just now') return AppText.t.newShort;
+    if (_relativeParts(date) case (final n, final unit)) {
+      return switch (unit) {
+        'min' => AppText.t.minutesShort(n),
+        'h' => AppText.t.hoursShort(n),
+        _ => AppText.t.daysShort(n),
+      };
+    }
+    return date;
+  }
+
+  /// The number and unit (`min`, `h`, `day` or `days`) of a relative date.
+  static (int, String)? _relativeParts(String date) {
+    final m = _relative.firstMatch(date);
+    return m == null ? null : (int.parse(m[1]!), m[2]!);
   }
 
   static final _relative = RegExp(r'^(\d+) (min|h|day|days) ago$');

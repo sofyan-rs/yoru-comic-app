@@ -66,14 +66,14 @@ class _SourceMigrationScreenState extends State<SourceMigrationScreen> {
     }
     final picked = await showSourceChoiceSheet(
       context,
-      title: AppText.migrateFrom,
+      title: AppText.t.migrateFrom,
       selected: _from,
       choices: [
         for (final MapEntry(key: id, value: count) in counts.entries)
           (
             id: id,
             name: _manager.nameOf(id),
-            detail: AppText.count(count, AppText.comic, AppText.comics),
+            detail: AppText.t.comicCount(count),
           ),
       ]..sort((a, b) => a.name.compareTo(b.name)),
     );
@@ -154,7 +154,7 @@ class _SourceMigrationScreenState extends State<SourceMigrationScreen> {
         child: Column(
           children: [
             // Outside the scroll view so the title stays put.
-            const DotTopBar(title: AppText.migrateSource),
+            DotTopBar(title: AppText.t.migrateSource),
             Expanded(
               child: CustomScrollView(
                 slivers: [
@@ -173,9 +173,9 @@ class _SourceMigrationScreenState extends State<SourceMigrationScreen> {
                               if (widget.keys == null)
                                 ListRow(
                                   icon: LucideIcons300.bookmark,
-                                  title: AppText.migrateFrom,
+                                  title: AppText.t.migrateFrom,
                                   value: _from == null
-                                      ? AppText.pickSource
+                                      ? AppText.t.pickSource
                                       : _manager.nameOf(_from!),
                                   showChevron: true,
                                   onTap: bookmarks.isEmpty
@@ -184,19 +184,15 @@ class _SourceMigrationScreenState extends State<SourceMigrationScreen> {
                                 ),
                               ListRow(
                                 icon: LucideIcons300.arrowRightLeft,
-                                title: AppText.migrateTo,
+                                title: AppText.t.migrateTo,
                                 // Several in order below, too long for a value.
                                 subtitle: toNames.length > 1
                                     ? toNames.join(' → ')
                                     : null,
                                 value: switch (toNames) {
-                                  [] => AppText.pickSource,
+                                  [] => AppText.t.pickSource,
                                   [final name] => name,
-                                  _ => AppText.count(
-                                    toNames.length,
-                                    AppText.sourceLower,
-                                    AppText.sourcesLower,
-                                  ),
+                                  _ => AppText.t.sourceCount(toNames.length),
                                 },
                                 showChevron: true,
                                 onTap: _pickTo,
@@ -206,11 +202,11 @@ class _SourceMigrationScreenState extends State<SourceMigrationScreen> {
                         ),
                       ),
                       if (bookmarks.isEmpty)
-                        const SliverToBoxAdapter(
+                        SliverToBoxAdapter(
                           child: EmptyState(
                             icon: LucideIcons300.bookmark,
-                            title: AppText.noBookmarksToMigrate,
-                            message: AppText.noBookmarksToMigrateHint,
+                            title: AppText.t.noBookmarksToMigrate,
+                            message: AppText.t.noBookmarksToMigrateHint,
                           ),
                         )
                       else if (candidates.isNotEmpty) ...[
@@ -227,7 +223,7 @@ class _SourceMigrationScreenState extends State<SourceMigrationScreen> {
                                 Expanded(
                                   child: Text(
                                     '${_checked.length} / ${candidates.length} '
-                                            '${AppText.selected}'
+                                            '${AppText.t.selected}'
                                         .toUpperCase(),
                                     style: DotlineText.label.copyWith(
                                       color: c.inkFaint,
@@ -236,8 +232,8 @@ class _SourceMigrationScreenState extends State<SourceMigrationScreen> {
                                 ),
                                 Pressable(
                                   semanticLabel: allChecked
-                                      ? AppText.selectNone
-                                      : AppText.selectAll,
+                                      ? AppText.t.selectNone
+                                      : AppText.t.selectAll,
                                   onTap: () => setState(() {
                                     if (allChecked) {
                                       _checked.clear();
@@ -251,8 +247,8 @@ class _SourceMigrationScreenState extends State<SourceMigrationScreen> {
                                     padding: const EdgeInsets.all(DotSpace.s2),
                                     child: Text(
                                       allChecked
-                                          ? AppText.selectNone
-                                          : AppText.selectAll,
+                                          ? AppText.t.selectNone
+                                          : AppText.t.selectAll,
                                       style: DotlineText.body.copyWith(
                                         color: c.inkMuted,
                                       ),
@@ -316,8 +312,8 @@ class _SourceMigrationScreenState extends State<SourceMigrationScreen> {
             padding: const EdgeInsets.all(DotSpace.s4),
             child: DotButton(
               label:
-                  '${AppText.findMatches} · '
-                  '${AppText.count(count, AppText.comic, AppText.comics)}',
+                  '${AppText.t.findMatches} · '
+                  '${AppText.t.comicCount(count)}',
               leading: LucideIcons300.search,
               onTap: _to.isEmpty || count == 0
                   ? null

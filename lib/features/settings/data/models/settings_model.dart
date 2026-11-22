@@ -8,6 +8,7 @@ part 'settings_model.g.dart';
 class SettingsModel {
   const SettingsModel({
     this.themeMode = AppThemeMode.system,
+    this.language = AppLanguage.english,
     this.readingDirection = ReadingDirection.vertical,
     this.pageFit = PageFit.width,
     this.readerWidth = ReaderWidth.medium,
@@ -28,6 +29,7 @@ class SettingsModel {
 
   factory SettingsModel.fromEntity(AppSettings e) => SettingsModel(
     themeMode: e.themeMode,
+    language: e.language,
     readingDirection: e.readingDirection,
     pageFit: e.pageFit,
     readerWidth: e.readerWidth,
@@ -51,6 +53,9 @@ class SettingsModel {
 
   @JsonKey(unknownEnumValue: AppThemeMode.system)
   final AppThemeMode themeMode;
+
+  @JsonKey(unknownEnumValue: AppLanguage.english)
+  final AppLanguage language;
 
   @JsonKey(unknownEnumValue: ReadingDirection.vertical)
   final ReadingDirection readingDirection;
@@ -87,6 +92,7 @@ class SettingsModel {
 
   AppSettings toEntity() => AppSettings(
     themeMode: themeMode,
+    language: language,
     readingDirection: readingDirection,
     pageFit: pageFit,
     readerWidth: readerWidth,

@@ -76,7 +76,7 @@ class HistoryComicCard extends StatelessWidget {
                 Icon(LucideIcons300.trash2, color: c.onAccent),
                 const SizedBox(height: DotSpace.s2),
                 Text(
-                  AppText.delete.toUpperCase(),
+                  AppText.t.delete.toUpperCase(),
                   style: DotlineText.label.copyWith(color: c.onAccent),
                 ),
               ],
@@ -158,7 +158,7 @@ class _DeleteSheet extends StatelessWidget {
       children: [
         ActionSheetHeader(
           icon: LucideIcons300.trash2,
-          title: AppText.clearHistory,
+          title: AppText.t.clearHistory,
           subtitle: item.comicDetails.title,
         ),
         const SizedBox(height: DotSpace.s5),
@@ -167,14 +167,14 @@ class _DeleteSheet extends StatelessWidget {
           children: [
             ListRow(
               icon: LucideIcons300.history,
-              title: AppText.deleteLastChapter,
-              subtitle: 'Chapter ${item.latestHistory.chapterNumber}',
+              title: AppText.t.deleteLastChapter,
+              subtitle: AppText.chapterName(item.latestHistory.chapterNumber),
               showChevron: false,
               onTap: () => Navigator.of(context).pop(_DeleteChoice.lastChapter),
             ),
             ListRow(
               icon: LucideIcons300.trash2,
-              title: AppText.deleteAllChapters,
+              title: AppText.t.deleteAllChapters,
               destructive: true,
               showChevron: false,
               onTap: () => Navigator.of(context).pop(_DeleteChoice.allChapters),
@@ -183,7 +183,7 @@ class _DeleteSheet extends StatelessWidget {
         ),
         const SizedBox(height: DotSpace.s4),
         DotButton.outline(
-          label: AppText.cancel,
+          label: AppText.t.cancel,
           onTap: () => Navigator.of(context).pop(),
         ),
       ],

@@ -1,4 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:yoru/core/l10n/app_language.dart';
+
+export 'package:yoru/core/l10n/app_language.dart';
 
 part 'app_settings.freezed.dart';
 
@@ -72,6 +75,9 @@ const autoScrollStep = 40.0;
 abstract class AppSettings with _$AppSettings {
   const factory AppSettings({
     @Default(AppThemeMode.system) AppThemeMode themeMode,
+
+    /// Language of the app's own text.
+    @Default(AppLanguage.english) AppLanguage language,
     @Default(ReadingDirection.vertical) ReadingDirection readingDirection,
     @Default(PageFit.width) PageFit pageFit,
     @Default(ReaderWidth.medium) ReaderWidth readerWidth,

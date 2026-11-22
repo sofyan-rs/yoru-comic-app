@@ -44,7 +44,7 @@ void main() {
 
     expect(
       [for (final d in days) d.label],
-      [AppText.today, AppText.yesterday, '1 Oct 2026'],
+      [AppText.t.today, AppText.t.yesterday, '1 Oct 2026'],
     );
     expect([for (final i in days.first.items) i.comicSlug], ['a', 'b']);
   });

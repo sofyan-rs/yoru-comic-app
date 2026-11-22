@@ -36,7 +36,7 @@ class _AppInfoState extends State<AppInfo> {
       mode: LaunchMode.externalApplication,
     );
     if (!opened && mounted) {
-      showSnackBar(context: context, message: AppText.linkFailed);
+      showSnackBar(context: context, message: AppText.t.linkFailed);
     }
   }
 
@@ -50,7 +50,7 @@ class _AppInfoState extends State<AppInfo> {
         ActionSheetHeader(
           icon: LucideIcons300.info,
           title: AppVariables.appName,
-          subtitle: '${AppText.version} $_appVersion',
+          subtitle: '${AppText.t.version} $_appVersion',
         ),
         const SizedBox(height: DotSpace.s4),
         Text(
@@ -63,7 +63,7 @@ class _AppInfoState extends State<AppInfo> {
           children: [
             ListRow(
               icon: LucideIcons300.globe,
-              title: AppText.website,
+              title: AppText.t.website,
               subtitle: AppVariables.websiteLabel,
               onTap: () => _openLink(AppVariables.websiteLink),
             ),
@@ -72,7 +72,7 @@ class _AppInfoState extends State<AppInfo> {
             if (!AppVariables.storeBuild)
               ListRow(
                 icon: LucideIcons300.heart,
-                title: AppText.giveSupport,
+                title: AppText.t.giveSupport,
                 subtitle: AppVariables.supportLabel,
                 onTap: () => _openLink(AppVariables.supportLink),
               ),

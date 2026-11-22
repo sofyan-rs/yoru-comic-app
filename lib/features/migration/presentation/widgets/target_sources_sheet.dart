@@ -47,12 +47,12 @@ class _TargetSourcesSheetState extends State<_TargetSourcesSheet> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          AppText.migrateTo,
+          AppText.t.migrateTo,
           style: DotlineText.title.copyWith(color: c.ink),
         ),
         const SizedBox(height: DotSpace.s1),
         Text(
-          AppText.migrateToOrderHint,
+          AppText.t.migrateToOrderHint,
           style: DotlineText.bodyS.copyWith(color: c.inkFaint),
         ),
         const SizedBox(height: DotSpace.s4),
@@ -60,7 +60,7 @@ class _TargetSourcesSheetState extends State<_TargetSourcesSheet> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: DotSpace.s5),
             child: Text(
-              AppText.noOtherSource,
+              AppText.t.noOtherSource,
               style: DotlineText.body.copyWith(color: c.inkMuted),
               textAlign: TextAlign.center,
             ),
@@ -94,7 +94,7 @@ class _TargetSourcesSheetState extends State<_TargetSourcesSheet> {
                           subtitle: choice.detail,
                           trailing: RoundIconButton(
                             icon: LucideIcons300.x,
-                            semanticLabel: AppText.removeSource,
+                            semanticLabel: AppText.t.removeSource,
                             size: 36,
                             iconSize: DotSize.iconSmall,
                             background: Colors.transparent,
@@ -131,7 +131,7 @@ class _TargetSourcesSheetState extends State<_TargetSourcesSheet> {
         ),
         const SizedBox(height: DotSpace.s4),
         DotButton(
-          label: AppText.done,
+          label: AppText.t.done,
           onTap: _picked.isEmpty
               ? null
               : () =>

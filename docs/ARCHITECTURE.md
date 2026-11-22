@@ -124,7 +124,7 @@ grep -rn "^import" lib/core/domain lib/features/*/domain | grep -E "package:flut
 | A new host function | `ExtensionBridge.handle` + the prelude in `ExtensionRuntime` (bump `supportedExtensionApi` if old apps can't run it) |
 | Data stored on the device | A feature `*_local_data_source.dart` over a `JsonBox` (§7) |
 | A widget used by several features | `core/presentation/widgets/` |
-| A UI string | `AppText` in `core/constants/texts.dart` |
+| A UI string | A message in `lib/l10n/app_en.arb` and every other `app_<code>.arb`, read as `AppText.t.<name>` |
 
 ---
 
@@ -159,7 +159,7 @@ Bloc/Cubit ─▶ UseCase ─▶ Repository ─▶ RepositoryImpl
 - Events are `final class`es named after what happened (`HomeStarted`, `ChapterRequested`).
 
 ### 4.4 Settings
-`AppSettings`: `themeMode` (`system | light | dark`), reader settings (`readingDirection`, `pageFit`, `keepScreenOn`, `pageGap`, `progressBar`, `infiniteScroll`, `autoScrollSpeed`), `incognito` (the reader saves no history while on; marking chapters read still does), `kururinSound` (Home's pull-to-refresh sound; the animation shows either way), `lalalaUntilFinish` (keep that animation and sound going until the song ends instead of stopping when the refresh finishes), `bookmarkGrouping` (`status | source | category`), `bookmarkSort` (`updated | title | chapters | latestChapter | added | lastRead`) and `bookmarkSortDirection` (`ascending | descending`; default `updated` descending = repository order). `SettingsModel` defaults every field and tolerates unknown enum values, so new fields never break loading. Source settings live in the `source_settings` box, not here.
+`AppSettings`: `themeMode` (`system | light | dark`), `language` (`AppLanguage`: `english | indonesian`, English by default; see §5), reader settings (`readingDirection`, `pageFit`, `keepScreenOn`, `pageGap`, `progressBar`, `infiniteScroll`, `autoScrollSpeed`), `incognito` (the reader saves no history while on; marking chapters read still does), `kururinSound` (Home's pull-to-refresh sound; the animation shows either way), `lalalaUntilFinish` (keep that animation and sound going until the song ends instead of stopping when the refresh finishes), `bookmarkGrouping` (`status | source | category`), `bookmarkSort` (`updated | title | chapters | latestChapter | added | lastRead`) and `bookmarkSortDirection` (`ascending | descending`; default `updated` descending = repository order). `SettingsModel` defaults every field and tolerates unknown enum values, so new fields never break loading. Source settings live in the `source_settings` box, not here.
 
 ---
 
@@ -174,7 +174,7 @@ Bloc/Cubit ─▶ UseCase ─▶ Repository ─▶ RepositoryImpl
 - **Motion:** 140 ms presses (scale 0.97, no ripple), ~320 ms sliding indicators; respect `MediaQuery.disableAnimationsOf`.
 - Tokens in `core/theme/` (`Dotline.of(context)`, `DotlineText`, `DotSpace`/`DotRadius`/`DotSize`/`DotMotion`). Build screens from `core/presentation/widgets/dotline/` (`ScreenHeader`, `ListGroup`/`ListRow`, `DotButton`, `showDotSheet`, `ComicCover`, `EmptyState`…); taps scale through `Pressable`.
 - Icons: `LucideIcons300` only, no Material `Icons`.
-- Text: English, in `AppText`. The library is **"Bookmarks"**, never "Favorites". Home's second list (and its "See all" screen) is **"Latest updates"**. Source text is shown as sent.
+- Text: in `lib/l10n/app_<code>.arb`, English (`app_en.arb`) the template, Indonesian (`app_id.arb`) the second language. `flutter gen-l10n` (also run by `pub get` and builds) makes `AppLocalizations` in `lib/l10n/`; read it as `AppText.t.<name>`, which needs no `BuildContext`, so blocs and notifications use it too. Counts are ICU plurals (`AppText.t.comicCount(n)`), never `'$n ${word}'`. The language is a setting (More → Appearance); `AppText.language` follows it, and changing it rebuilds every element (`rebuildAll`) so const widgets show it too. Relative chapter dates are stored in English (`ApiFormat.relativeDate`, read by `ChapterDate.parse`) and shown through `ChapterDate.display` / `short`. A new language: add `app_<code>.arb` and an `AppLanguage` value; `build/l10n_untranslated.json` lists messages still missing. The library is **"Bookmarks"**, never "Favorites". Home's second list (and its "See all" screen) is **"Latest updates"**. Source text is shown as sent.
 - Tabs get the nav height as bottom padding; scrollables add `MediaQuery.paddingOf(context).bottom`. Cover grids: 3 columns on phones, more on wide screens (~150 dp cells). Home's pull-to-refresh plays "lalala pipipi".
 
 ---

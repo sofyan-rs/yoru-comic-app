@@ -37,18 +37,18 @@ class _GroupBySheetState extends State<_GroupBySheet> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const ActionSheetHeader(
+        ActionSheetHeader(
           icon: LucideIcons300.layers,
-          title: AppText.groupAndSort,
+          title: AppText.t.groupAndSort,
         ),
         const SizedBox(height: DotSpace.s4),
         SegmentedControl<_Tab>(
           background: c.bg,
           selected: _tab,
           onChanged: (tab) => setState(() => _tab = tab),
-          segments: const [
-            Segment(value: _Tab.group, label: AppText.groupTab),
-            Segment(value: _Tab.sort, label: AppText.sortShort),
+          segments: [
+            Segment(value: _Tab.group, label: AppText.t.groupTab),
+            Segment(value: _Tab.sort, label: AppText.t.sortShort),
           ],
         ),
         const SizedBox(height: DotSpace.s4),
@@ -69,24 +69,24 @@ class _GroupBySheetState extends State<_GroupBySheet> {
 class _GroupOptions extends StatelessWidget {
   const _GroupOptions();
 
-  static const _options = [
+  static List<(BookmarkGrouping, IconData, String, String)> get _options => [
     (
       BookmarkGrouping.status,
       LucideIcons300.listFilter,
-      AppText.groupByStatus,
-      AppText.groupByStatusDescription,
+      AppText.t.groupByStatus,
+      AppText.t.groupByStatusDescription,
     ),
     (
       BookmarkGrouping.source,
       LucideIcons300.puzzle,
-      AppText.groupBySource,
-      AppText.groupBySourceDescription,
+      AppText.t.groupBySource,
+      AppText.t.groupBySourceDescription,
     ),
     (
       BookmarkGrouping.category,
       LucideIcons300.folder,
-      AppText.groupByCategory,
-      AppText.groupByCategoryDescription,
+      AppText.t.groupByCategory,
+      AppText.t.groupByCategoryDescription,
     ),
   ];
 
@@ -123,7 +123,7 @@ class _GroupOptions extends StatelessWidget {
         ),
         const SizedBox(height: DotSpace.s4),
         DotButton.outline(
-          label: AppText.manageCategories,
+          label: AppText.t.manageCategories,
           leading: LucideIcons300.settings2,
           onTap: () {
             final navigator = Navigator.of(context)..pop();
@@ -140,57 +140,58 @@ class _GroupOptions extends StatelessWidget {
 class _SortOptions extends StatelessWidget {
   const _SortOptions();
 
-  static const _options = [
-    (
-      BookmarkSort.updated,
-      LucideIcons300.refreshCw,
-      AppText.sortUpdated,
-      AppText.sortOldestFirst,
-      AppText.sortNewestFirst,
-    ),
-    (
-      BookmarkSort.title,
-      LucideIcons300.caseSensitive,
-      AppText.sortTitle,
-      AppText.sortAToZ,
-      AppText.sortZToA,
-    ),
-    (
-      BookmarkSort.chapters,
-      LucideIcons300.listOrdered,
-      AppText.sortChapters,
-      AppText.sortFewestFirst,
-      AppText.sortMostFirst,
-    ),
-    (
-      BookmarkSort.latestChapter,
-      LucideIcons300.calendarClock,
-      AppText.sortLatestChapter,
-      AppText.sortOldestFirst,
-      AppText.sortNewestFirst,
-    ),
-    (
-      BookmarkSort.added,
-      LucideIcons300.calendarPlus,
-      AppText.sortAdded,
-      AppText.sortOldestFirst,
-      AppText.sortNewestFirst,
-    ),
-    (
-      BookmarkSort.lastRead,
-      LucideIcons300.history,
-      AppText.sortLastRead,
-      AppText.sortOldestFirst,
-      AppText.sortNewestFirst,
-    ),
-    (
-      BookmarkSort.unread,
-      LucideIcons300.bookDashed,
-      AppText.sortUnread,
-      AppText.sortFewestFirst,
-      AppText.sortMostFirst,
-    ),
-  ];
+  static List<(BookmarkSort, IconData, String, String, String)> get _options =>
+      [
+        (
+          BookmarkSort.updated,
+          LucideIcons300.refreshCw,
+          AppText.t.sortUpdated,
+          AppText.t.sortOldestFirst,
+          AppText.t.sortNewestFirst,
+        ),
+        (
+          BookmarkSort.title,
+          LucideIcons300.caseSensitive,
+          AppText.t.sortTitle,
+          AppText.t.sortAToZ,
+          AppText.t.sortZToA,
+        ),
+        (
+          BookmarkSort.chapters,
+          LucideIcons300.listOrdered,
+          AppText.t.sortChapters,
+          AppText.t.sortFewestFirst,
+          AppText.t.sortMostFirst,
+        ),
+        (
+          BookmarkSort.latestChapter,
+          LucideIcons300.calendarClock,
+          AppText.t.sortLatestChapter,
+          AppText.t.sortOldestFirst,
+          AppText.t.sortNewestFirst,
+        ),
+        (
+          BookmarkSort.added,
+          LucideIcons300.calendarPlus,
+          AppText.t.sortAdded,
+          AppText.t.sortOldestFirst,
+          AppText.t.sortNewestFirst,
+        ),
+        (
+          BookmarkSort.lastRead,
+          LucideIcons300.history,
+          AppText.t.sortLastRead,
+          AppText.t.sortOldestFirst,
+          AppText.t.sortNewestFirst,
+        ),
+        (
+          BookmarkSort.unread,
+          LucideIcons300.bookDashed,
+          AppText.t.sortUnread,
+          AppText.t.sortFewestFirst,
+          AppText.t.sortMostFirst,
+        ),
+      ];
 
   @override
   Widget build(BuildContext context) {
@@ -238,7 +239,7 @@ class _SortOptions extends StatelessWidget {
         ),
         const SizedBox(height: DotSpace.s3),
         Text(
-          AppText.sortReverseHint,
+          AppText.t.sortReverseHint,
           textAlign: TextAlign.center,
           style: DotlineText.bodyS.copyWith(color: c.inkFaint),
         ),

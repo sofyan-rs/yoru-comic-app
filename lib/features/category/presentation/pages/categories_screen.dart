@@ -30,7 +30,7 @@ class CategoriesScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const DotTopBar(title: AppText.categories),
+            DotTopBar(title: AppText.t.categories),
             Expanded(
               child: CenteredContent(
                 child: Column(
@@ -44,15 +44,15 @@ class CategoriesScreen extends StatelessWidget {
                         DotSpace.s4,
                       ),
                       child: Text(
-                        AppText.categoriesDescription,
+                        AppText.t.categoriesDescription,
                         style: DotlineText.bodyS.copyWith(color: c.inkFaint),
                       ),
                     ),
                     Expanded(
                       child: categories.isEmpty
-                          ? const EmptyState(
+                          ? EmptyState(
                               icon: LucideIcons300.folder,
-                              title: AppText.noCategories,
+                              title: AppText.t.noCategories,
                             )
                           : ReorderableListView.builder(
                               padding: const EdgeInsets.symmetric(
@@ -71,7 +71,7 @@ class CategoriesScreen extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.all(DotSpace.s4),
                       child: DotButton(
-                        label: AppText.addCategory,
+                        label: AppText.t.addCategory,
                         leading: LucideIcons300.plus,
                         onTap: () async {
                           final name = await showCategoryNameSheet(context);
@@ -116,7 +116,7 @@ class _CategoryRow extends StatelessWidget {
               child: Icon(LucideIcons300.gripVertical, color: c.inkFaint),
             ),
             title: category.name,
-            subtitle: AppText.count(count, AppText.comic, AppText.comics),
+            subtitle: AppText.t.comicCount(count),
             onTap: () async {
               final name = await showCategoryNameSheet(
                 context,
@@ -126,7 +126,7 @@ class _CategoryRow extends StatelessWidget {
             },
             trailing: RoundIconButton(
               icon: LucideIcons300.trash2,
-              semanticLabel: AppText.deleteCategory,
+              semanticLabel: AppText.t.deleteCategory,
               size: 36,
               iconSize: DotSize.iconSmall,
               background: Colors.transparent,
@@ -156,22 +156,22 @@ class _CategoryRow extends StatelessWidget {
           children: [
             ActionSheetHeader(
               icon: LucideIcons300.trash2,
-              title: AppText.deleteCategory,
+              title: AppText.t.deleteCategory,
               subtitle: category.name,
             ),
             const SizedBox(height: DotSpace.s4),
             Text(
-              AppText.deleteCategoryDescription,
+              AppText.t.deleteCategoryDescription,
               style: DotlineText.body.copyWith(color: c.inkMuted),
             ),
             const SizedBox(height: DotSpace.s5),
             DotButton.destructive(
-              label: AppText.delete,
+              label: AppText.t.delete,
               onTap: () => Navigator.of(context).pop(true),
             ),
             const SizedBox(height: DotSpace.s3),
             DotButton.outline(
-              label: AppText.cancel,
+              label: AppText.t.cancel,
               onTap: () => Navigator.of(context).pop(false),
             ),
           ],
@@ -224,7 +224,7 @@ class _NameSheetState extends State<_NameSheet> {
       children: [
         ActionSheetHeader(
           icon: LucideIcons300.folder,
-          title: renaming ? AppText.renameCategory : AppText.addCategory,
+          title: renaming ? AppText.t.renameCategory : AppText.t.addCategory,
         ),
         const SizedBox(height: DotSpace.s4),
         TextField(
@@ -232,11 +232,11 @@ class _NameSheetState extends State<_NameSheet> {
           autofocus: true,
           textCapitalization: TextCapitalization.sentences,
           style: DotlineText.body.copyWith(color: c.ink),
-          decoration: const InputDecoration(hintText: AppText.newCategoryHint),
+          decoration: InputDecoration(hintText: AppText.t.newCategoryHint),
           onSubmitted: (_) => _submit(),
         ),
         const SizedBox(height: DotSpace.s4),
-        DotButton(label: AppText.save, onTap: _submit),
+        DotButton(label: AppText.t.save, onTap: _submit),
       ],
     );
   }

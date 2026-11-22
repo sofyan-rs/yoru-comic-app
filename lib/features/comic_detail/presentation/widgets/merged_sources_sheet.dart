@@ -81,10 +81,10 @@ class _MergedSourcesSheetState extends State<_MergedSourcesSheet> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const ActionSheetHeader(
+        ActionSheetHeader(
           icon: LucideIcons300.gitMerge,
-          title: AppText.mergedSources,
-          subtitle: AppText.mergedSourcesHint,
+          title: AppText.t.mergedSources,
+          subtitle: AppText.t.mergedSourcesHint,
         ),
         const SizedBox(height: DotSpace.s4),
         Flexible(
@@ -118,7 +118,7 @@ class _MergedSourcesSheetState extends State<_MergedSourcesSheet> {
                               ? null
                               : RoundIconButton(
                                   icon: LucideIcons300.x,
-                                  semanticLabel: AppText.removeSource,
+                                  semanticLabel: AppText.t.removeSource,
                                   size: 36,
                                   iconSize: DotSize.iconSmall,
                                   background: Colors.transparent,
@@ -138,13 +138,13 @@ class _MergedSourcesSheetState extends State<_MergedSourcesSheet> {
         ),
         const SizedBox(height: DotSpace.s2),
         DotButton.outline(
-          label: AppText.addSource,
+          label: AppText.t.addSource,
           leading: LucideIcons300.plus,
           onTap: _add,
         ),
         const SizedBox(height: DotSpace.s3),
         DotButton(
-          label: AppText.done,
+          label: AppText.t.done,
           onTap: changed
               ? () =>
                     Navigator.of(context)
@@ -222,12 +222,12 @@ class _MergeSearchSheetState extends State<_MergeSearchSheet> {
         children: [
           ActionSheetHeader(
             icon: LucideIcons300.search,
-            title: AppText.addSource,
-            subtitle: AppText.mergeSearchHint,
+            title: AppText.t.addSource,
+            subtitle: AppText.t.mergeSearchHint,
           ),
           const SizedBox(height: DotSpace.s4),
           SearchField(
-            hint: AppText.searchHint,
+            hint: AppText.t.searchHint,
             controller: _query,
             onSubmitted: (_) => _search(),
             onClear: _query.clear,
@@ -259,8 +259,8 @@ class _MergeSearchSheetState extends State<_MergeSearchSheet> {
                 ? Center(
                     child: Text(
                       widget.sources.isEmpty
-                          ? AppText.noOtherSourceToMerge
-                          : _error ?? AppText.noResults,
+                          ? AppText.t.noOtherSourceToMerge
+                          : _error ?? AppText.t.noResults,
                       style: DotlineText.body.copyWith(color: c.inkMuted),
                       textAlign: TextAlign.center,
                     ),

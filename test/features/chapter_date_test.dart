@@ -1,3 +1,5 @@
+import 'package:yoru/core/constants/texts.dart';
+import 'package:yoru/core/l10n/app_language.dart';
 import 'package:yoru/features/comic_detail/presentation/widgets/chapter_date.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -17,6 +19,34 @@ void main() {
     expect(ChapterDate.short('7 days ago'), '7 d');
     expect(ChapterDate.short('1 day ago'), '1 d');
     expect(ChapterDate.short('01/02/2025'), '01/02/2025');
+  });
+
+  group('in Indonesian', () {
+    setUp(() => AppText.language = AppLanguage.indonesian);
+    tearDown(() => AppText.language = AppLanguage.english);
+
+    test('dates are shown in Indonesian', () {
+      expect(ChapterDate.display('Just now'), 'Baru saja');
+      expect(ChapterDate.display('12 min ago'), '12 mnt lalu');
+      expect(ChapterDate.display('3 h ago'), '3 jam lalu');
+      expect(ChapterDate.display('1 day ago'), '1 hari lalu');
+      expect(ChapterDate.display('01/02/2025'), '01/02/2025');
+      expect(ChapterDate.short('Just now'), 'baru');
+      expect(ChapterDate.short('7 days ago'), '7 hr');
+    });
+
+    test('the stored English form still parses', () {
+      final madeAt = DateTime(2026, 1, 10, 12);
+      expect(
+        ChapterDate.parse('3 h ago', madeAt: madeAt),
+        DateTime(2026, 1, 10, 9),
+      );
+    });
+  });
+
+  test('dates are shown in English by default', () {
+    expect(ChapterDate.display('1 day ago'), '1 day ago');
+    expect(ChapterDate.display('7 days ago'), '7 days ago');
   });
 
   test('latest gives what parsing every date gives', () {

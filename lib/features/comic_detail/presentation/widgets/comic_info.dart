@@ -68,13 +68,16 @@ class _ComicInfoState extends State<ComicInfo> {
     // Each shows only when known: a source without scores gets two tiles.
     // The status, a word rather than a number, follows the source line.
     final tiles = [
-      (widget.chaptersLoading ? '…' : '${d.chapters.length}', AppText.chapter),
-      if (year != '-') (year, AppText.released),
-      if (hasRating) (d.rating.trim(), AppText.score),
+      (
+        widget.chaptersLoading ? '…' : '${d.chapters.length}',
+        AppText.t.chapter,
+      ),
+      if (year != '-') (year, AppText.t.released),
+      if (hasRating) (d.rating.trim(), AppText.t.score),
     ];
     final meta = d.type == '-' ? '' : d.type;
     final sourceLine = [
-      if (widget.source case final source?) '${AppText.sourceFrom} $source',
+      if (widget.source case final source?) '${AppText.t.sourceFrom} $source',
       if (status.isNotEmpty && status != '-') status,
     ].join(' · ');
 
@@ -134,7 +137,7 @@ class _ComicInfoState extends State<ComicInfo> {
         if (d.synopsis.isNotEmpty) ...[
           const SizedBox(height: DotSpace.s5),
           Text(
-            AppText.synopsis.toUpperCase(),
+            AppText.t.synopsis.toUpperCase(),
             style: DotlineText.label.copyWith(color: c.inkFaint),
           ),
           const SizedBox(height: DotSpace.s2),
@@ -163,7 +166,7 @@ class _ComicInfoState extends State<ComicInfo> {
                     GestureDetector(
                       onTap: () => setState(() => _expanded = !_expanded),
                       child: Text(
-                        _expanded ? AppText.hide : AppText.readMore,
+                        _expanded ? AppText.t.hide : AppText.t.readMore,
                         style: DotlineText.body.copyWith(
                           color: c.ink,
                           decoration: TextDecoration.underline,

@@ -1,3 +1,4 @@
+import 'package:yoru/core/constants/texts.dart';
 import 'package:yoru/core/presentation/widgets/dotline/round_icon_button.dart';
 import 'package:yoru/core/theme/dotline_colors.dart';
 import 'package:yoru/core/theme/dotline_text.dart';
@@ -37,7 +38,7 @@ class DotTopBar extends StatelessWidget {
         children: [
           RoundIconButton(
             icon: LucideIcons300.chevronLeft,
-            semanticLabel: 'Back',
+            semanticLabel: AppText.t.back,
             onTap: onBack ?? () => Navigator.of(context).maybePop(),
           ),
           const SizedBox(width: DotSpace.s3),

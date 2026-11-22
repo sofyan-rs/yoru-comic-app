@@ -1,0 +1,12 @@
+# The app's text: `flutter gen-l10n` (also run by `flutter pub get` and
+# builds) turns lib/l10n/app_<code>.arb into lib/l10n/app_localizations*.dart.
+# English is the template; a new language is a new app_<code>.arb plus an
+# entry in AppLanguage (lib/core/l10n/app_language.dart).
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-dir: lib/l10n
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+nullable-getter: false
+# Messages a language has not translated yet, which show in English.
+untranslated-messages-file: build/l10n_untranslated.json

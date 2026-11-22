@@ -44,9 +44,9 @@ class _DownloadComicGroupState extends State<DownloadComicGroup> {
     final cubit = context.read<DownloadCubit>();
     final confirmed = await showConfirmDeleteSheet(
       context,
-      title: AppText.deleteDownloads,
+      title: AppText.t.deleteDownloads,
       subtitle: comic.comicDetails.title,
-      message: AppText.deleteComicDownloads,
+      message: AppText.t.deleteComicDownloads,
     );
     if (confirmed) await cubit.deleteComic(comic.slug);
   }
@@ -90,7 +90,7 @@ class _DownloadComicGroupState extends State<DownloadComicGroup> {
             ),
             title: details.title,
             subtitleWidget: Text(
-              '${AppText.count(chapters.length, AppText.chapter, AppText.chapters)} · '
+              '${AppText.t.chapterCount(chapters.length)} · '
                       '${formatBytes(size)}'
                   .toUpperCase(),
               style: DotlineText.data.copyWith(color: c.inkMuted),
@@ -100,7 +100,7 @@ class _DownloadComicGroupState extends State<DownloadComicGroup> {
               children: [
                 RoundIconButton(
                   icon: LucideIcons300.trash2,
-                  semanticLabel: AppText.deleteDownloads,
+                  semanticLabel: AppText.t.deleteDownloads,
                   iconSize: DotSize.iconSmall,
                   onTap: () => _confirmDeleteComic(context),
                 ),
@@ -140,7 +140,7 @@ class _DownloadComicGroupState extends State<DownloadComicGroup> {
                     Icon(LucideIcons300.trash2, color: c.onAccent),
                     const SizedBox(height: DotSpace.s2),
                     Text(
-                      AppText.delete.toUpperCase(),
+                      AppText.t.delete.toUpperCase(),
                       style: DotlineText.label.copyWith(color: c.onAccent),
                     ),
                   ],
@@ -151,7 +151,7 @@ class _DownloadComicGroupState extends State<DownloadComicGroup> {
           child: ColoredBox(
             color: c.surface,
             child: ListRow(
-              title: '${AppText.chapter} ${chapter.chapterNumber}',
+              title: '${AppText.t.chapter} ${chapter.chapterNumber}',
               value: formatBytes(chapter.sizeBytes),
               onTap: () => _read(context, chapter),
             ),

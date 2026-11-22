@@ -37,7 +37,7 @@ Future<bool> importLocalComics(
   String? intoTitle,
 }) async {
   if (_importing) {
-    showSnackBar(context: context, message: AppText.importBusy);
+    showSnackBar(context: context, message: AppText.t.importBusy);
     return false;
   }
   final folder = await _pickKind(context, intoTitle: intoTitle);
@@ -47,12 +47,14 @@ Future<bool> importLocalComics(
   final copies = <File>[];
   if (folder) {
     final dir = await FilePicker.getDirectoryPath(
-      dialogTitle: AppText.importComics,
+      dialogTitle: AppText.t.importComics,
     );
     if (dir == null) return false;
     paths.add(dir);
   } else {
-    final files = await FilePicker.pickFiles(dialogTitle: AppText.importComics);
+    final files = await FilePicker.pickFiles(
+      dialogTitle: AppText.t.importComics,
+    );
     if (files.isEmpty) return false;
     for (final file in files) {
       if (file.path case final path?) {
@@ -71,7 +73,7 @@ Future<bool> importLocalComics(
   final bookmarks = context.read<BookmarkCubit>();
   showSnackBar(
     context: context,
-    message: AppText.importingComics,
+    message: AppText.t.importingComics,
     duration: const Duration(hours: 1),
   );
   LocalImportResult? result;
@@ -116,19 +118,19 @@ Future<void> _bookmark(BookmarkCubit bookmarks, List<String> slugs) async {
 }
 
 String _summary(LocalImportResult? result) {
-  if (result == null) return AppText.importFailed;
+  if (result == null) return AppText.t.importFailed;
   final skipped = result.skipped;
   if (result.chapters == 0) {
     return skipped.length == 1
         ? '${skipped.single.name}: ${skipped.single.reason}'
         : skipped.isEmpty
-        ? AppText.importNothing
-        : '${AppText.importNothing} · ${AppText.importSkipped(skipped.length)}';
+        ? AppText.t.importNothing
+        : '${AppText.t.importNothing} · ${AppText.t.importSkipped(skipped.length)}';
   }
-  final done = AppText.imported(result.chapters, result.series.length);
+  final done = AppText.t.imported(result.chapters, result.series.length);
   return skipped.isEmpty
       ? done
-      : '$done · ${AppText.importSkipped(skipped.length)}';
+      : '$done · ${AppText.t.importSkipped(skipped.length)}';
 }
 
 Future<File> _copyToTemp(PlatformFile file) async {
@@ -164,35 +166,35 @@ Future<bool?> _pickKind(BuildContext context, {String? intoTitle}) =>
                   ? LucideIcons300.folderInput
                   : LucideIcons300.filePlus,
               title: intoTitle == null
-                  ? AppText.importComics
-                  : AppText.addChapters,
+                  ? AppText.t.importComics
+                  : AppText.t.addChapters,
               subtitle: intoTitle,
             ),
             const SizedBox(height: DotSpace.s4),
             if (intoTitle == null) ...[
-              Text(AppText.importNamingTitle, style: DotlineText.label),
+              Text(AppText.t.importNamingTitle, style: DotlineText.label),
               const SizedBox(height: DotSpace.s2),
-              Text(AppText.importNaming, style: hint),
+              Text(AppText.t.importNaming, style: hint),
               const SizedBox(height: DotSpace.s2),
               Text(
-                AppText.importNamingExamples,
+                AppText.t.importNamingExamples,
                 style: hint.copyWith(fontFamily: DotlineText.data.fontFamily),
               ),
               if (canImportFolders) ...[
                 const SizedBox(height: DotSpace.s2),
-                Text(AppText.importFolderHint, style: hint),
+                Text(AppText.t.importFolderHint, style: hint),
               ],
             ] else
-              Text(AppText.addChaptersHint, style: hint),
+              Text(AppText.t.addChaptersHint, style: hint),
             const SizedBox(height: DotSpace.s5),
             DotButton(
-              label: AppText.importFiles,
+              label: AppText.t.importFiles,
               onTap: () => Navigator.of(context).pop(false),
             ),
             if (canImportFolders) ...[
               const SizedBox(height: DotSpace.s3),
               DotButton.outline(
-                label: AppText.importFolder,
+                label: AppText.t.importFolder,
                 onTap: () => Navigator.of(context).pop(true),
               ),
             ],

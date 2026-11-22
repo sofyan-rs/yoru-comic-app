@@ -10,6 +10,7 @@ void main() {
   test('settings round-trip', () {
     const settings = AppSettings(
       themeMode: AppThemeMode.dark,
+      language: AppLanguage.indonesian,
       readingDirection: ReadingDirection.rightToLeft,
       pageFit: PageFit.height,
       readerWidth: ReaderWidth.wide,
@@ -25,7 +26,15 @@ void main() {
     final json = SettingsModel.fromEntity(settings).toJson();
 
     expect(json['themeMode'], 'dark');
+    expect(json['language'], 'indonesian');
     expect(SettingsModel.fromJson(json).toEntity(), settings);
+  });
+
+  test('an unknown language falls back to English', () {
+    expect(
+      SettingsModel.fromJson({'language': 'klingon'}).toEntity().language,
+      AppLanguage.english,
+    );
   });
 
   test('auto-scroll speed is clamped to the levels', () {

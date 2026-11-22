@@ -121,8 +121,8 @@ class _MatchViewState extends State<_MatchView> {
       if (widget.targets.length > 1) '+${widget.targets.length - 1}',
     ].join(' ');
     final title = widget.mode == MatchMode.migrate
-        ? AppText.migrateSource
-        : AppText.importComix;
+        ? AppText.t.migrateSource
+        : AppText.t.importComix;
     if (_missing case final missing?) {
       return Scaffold(
         body: SafeArea(
@@ -155,7 +155,7 @@ class _MatchViewState extends State<_MatchView> {
                   // Outside the scroll view so the title stays put.
                   DotTopBar(
                     title: title,
-                    subtitle: '${AppText.migrateTo} $targets',
+                    subtitle: '${AppText.t.migrateTo} $targets',
                   ),
                   Expanded(
                     child: CustomScrollView(
@@ -189,7 +189,7 @@ class _MatchViewState extends State<_MatchView> {
                                       ),
                                       const SizedBox(height: DotSpace.s2),
                                       Text(
-                                        AppText.searchingSlowly,
+                                        AppText.t.searchingSlowly,
                                         style: DotlineText.bodyS.copyWith(
                                           color: c.inkFaint,
                                         ),
@@ -199,7 +199,7 @@ class _MatchViewState extends State<_MatchView> {
                                         widget.mode == MatchMode.import) ...[
                                       const SizedBox(height: DotSpace.s2),
                                       Text(
-                                        AppText.importLoadHint,
+                                        AppText.t.importLoadHint,
                                         style: DotlineText.bodyS.copyWith(
                                           color: c.inkFaint,
                                         ),
@@ -259,17 +259,17 @@ class _MatchViewState extends State<_MatchView> {
     final migrate = widget.mode == MatchMode.migrate;
     return switch (state.phase) {
       MatchPhase.finished => DotButton(
-        label: AppText.done,
+        label: AppText.t.done,
         onTap: () => Navigator.of(context).pop(),
       ),
       MatchPhase.applying => DotButton(
-        label: migrate ? AppText.migrating : AppText.importing,
+        label: migrate ? AppText.t.migrating : AppText.t.importing,
         onTap: null,
       ),
       _ => DotButton(
         label:
-            '${migrate ? AppText.migrateCount : AppText.importCount} '
-            '${AppText.count(state.readyCount, AppText.comic, AppText.comics)}',
+            '${migrate ? AppText.t.migrateCount : AppText.t.importCount} '
+            '${AppText.t.comicCount(state.readyCount)}',
         // Applying while searching would leave out comics found later.
         onTap: state.readyCount == 0 || state.phase == MatchPhase.searching
             ? null
@@ -282,17 +282,17 @@ class _MatchViewState extends State<_MatchView> {
     final total = state.items.length;
     return switch (state.phase) {
       MatchPhase.searching =>
-        '${AppText.matchSearching} ${state.searched} / $total',
+        '${AppText.t.matchSearching} ${state.searched} / $total',
       MatchPhase.review || MatchPhase.applying =>
-        '${state.readyCount} / $total ${AppText.matchesFound}',
+        '${state.readyCount} / $total ${AppText.t.matchesFound}',
       MatchPhase.finished => switch (state.result) {
         final result? =>
-          '${AppText.importDone} · ${result.added} ${AppText.added}'
-              '${result.existing > 0 ? ' · ${result.existing} ${AppText.alreadyInLibrary}' : ''}'
-              '${result.sameTitle > 0 ? ' · ${result.sameTitle} ${AppText.sameTitleElsewhere}' : ''}',
+          '${AppText.t.importDone} · ${result.added} ${AppText.t.added}'
+              '${result.existing > 0 ? ' · ${result.existing} ${AppText.t.alreadyInLibrary}' : ''}'
+              '${result.sameTitle > 0 ? ' · ${result.sameTitle} ${AppText.t.sameTitleElsewhere}' : ''}',
         null =>
-          '${AppText.migrationDone} · ${state.count(MatchStatus.done)} / $total'
-              '${state.count(MatchStatus.error) > 0 ? ' · ${state.count(MatchStatus.error)} ${AppText.failed}' : ''}',
+          '${AppText.t.migrationDone} · ${state.count(MatchStatus.done)} / $total'
+              '${state.count(MatchStatus.error) > 0 ? ' · ${state.count(MatchStatus.error)} ${AppText.t.failed}' : ''}',
       },
     };
   }
@@ -316,18 +316,18 @@ class _MatchRow extends StatelessWidget {
     final c = Dotline.of(context);
     final match = item.match;
     final (status, color) = switch (item.status) {
-      MatchStatus.waiting => (AppText.matchWaiting, c.inkFaint),
-      MatchStatus.searching => (AppText.matchSearching, c.inkFaint),
+      MatchStatus.waiting => (AppText.t.matchWaiting, c.inkFaint),
+      MatchStatus.searching => (AppText.t.matchSearching, c.inkFaint),
       MatchStatus.found => (match?.title ?? '', c.inkMuted),
-      MatchStatus.notFound => (AppText.matchNotFound, c.accentText),
-      MatchStatus.failed => (AppText.matchFailed, c.accentText),
-      MatchStatus.skipped => (AppText.matchSkipped, c.inkFaint),
+      MatchStatus.notFound => (AppText.t.matchNotFound, c.accentText),
+      MatchStatus.failed => (AppText.t.matchFailed, c.accentText),
+      MatchStatus.skipped => (AppText.t.matchSkipped, c.inkFaint),
       MatchStatus.done => (
-        item.fromKey != null ? AppText.matchMigrated : match?.title ?? '',
+        item.fromKey != null ? AppText.t.matchMigrated : match?.title ?? '',
         c.positive,
       ),
       MatchStatus.error => (
-        '${AppText.matchMigrateFailed}: ${item.message ?? ''}',
+        '${AppText.t.matchMigrateFailed}: ${item.message ?? ''}',
         c.accentText,
       ),
     };
@@ -341,7 +341,7 @@ class _MatchRow extends StatelessWidget {
         [
           status,
           ?source,
-          if (item.lastRead case final chapter?) '${AppText.readTo} $chapter',
+          if (item.lastRead case final chapter?) '${AppText.t.readTo} $chapter',
         ].join(' · '),
         style: DotlineText.bodyS.copyWith(color: color),
         maxLines: 2,

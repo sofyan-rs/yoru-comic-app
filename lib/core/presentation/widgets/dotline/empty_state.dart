@@ -1,3 +1,4 @@
+import 'package:yoru/core/constants/texts.dart';
 import 'package:yoru/core/presentation/widgets/dotline/dot_button.dart';
 import 'package:yoru/core/theme/dotline_colors.dart';
 import 'package:yoru/core/theme/dotline_text.dart';
@@ -18,13 +19,16 @@ class EmptyState extends StatelessWidget {
   });
 
   /// No connection, with a retry button.
-  const EmptyState.offline({
+  EmptyState.offline({
     super.key,
-    this.title = 'No connection',
-    this.message = 'Check your internet, then try again.',
-    this.actionLabel = 'Try again',
+    String? title,
+    String? message,
+    String? actionLabel,
     required this.onAction,
-  }) : icon = LucideIcons300.wifiOff;
+  }) : icon = LucideIcons300.wifiOff,
+       title = title ?? AppText.t.noConnection,
+       message = message ?? AppText.t.noConnectionHint,
+       actionLabel = actionLabel ?? AppText.t.retry;
 
   final IconData icon;
   final String title;

@@ -26,10 +26,10 @@ class HomeScreen extends StatefulWidget {
 
   /// Greeting for the hour of the day.
   static String greeting(DateTime now) => switch (now.hour) {
-    >= 4 && < 10 => AppText.goodMorning,
-    >= 10 && < 15 => AppText.goodAfternoon,
-    >= 15 && <= 18 => AppText.goodEvening,
-    _ => AppText.goodNight,
+    >= 4 && < 10 => AppText.t.goodMorning,
+    >= 10 && < 15 => AppText.t.goodAfternoon,
+    >= 15 && <= 18 => AppText.t.goodEvening,
+    _ => AppText.t.goodNight,
   };
 
   @override
@@ -160,7 +160,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return ScreenHeader(
       overline: HomeScreen.greeting(DateTime.now()),
       title: source?.baseName ?? AppVariables.appName,
-      titleSemanticLabel: AppText.changeSource,
+      titleSemanticLabel: AppText.t.changeSource,
       onTitleTap: () => showSourcePicker(context),
       subtitleWidget: SourceSubtitle(
         source: source,
@@ -174,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
       actions: [
         RoundIconButton(
           icon: LucideIcons300.search,
-          semanticLabel: AppText.searchHint,
+          semanticLabel: AppText.t.searchHint,
           onTap: _openSearch,
         ),
       ],

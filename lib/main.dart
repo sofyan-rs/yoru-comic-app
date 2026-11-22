@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:yoru/app/app.dart';
+import 'package:yoru/core/constants/texts.dart';
 import 'package:yoru/core/di/injection.dart';
 import 'package:yoru/core/network/cover_cache_migration.dart';
 import 'package:yoru/core/network/dns_setting.dart';
@@ -42,6 +43,8 @@ Future<void> main() async {
   // Before the first request: the catalog goes online.
   final settings = await getIt<GetSettings>()(const NoParams());
   await applyDnsOverHttps(settings.fold((_) => '', (s) => s.dnsOverHttps));
+  // The splash and first screens already in the user's language.
+  settings.fold((_) {}, (s) => AppText.language = s.language);
   final extensions = getIt<ExtensionManager>();
   // Image hosts' headers (e.g. a CDN's Referer) before the first cover.
   _syncImageHostHeaders(extensions);

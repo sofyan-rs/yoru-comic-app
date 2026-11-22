@@ -36,7 +36,7 @@ Future<void> showMihonSettings(
             children: [
               ActionSheetHeader(
                 icon: LucideIcons300.settings2,
-                title: '${extension.name} · ${AppText.sourceSettings}',
+                title: '${extension.name} · ${AppText.t.sourceSettings}',
               ),
               const SizedBox(height: DotSpace.s4),
               Flexible(
@@ -127,8 +127,8 @@ class _SettingsSheetState extends State<_SettingsSheet> {
       children: [
         ActionSheetHeader(
           icon: LucideIcons300.settings2,
-          title: '${widget.source.name} · ${AppText.sourceSettings}',
-          subtitle: AppText.sourceSettingsHint,
+          title: '${widget.source.name} · ${AppText.t.sourceSettings}',
+          subtitle: AppText.t.sourceSettingsHint,
         ),
         const SizedBox(height: DotSpace.s4),
         if (_error case final error?)
@@ -146,7 +146,7 @@ class _SettingsSheetState extends State<_SettingsSheet> {
           )
         else if (prefs != null && prefs.isEmpty)
           Text(
-            AppText.noSourceSettings,
+            AppText.t.noSourceSettings,
             style: DotlineText.body.copyWith(color: c.inkMuted),
           )
         else if (prefs != null)
@@ -336,7 +336,7 @@ class _MultiPickerState extends State<_MultiPicker> {
         ),
         const SizedBox(height: DotSpace.s4),
         DotButton(
-          label: AppText.save,
+          label: AppText.t.save,
           onTap: () => Navigator.of(context).pop([
             for (final v in p.values)
               if (_on.contains(v)) v,
@@ -383,7 +383,7 @@ class _TextEditorState extends State<_TextEditor> {
         ),
         const SizedBox(height: DotSpace.s4),
         DotButton(
-          label: AppText.save,
+          label: AppText.t.save,
           onTap: () => Navigator.of(context).pop(_text.text),
         ),
       ],

@@ -15,6 +15,13 @@ SettingsModel _$SettingsModelFromJson(Map<String, dynamic> json) =>
             unknownValue: AppThemeMode.system,
           ) ??
           AppThemeMode.system,
+      language:
+          $enumDecodeNullable(
+            _$AppLanguageEnumMap,
+            json['language'],
+            unknownValue: AppLanguage.english,
+          ) ??
+          AppLanguage.english,
       readingDirection:
           $enumDecodeNullable(
             _$ReadingDirectionEnumMap,
@@ -72,6 +79,7 @@ SettingsModel _$SettingsModelFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$SettingsModelToJson(SettingsModel instance) =>
     <String, dynamic>{
       'themeMode': _$AppThemeModeEnumMap[instance.themeMode]!,
+      'language': _$AppLanguageEnumMap[instance.language]!,
       'readingDirection': _$ReadingDirectionEnumMap[instance.readingDirection]!,
       'pageFit': _$PageFitEnumMap[instance.pageFit]!,
       'readerWidth': _$ReaderWidthEnumMap[instance.readerWidth]!,
@@ -95,6 +103,11 @@ const _$AppThemeModeEnumMap = {
   AppThemeMode.system: 'system',
   AppThemeMode.light: 'light',
   AppThemeMode.dark: 'dark',
+};
+
+const _$AppLanguageEnumMap = {
+  AppLanguage.english: 'english',
+  AppLanguage.indonesian: 'indonesian',
 };
 
 const _$ReadingDirectionEnumMap = {

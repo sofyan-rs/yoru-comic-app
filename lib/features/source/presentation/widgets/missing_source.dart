@@ -89,21 +89,21 @@ class _MissingSourceState extends State<MissingSource> {
         widget.sourceId;
     return EmptyState(
       icon: LucideIcons300.puzzle,
-      title: '$name ${AppText.sourceNotInstalled}',
+      title: '$name ${AppText.t.sourceNotInstalled}',
       message:
           _error ??
           (_looking
-              ? AppText.sourceLooking
+              ? AppText.t.sourceLooking
               : offered == null
-              ? AppText.sourceNotInRepos
-              : AppText.sourceInstallHint),
+              ? AppText.t.sourceNotInRepos
+              : AppText.t.sourceInstallHint),
       actionLabel: _looking
           ? null
           : offered == null
-          ? AppText.extensions
+          ? AppText.t.extensions
           : _installing
-          ? AppText.installing
-          : '${AppText.install} $name',
+          ? AppText.t.installing
+          : '${AppText.t.install} $name',
       onAction: _looking || _installing
           ? null
           : offered == null

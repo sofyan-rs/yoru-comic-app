@@ -82,17 +82,17 @@ class ComicAppBar extends StatelessWidget {
     // The freshly loaded list, so a chapter released since is found.
     final resume = latest == null ? null : ResumeChapter.of(latest, chapters);
     final label = resume != null
-        ? '${AppText.continueReading} · Ch. ${resume.number}'
+        ? '${AppText.t.continueReading} · Ch. ${resume.number}'
         : first != null
-        ? '${AppText.startReading} · Ch. ${first.number}'
-        : AppText.startReading;
+        ? '${AppText.t.startReading} · Ch. ${first.number}'
+        : AppText.t.startReading;
 
     return Row(
       children: [
         Pressable(
           semanticLabel: bookmarked
-              ? AppText.removeBookmark
-              : AppText.addBookmark,
+              ? AppText.t.removeBookmark
+              : AppText.t.addBookmark,
           onTap: () => _toggleBookmark(context, bookmarked),
           child: Container(
             width: 56,
@@ -134,7 +134,7 @@ class ComicAppBar extends StatelessWidget {
       children: [
         RoundIconButton(
           icon: LucideIcons300.x,
-          semanticLabel: AppText.cancel,
+          semanticLabel: AppText.t.cancel,
           onTap: unselectAllChapter,
         ),
         const SizedBox(width: DotSpace.s3),
@@ -151,7 +151,7 @@ class ComicAppBar extends StatelessWidget {
                 maxLines: 1,
               ),
               Text(
-                AppText.selected.toUpperCase(),
+                AppText.t.selected.toUpperCase(),
                 style: DotlineText.label.copyWith(color: c.inkFaint),
                 maxLines: 1,
                 softWrap: false,
@@ -162,7 +162,7 @@ class ComicAppBar extends StatelessWidget {
         ),
         RoundIconButton(
           icon: LucideIcons300.list,
-          semanticLabel: AppText.selectAll,
+          semanticLabel: AppText.t.selectAll,
           onTap: () => selectAllChapter([
             for (final chapter in comicDetails.chapters.reversed)
               SelectedChapter(
@@ -176,7 +176,7 @@ class ComicAppBar extends StatelessWidget {
           const SizedBox(width: DotSpace.s2),
           RoundIconButton(
             icon: LucideIcons300.download,
-            semanticLabel: AppText.download,
+            semanticLabel: AppText.t.download,
             onTap: toDownload.isEmpty
                 ? null
                 : () => _download(context, toDownload),
@@ -185,7 +185,7 @@ class ComicAppBar extends StatelessWidget {
         const SizedBox(width: DotSpace.s2),
         RoundIconButton(
           icon: LucideIcons300.rotateCcw,
-          semanticLabel: AppText.markUnread,
+          semanticLabel: AppText.t.markUnread,
           onTap: () {
             context.read<HistoryCubit>().removeHistoryList([
               for (final chapter in selectedChapters) chapter.slug,
@@ -196,7 +196,7 @@ class ComicAppBar extends StatelessWidget {
         const SizedBox(width: DotSpace.s2),
         RoundIconButton(
           icon: LucideIcons300.check,
-          semanticLabel: AppText.markRead,
+          semanticLabel: AppText.t.markRead,
           background: c.ink,
           foreground: c.onInk,
           onTap: () {
@@ -227,7 +227,7 @@ class ComicAppBar extends StatelessWidget {
   /// storage would skip it without a word.
   bool _storable(BuildContext context) {
     if (ComicKey.storable(comicSlug)) return true;
-    showSnackBar(context: context, message: AppText.comicKeyTooLong);
+    showSnackBar(context: context, message: AppText.t.comicKeyTooLong);
     return false;
   }
 
@@ -242,8 +242,8 @@ class ComicAppBar extends StatelessWidget {
     showSnackBar(
       context: context,
       message:
-          '${AppText.count(chapters.length, AppText.chapterLower, AppText.chaptersLower)} '
-          '${AppText.downloadQueued}',
+          '${AppText.t.chapterCountLower(chapters.length)} '
+          '${AppText.t.downloadQueued}',
     );
   }
 
@@ -251,7 +251,7 @@ class ComicAppBar extends StatelessWidget {
     final cubit = context.read<BookmarkCubit>();
     if (bookmarked) {
       cubit.removeBookmark(comicSlug);
-      showSnackBar(context: context, message: AppText.removedFromBookmark);
+      showSnackBar(context: context, message: AppText.t.removedFromBookmark);
       return;
     }
     // A source already merged into a bookmark counts as that bookmark.
@@ -271,7 +271,7 @@ class ComicAppBar extends StatelessWidget {
         );
         if (!context.mounted) return;
         context.read<HistoryCubit>().load();
-        showSnackBar(context: context, message: AppText.migrated);
+        showSnackBar(context: context, message: AppText.t.migrated);
       case DuplicateChoice.merge:
         final into = existing.first;
         await cubit.merge(
@@ -281,7 +281,7 @@ class ComicAppBar extends StatelessWidget {
         );
         if (!context.mounted) return;
         context.read<HistoryCubit>().load();
-        showSnackBar(context: context, message: AppText.merged);
+        showSnackBar(context: context, message: AppText.t.merged);
         // This page becomes the merged entry's.
         await Navigator.of(context).pushReplacement(
           MaterialPageRoute<void>(
@@ -311,7 +311,7 @@ class ComicAppBar extends StatelessWidget {
     if (!_storable(context)) return;
     await context.read<BookmarkCubit>().addBookmark(comicDetails, comicSlug);
     if (!context.mounted) return;
-    showSnackBar(context: context, message: AppText.addedToBookmark);
+    showSnackBar(context: context, message: AppText.t.addedToBookmark);
     if (context.read<CategoryCubit>().state.categories.isEmpty) return;
     await showSetCategoriesSheet(context, {comicSlug}, skippable: true);
   }

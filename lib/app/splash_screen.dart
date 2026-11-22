@@ -1,3 +1,5 @@
+import 'package:yoru/core/constants/texts.dart';
+
 import 'dart:async';
 
 import 'package:yoru/app/root_screen.dart';
@@ -89,7 +91,7 @@ class _SplashScreenState extends State<SplashScreen> {
                             ),
                             const SizedBox(height: DotSpace.s3),
                             Text(
-                              'COMIC READER APP',
+                              AppText.t.comicReaderApp,
                               style: DotlineText.label.copyWith(
                                 color: c.inkFaint,
                               ),
@@ -105,7 +107,7 @@ class _SplashScreenState extends State<SplashScreen> {
                       child: Column(
                         children: [
                           Text(
-                            'FROM',
+                            AppText.t.from,
                             style: DotlineText.label.copyWith(
                               color: c.inkFaint,
                             ),

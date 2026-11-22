@@ -30,12 +30,12 @@ Future<bool> showConfirmDeleteSheet(
           Text(message, style: DotlineText.body.copyWith(color: c.inkMuted)),
           const SizedBox(height: DotSpace.s5),
           DotButton.destructive(
-            label: AppText.delete,
+            label: AppText.t.delete,
             onTap: () => Navigator.of(context).pop(true),
           ),
           const SizedBox(height: DotSpace.s3),
           DotButton.outline(
-            label: AppText.cancel,
+            label: AppText.t.cancel,
             onTap: () => Navigator.of(context).pop(false),
           ),
         ],

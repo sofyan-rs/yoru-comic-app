@@ -33,11 +33,11 @@ class SourceError extends StatelessWidget {
     if (message == localEmptyMessage) {
       return EmptyState(
         icon: LucideIcons300.folderInput,
-        title: AppText.noLocalComics,
+        title: AppText.t.noLocalComics,
         message: canImportFolders
-            ? AppText.noLocalComicsHint
-            : AppText.noLocalComicsHintFiles,
-        actionLabel: AppText.importComics,
+            ? AppText.t.noLocalComicsHint
+            : AppText.t.noLocalComicsHintFiles,
+        actionLabel: AppText.t.importComics,
         onAction: () async {
           if (await importLocalComics(context)) onRetry();
         },
@@ -46,9 +46,9 @@ class SourceError extends StatelessWidget {
     if (message == noSourceMessage) {
       return EmptyState(
         icon: LucideIcons300.blocks,
-        title: AppText.noSourceShort,
-        message: AppText.noSourceHint,
-        actionLabel: AppText.addSource,
+        title: AppText.t.noSourceShort,
+        message: AppText.t.noSourceHint,
+        actionLabel: AppText.t.addSource,
         onAction: () async {
           await ExtensionsScreen.open(context, showAvailable: true);
           onRetry();
@@ -60,17 +60,17 @@ class SourceError extends StatelessWidget {
     if (url == null || sourceId == null) {
       return EmptyState(
         icon: LucideIcons300.bug,
-        title: AppText.error,
+        title: AppText.t.error,
         message: message,
-        actionLabel: AppText.retry,
+        actionLabel: AppText.t.retry,
         onAction: onRetry,
       );
     }
     return EmptyState(
       icon: LucideIcons300.shieldAlert,
-      title: AppText.verificationNeeded,
-      message: AppText.verificationNeededHint,
-      actionLabel: AppText.verifyInWebView,
+      title: AppText.t.verificationNeeded,
+      message: AppText.t.verificationNeededHint,
+      actionLabel: AppText.t.verifyInWebView,
       onAction: () async {
         await WebViewScreen.open(context, sourceId: sourceId, url: url);
         onRetry();

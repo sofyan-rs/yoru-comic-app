@@ -14,6 +14,7 @@ import 'package:yoru/features/settings/presentation/bloc/settings_cubit.dart';
 import 'package:yoru/features/settings/presentation/widgets/app_info.dart';
 import 'package:yoru/features/settings/presentation/widgets/clear_cache_sheet.dart';
 import 'package:yoru/features/settings/presentation/widgets/dns_sheet.dart';
+import 'package:yoru/features/settings/presentation/widgets/language_sheet.dart';
 import 'package:yoru/features/sync/presentation/widgets/sync_section.dart';
 import 'package:yoru/features/update/presentation/bloc/update_cubit.dart';
 import 'package:yoru/features/migration/presentation/pages/import_screen.dart';
@@ -61,7 +62,7 @@ class _SettingsState extends State<Settings> {
     await comicImageCache.emptyCache();
     await _loadCacheSize();
     if (context.mounted) {
-      showSnackBar(context: context, message: AppText.cacheCleared);
+      showSnackBar(context: context, message: AppText.t.cacheCleared);
     }
   }
 
@@ -71,7 +72,7 @@ class _SettingsState extends State<Settings> {
       mode: LaunchMode.externalApplication,
     );
     if (!opened && context.mounted) {
-      showSnackBar(context: context, message: AppText.linkFailed);
+      showSnackBar(context: context, message: AppText.t.linkFailed);
     }
   }
 
@@ -86,6 +87,9 @@ class _SettingsState extends State<Settings> {
     );
     final themeMode = context.select<SettingsCubit, AppThemeMode>(
       (s) => s.state.themeMode,
+    );
+    final language = context.select<SettingsCubit, AppLanguage>(
+      (s) => s.state.language,
     );
     final downloadedBytes = context.select<DownloadCubit, int>(
       (d) => d.state.totalBytes,
@@ -124,11 +128,11 @@ class _SettingsState extends State<Settings> {
             children: [
               ListRow(
                 icon: LucideIcons300.hatGlasses,
-                title: AppText.incognito,
-                subtitle: AppText.incognitoDescription,
+                title: AppText.t.incognito,
+                subtitle: AppText.t.incognitoDescription,
                 trailing: DotSwitch(
                   value: incognito,
-                  semanticLabel: AppText.incognito,
+                  semanticLabel: AppText.t.incognito,
                   onChanged: setIncognito,
                 ),
                 onTap: () => setIncognito(!incognito),
@@ -137,15 +141,15 @@ class _SettingsState extends State<Settings> {
           ),
         ),
         const SizedBox(height: DotSpace.s3),
-        const SectionLabel(label: AppText.sources),
+        SectionLabel(label: AppText.t.sources),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: DotSpace.s4),
           child: ListGroup(
             children: [
               ListRow(
                 icon: LucideIcons300.puzzle,
-                title: AppText.extensions,
-                subtitle: AppText.extensionsDescription,
+                title: AppText.t.extensions,
+                subtitle: AppText.t.extensionsDescription,
                 trailing: extensionUpdates == 0
                     ? null
                     : UpdateBadge(count: extensionUpdates),
@@ -154,15 +158,15 @@ class _SettingsState extends State<Settings> {
               ),
               ListRow(
                 icon: LucideIcons300.arrowRightLeft,
-                title: AppText.migrateSource,
-                subtitle: AppText.migrateSourceDescription,
+                title: AppText.t.migrateSource,
+                subtitle: AppText.t.migrateSourceDescription,
                 showChevron: true,
                 onTap: () => SourceMigrationScreen.open(context),
               ),
               ListRow(
                 icon: LucideIcons300.globeLock,
-                title: AppText.dnsOverHttps,
-                subtitle: AppText.dnsOverHttpsDescription,
+                title: AppText.t.dnsOverHttps,
+                subtitle: AppText.t.dnsOverHttpsDescription,
                 value: dnsSettingLabel(dnsSetting),
                 showChevron: true,
                 onTap: () => showDnsSheet(context),
@@ -171,31 +175,31 @@ class _SettingsState extends State<Settings> {
           ),
         ),
         const SizedBox(height: DotSpace.s3),
-        const SectionLabel(label: AppText.library),
+        SectionLabel(label: AppText.t.library),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: DotSpace.s4),
           child: ListGroup(
             children: [
               ListRow(
                 icon: LucideIcons300.folderInput,
-                title: AppText.importComics,
+                title: AppText.t.importComics,
                 subtitle: canImportFolders
-                    ? AppText.importComicsDescription
-                    : AppText.importComicsDescriptionFiles,
+                    ? AppText.t.importComicsDescription
+                    : AppText.t.importComicsDescriptionFiles,
                 showChevron: true,
                 onTap: () => importLocalComics(context),
               ),
               ListRow(
                 icon: LucideIcons300.folder,
-                title: AppText.categories,
-                subtitle: AppText.groupByCategoryDescription,
+                title: AppText.t.categories,
+                subtitle: AppText.t.groupByCategoryDescription,
                 showChevron: true,
                 onTap: () => CategoriesScreen.open(context),
               ),
               ListRow(
                 icon: LucideIcons300.download,
-                title: AppText.downloads,
-                subtitle: AppText.downloadsDescription,
+                title: AppText.t.downloads,
+                subtitle: AppText.t.downloadsDescription,
                 value: downloadedBytes == 0
                     ? null
                     : formatBytes(downloadedBytes),
@@ -204,8 +208,8 @@ class _SettingsState extends State<Settings> {
               ),
               ListRow(
                 icon: LucideIcons300.trash2,
-                title: AppText.clearCache,
-                subtitle: AppText.clearCacheDescription,
+                title: AppText.t.clearCache,
+                subtitle: AppText.t.clearCacheDescription,
                 value: _cacheBytes == 0 ? null : formatBytes(_cacheBytes),
                 showChevron: false,
                 onTap: () => _clearCache(context),
@@ -215,29 +219,29 @@ class _SettingsState extends State<Settings> {
         ),
         const SyncSection(),
         const SizedBox(height: DotSpace.s3),
-        const SectionLabel(label: AppText.backup),
+        SectionLabel(label: AppText.t.backup),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: DotSpace.s4),
           child: ListGroup(
             children: [
               ListRow(
                 icon: LucideIcons300.database,
-                title: AppText.backupData,
-                subtitle: AppText.backupDataDescription,
+                title: AppText.t.backupData,
+                subtitle: AppText.t.backupDataDescription,
                 onTap: busy ? null : () => context.read<BackupCubit>().backup(),
               ),
               ListRow(
                 icon: LucideIcons300.rotateCcw,
-                title: AppText.restoreData,
-                subtitle: AppText.restoreDataDescription,
+                title: AppText.t.restoreData,
+                subtitle: AppText.t.restoreDataDescription,
                 onTap: busy
                     ? null
                     : () => context.read<BackupCubit>().restore(),
               ),
               ListRow(
                 icon: LucideIcons300.archiveRestore,
-                title: AppText.importFromApps,
-                subtitle: AppText.importFromAppsDescription,
+                title: AppText.t.importFromApps,
+                subtitle: AppText.t.importFromAppsDescription,
                 showChevron: true,
                 onTap: () => ImportScreen.open(context),
               ),
@@ -245,17 +249,17 @@ class _SettingsState extends State<Settings> {
           ),
         ),
         const SizedBox(height: DotSpace.s3),
-        const SectionLabel(label: AppText.appearance),
+        SectionLabel(label: AppText.t.appearance),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: DotSpace.s4),
           child: SegmentedControl<AppThemeMode>(
             selected: themeMode,
             onChanged: (mode) =>
                 context.read<SettingsCubit>().changeThemeMode(mode),
-            segments: const [
-              Segment(value: AppThemeMode.system, label: AppText.themeSystem),
-              Segment(value: AppThemeMode.light, label: AppText.themeLight),
-              Segment(value: AppThemeMode.dark, label: AppText.themeDark),
+            segments: [
+              Segment(value: AppThemeMode.system, label: AppText.t.themeSystem),
+              Segment(value: AppThemeMode.light, label: AppText.t.themeLight),
+              Segment(value: AppThemeMode.dark, label: AppText.t.themeDark),
             ],
           ),
         ),
@@ -265,12 +269,19 @@ class _SettingsState extends State<Settings> {
           child: ListGroup(
             children: [
               ListRow(
+                icon: LucideIcons300.languages,
+                title: AppText.t.appLanguage,
+                value: language.nativeName,
+                showChevron: true,
+                onTap: () => showLanguageSheet(context),
+              ),
+              ListRow(
                 icon: LucideIcons300.volume2,
-                title: AppText.kururinSound,
-                subtitle: AppText.kururinSoundDescription,
+                title: AppText.t.kururinSound,
+                subtitle: AppText.t.kururinSoundDescription,
                 trailing: DotSwitch(
                   value: kururinSound,
-                  semanticLabel: AppText.kururinSound,
+                  semanticLabel: AppText.t.kururinSound,
                   onChanged: setKururinSound,
                 ),
                 onTap: () => setKururinSound(!kururinSound),
@@ -278,11 +289,11 @@ class _SettingsState extends State<Settings> {
               if (kururinSound)
                 ListRow(
                   icon: LucideIcons300.hourglass,
-                  title: AppText.lalalaUntilFinish,
-                  subtitle: AppText.lalalaUntilFinishDescription,
+                  title: AppText.t.lalalaUntilFinish,
+                  subtitle: AppText.t.lalalaUntilFinishDescription,
                   trailing: DotSwitch(
                     value: lalalaUntilFinish,
-                    semanticLabel: AppText.lalalaUntilFinish,
+                    semanticLabel: AppText.t.lalalaUntilFinish,
                     onChanged: setLalalaUntilFinish,
                   ),
                   onTap: () => setLalalaUntilFinish(!lalalaUntilFinish),
@@ -291,7 +302,7 @@ class _SettingsState extends State<Settings> {
           ),
         ),
         const SizedBox(height: DotSpace.s3),
-        const SectionLabel(label: AppText.about),
+        SectionLabel(label: AppText.t.about),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: DotSpace.s4),
           child: ListGroup(
@@ -299,9 +310,9 @@ class _SettingsState extends State<Settings> {
               if (!AppVariables.storeBuild)
                 ListRow(
                   icon: LucideIcons300.refreshCw,
-                  title: AppText.checkUpdate,
+                  title: AppText.t.checkUpdate,
                   value: updateAvailable
-                      ? AppText.updateAvailable
+                      ? AppText.t.updateAvailable
                       : widget.appVersion.isEmpty
                       ? null
                       : 'v${widget.appVersion}',
@@ -312,8 +323,8 @@ class _SettingsState extends State<Settings> {
                 ),
               ListRow(
                 icon: LucideIcons300.info,
-                title: AppText.aboutApp,
-                subtitle: AppText.aboutAppDescription,
+                title: AppText.t.aboutApp,
+                subtitle: AppText.t.aboutAppDescription,
                 showChevron: true,
                 onTap: () => showDotSheet<void>(
                   context: context,
@@ -322,8 +333,8 @@ class _SettingsState extends State<Settings> {
               ),
               ListRow(
                 icon: LucideIcons300.bug,
-                title: AppText.bugReport,
-                subtitle: AppText.bugReportDescription,
+                title: AppText.t.bugReport,
+                subtitle: AppText.t.bugReportDescription,
                 showChevron: true,
                 onTap: () => _reportBug(context),
               ),

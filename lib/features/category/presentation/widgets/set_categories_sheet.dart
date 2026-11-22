@@ -81,19 +81,15 @@ class _SetCategoriesSheetState extends State<_SetCategoriesSheet> {
       children: [
         ActionSheetHeader(
           icon: LucideIcons300.folder,
-          title: AppText.setCategories,
-          subtitle: AppText.count(
-            widget.slugs.length,
-            AppText.comic,
-            AppText.comics,
-          ),
+          title: AppText.t.setCategories,
+          subtitle: AppText.t.comicCount(widget.slugs.length),
         ),
         const SizedBox(height: DotSpace.s4),
         if (state.categories.isEmpty)
           Padding(
             padding: const EdgeInsets.only(bottom: DotSpace.s4),
             child: Text(
-              AppText.noCategories,
+              AppText.t.noCategories,
               style: DotlineText.body.copyWith(color: c.inkMuted),
             ),
           )
@@ -132,12 +128,12 @@ class _SetCategoriesSheetState extends State<_SetCategoriesSheet> {
         const SizedBox(height: DotSpace.s3),
         if (widget.skippable)
           DotButton.outline(
-            label: AppText.skip,
+            label: AppText.t.skip,
             onTap: () => Navigator.of(context).pop(false),
           )
         else
           DotButton.outline(
-            label: AppText.addCategory,
+            label: AppText.t.addCategory,
             leading: LucideIcons300.plus,
             onTap: () async {
               final cubit = context.read<CategoryCubit>();
@@ -147,7 +143,7 @@ class _SetCategoriesSheetState extends State<_SetCategoriesSheet> {
           ),
         const SizedBox(height: DotSpace.s3),
         DotButton(
-          label: AppText.save,
+          label: AppText.t.save,
           onTap: state.categories.isEmpty ? null : _save,
         ),
       ],

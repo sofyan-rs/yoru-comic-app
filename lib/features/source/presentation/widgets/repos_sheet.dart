@@ -39,7 +39,7 @@ class _ReposSheetState extends State<ReposSheet> {
   Future<void> _add() async {
     final url = _url.text.trim();
     if (Uri.tryParse(url)?.hasScheme != true) {
-      setState(() => _error = AppText.repoInvalid);
+      setState(() => _error = AppText.t.repoInvalid);
       return;
     }
     setState(() {
@@ -64,10 +64,10 @@ class _ReposSheetState extends State<ReposSheet> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const ActionSheetHeader(
+        ActionSheetHeader(
           icon: LucideIcons300.gitBranch,
-          title: AppText.manageRepos,
-          subtitle: AppText.reposDescription,
+          title: AppText.t.manageRepos,
+          subtitle: AppText.t.reposDescription,
         ),
         const SizedBox(height: DotSpace.s4),
         Flexible(
@@ -83,10 +83,10 @@ class _ReposSheetState extends State<ReposSheet> {
                           repo.name ?? Uri.tryParse(repo.url)?.host ?? repo.url,
                       subtitle: repo.error == null
                           ? repo.url
-                          : '${AppText.repoFailed} · ${repo.url}',
+                          : '${AppText.t.repoFailed} · ${repo.url}',
                       trailing: RoundIconButton(
                         icon: LucideIcons300.trash2,
-                        semanticLabel: AppText.delete,
+                        semanticLabel: AppText.t.delete,
                         iconSize: DotSize.iconSmall,
                         background: Colors.transparent,
                         onTap: () => context.read<ExtensionsCubit>().removeRepo(
@@ -110,8 +110,8 @@ class _ReposSheetState extends State<ReposSheet> {
             hintText:
                 defaultTargetPlatform == TargetPlatform.iOS ||
                     AppVariables.storeBuild
-                ? AppText.repoHintIos
-                : AppText.repoHint,
+                ? AppText.t.repoHintIos
+                : AppText.t.repoHint,
             errorText: _error,
             errorMaxLines: 3,
           ),
@@ -119,12 +119,12 @@ class _ReposSheetState extends State<ReposSheet> {
         ),
         const SizedBox(height: DotSpace.s3),
         Text(
-          AppText.repoWarning,
+          AppText.t.repoWarning,
           style: DotlineText.bodyS.copyWith(color: c.inkFaint),
         ),
         const SizedBox(height: DotSpace.s4),
         DotButton(
-          label: _adding ? AppText.repoAdding : AppText.addRepo,
+          label: _adding ? AppText.t.repoAdding : AppText.t.addRepo,
           leading: LucideIcons300.plus,
           onTap: _adding ? null : _add,
         ),

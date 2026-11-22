@@ -1,3 +1,4 @@
+import 'package:yoru/features/comic_detail/presentation/widgets/chapter_date.dart';
 import 'package:yoru/core/constants/texts.dart';
 import 'package:yoru/core/domain/entities/comic_details.dart';
 import 'package:yoru/core/presentation/widgets/dotline/dotline.dart';
@@ -59,13 +60,14 @@ class ChapterEnd extends StatelessWidget {
           ),
           const SizedBox(height: DotSpace.s3),
           Text(
-            '${AppText.finished} · $pageCount ${AppText.pages}'.toUpperCase(),
+            '${AppText.t.finished} · $pageCount ${AppText.t.pages}'
+                .toUpperCase(),
             style: DotlineText.label.copyWith(color: c.inkFaint),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: DotSpace.s2),
           Text(
-            '${AppText.chapter} $chapterNumber ${AppText.finishedLower}',
+            '${AppText.t.chapter} $chapterNumber ${AppText.t.finishedLower}',
             style: DotlineText.title.copyWith(color: c.ink),
             textAlign: TextAlign.center,
           ),
@@ -91,7 +93,7 @@ class ChapterEnd extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const NewBadge(label: AppText.nextChapter),
+                          NewBadge(label: AppText.t.nextChapter),
                           const SizedBox(height: DotSpace.s1),
                           Text(
                             AppText.chapterName(next.number, next.title),
@@ -99,7 +101,7 @@ class ChapterEnd extends StatelessWidget {
                           ),
                           if (next.date != '-')
                             Text(
-                              '${AppText.releasedOn} ${next.date}',
+                              '${AppText.t.releasedOn} ${ChapterDate.display(next.date)}',
                               style: DotlineText.data.copyWith(
                                 color: c.inkFaint,
                               ),
@@ -118,13 +120,13 @@ class ChapterEnd extends StatelessWidget {
             ),
             const SizedBox(height: DotSpace.s4),
             DotButton(
-              label: '${AppText.continueTo} ${next.number}',
+              label: '${AppText.t.continueTo} ${next.number}',
               trailing: LucideIcons300.arrowRight,
               onTap: onNext,
             ),
           ] else
             Text(
-              AppText.latestChapterReached,
+              AppText.t.latestChapterReached,
               style: DotlineText.body.copyWith(color: c.inkMuted),
               textAlign: TextAlign.center,
             ),
@@ -133,7 +135,7 @@ class ChapterEnd extends StatelessWidget {
             children: [
               Expanded(
                 child: DotButton.outline(
-                  label: AppText.chapterList,
+                  label: AppText.t.chapterList,
                   size: DotButtonSize.medium,
                   onTap: onChapterList,
                 ),
@@ -141,7 +143,7 @@ class ChapterEnd extends StatelessWidget {
               const SizedBox(width: DotSpace.s3),
               Expanded(
                 child: DotButton.outline(
-                  label: AppText.backToSeries,
+                  label: AppText.t.backToSeries,
                   size: DotButtonSize.medium,
                   onTap: onBackToSeries,
                 ),

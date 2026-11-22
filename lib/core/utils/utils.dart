@@ -30,7 +30,7 @@ Future<void> shareText(
   if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
     await Clipboard.setData(ClipboardData(text: text));
     if (context.mounted) {
-      showSnackBar(context: context, message: AppText.linkCopied);
+      showSnackBar(context: context, message: AppText.t.linkCopied);
     }
     return;
   }
@@ -120,7 +120,7 @@ Future saveImg({
     if (!Platform.isAndroid && !Platform.isIOS) {
       final saved = await FilePicker.saveFile(fileName: name, bytes: data);
       if (saved == null || !context.mounted) return;
-      showSnackBar(context: context, message: AppText.successSaveImgFile);
+      showSnackBar(context: context, message: AppText.t.successSaveImgFile);
       return;
     }
     final dir = await getTemporaryDirectory();
@@ -130,11 +130,11 @@ Future saveImg({
     await Gal.putImage(temp.path);
 
     if (!context.mounted) return;
-    showSnackBar(context: context, message: AppText.successSaveImg);
+    showSnackBar(context: context, message: AppText.t.successSaveImg);
   } catch (e) {
     debugPrint('saveImg($img): $e');
     if (!context.mounted) return;
-    showSnackBar(context: context, message: AppText.failedSaveImg);
+    showSnackBar(context: context, message: AppText.t.failedSaveImg);
   } finally {
     try {
       await temp?.delete();

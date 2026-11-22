@@ -148,7 +148,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
     await _bridge.clearCookies(widget.sourceId, root);
     await _controller?.reload();
     if (mounted) {
-      showSnackBar(context: context, message: AppText.cookiesCleared);
+      showSnackBar(context: context, message: AppText.t.cookiesCleared);
     }
   }
 
@@ -176,12 +176,12 @@ class _WebViewScreenState extends State<WebViewScreen> {
                     onClose: () => setState(() => _menuOpen = false),
                     items: [
                       DotMenuItem(
-                        label: AppText.refresh,
+                        label: AppText.t.refresh,
                         icon: LucideIcons300.rotateCw,
                         onTap: () => _controller?.reload(),
                       ),
                       DotMenuItem(
-                        label: AppText.share,
+                        label: AppText.t.share,
                         icon: LucideIcons300.share2,
                         onTap: () => shareText(
                           context,
@@ -190,7 +190,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
                         ),
                       ),
                       DotMenuItem(
-                        label: AppText.openInBrowser,
+                        label: AppText.t.openInBrowser,
                         icon: LucideIcons300.externalLink,
                         onTap: () => launchUrl(
                           _url,
@@ -198,7 +198,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
                         ),
                       ),
                       DotMenuItem(
-                        label: AppText.clearCookies,
+                        label: AppText.t.clearCookies,
                         icon: LucideIcons300.cookie,
                         destructive: true,
                         onTap: _clearCookies,
@@ -298,9 +298,9 @@ class _WebViewScreenState extends State<WebViewScreen> {
                         child: Center(
                           child: EmptyState(
                             icon: LucideIcons300.globe,
-                            title: AppText.pageNotLoaded,
+                            title: AppText.t.pageNotLoaded,
                             message: error,
-                            actionLabel: AppText.retry,
+                            actionLabel: AppText.t.retry,
                             onAction: () => _controller?.reload(),
                           ),
                         ),

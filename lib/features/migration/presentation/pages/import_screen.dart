@@ -36,14 +36,14 @@ class ImportScreen extends StatelessWidget {
     }, (entries) => entries);
     if (entries == null) return;
     if (entries.isEmpty) {
-      showSnackBar(context: context, message: AppText.noResults);
+      showSnackBar(context: context, message: AppText.t.noResults);
       return;
     }
     // Comix first, even when not installed: MatchScreen offers to install it.
     final installed = context.read<SourcesCubit>().state.installed;
     final target = await showSourceChoiceSheet(
       context,
-      title: AppText.importComixTo,
+      title: AppText.t.importComixTo,
       selected: comixSource,
       choices: [
         if (!installed.any((s) => s.id == comixSource))
@@ -74,7 +74,7 @@ class ImportScreen extends StatelessWidget {
         child: Column(
           children: [
             // Outside the scroll view so the title stays put.
-            const DotTopBar(title: AppText.importFromApps),
+            DotTopBar(title: AppText.t.importFromApps),
             Expanded(
               child: LayoutBuilder(
                 builder: (context, constraints) => ListView(
@@ -88,15 +88,15 @@ class ImportScreen extends StatelessWidget {
                         children: [
                           ListRow(
                             icon: LucideIcons300.archiveRestore,
-                            title: AppText.importMihon,
-                            subtitle: AppText.importMihonDescription,
+                            title: AppText.t.importMihon,
+                            subtitle: AppText.t.importMihonDescription,
                             showChevron: true,
                             onTap: () => MihonImportScreen.open(context),
                           ),
                           ListRow(
                             icon: LucideIcons300.fileSpreadsheet,
-                            title: AppText.importComix,
-                            subtitle: AppText.importComixDescription,
+                            title: AppText.t.importComix,
+                            subtitle: AppText.t.importComixDescription,
                             showChevron: true,
                             onTap: () => _importComix(context),
                           ),

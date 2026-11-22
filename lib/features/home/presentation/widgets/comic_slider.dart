@@ -32,7 +32,7 @@ class ComicSlider extends StatelessWidget {
           child: SectionLabel(
             label:
                 context.watch<SourcesCubit>().state.features.featuredLabel ??
-                AppText.newSeries,
+                AppText.t.newSeries,
           ),
         ),
         SingleChildScrollView(

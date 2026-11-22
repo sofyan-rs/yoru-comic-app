@@ -48,11 +48,11 @@ class LastReadComic extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SectionLabel(label: AppText.continueReading),
+        SectionLabel(label: AppText.t.continueReading),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: DotSpace.s4),
           child: Pressable(
-            semanticLabel: '${AppText.continueReading} ${details.title}',
+            semanticLabel: '${AppText.t.continueReading} ${details.title}',
             onTap: () => ComicDetailsScreen.open(
               context,
               slug: latest.comicSlug,
@@ -81,7 +81,7 @@ class LastReadComic extends StatelessWidget {
                           (LocalSource.isLocalKey(
                                     ComicKey.sourceOf(latest.comicSlug),
                                   )
-                                  ? [AppText.onThisDevice]
+                                  ? [AppText.t.onThisDevice]
                                   : [
                                       if (details.type != '-') details.type,
                                       if (details.status != '-') details.status,
@@ -105,7 +105,7 @@ class LastReadComic extends StatelessWidget {
                             Text(
                               // The chapter Continue reading opens.
                               resume.isNext
-                                  ? '${AppText.nextChapter.toUpperCase()} CH. '
+                                  ? '${AppText.t.nextChapter.toUpperCase()} CH. '
                                   : 'CH. ',
                               style: DotlineText.data.copyWith(
                                 color: c.inkFaint,

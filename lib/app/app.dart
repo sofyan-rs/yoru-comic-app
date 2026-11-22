@@ -5,6 +5,7 @@ import 'package:yoru/app/root_tabs.dart';
 import 'package:yoru/app/splash_screen.dart';
 import 'package:yoru/core/theme/dotline_theme.dart';
 import 'package:yoru/core/constants/variables.dart';
+import 'package:yoru/core/l10n/rebuild_all.dart';
 import 'package:yoru/core/presentation/widgets/mihon_download_pill.dart';
 import 'package:yoru/core/di/injection.dart';
 import 'package:yoru/features/backup/presentation/bloc/backup_cubit.dart';
@@ -86,6 +87,13 @@ class _YoruAppState extends State<YoruApp> {
               context.read<HistoryCubit>().load();
             },
           ),
+          // A new language: every screen built so far shows the old one,
+          // const widgets included, so all of them build again.
+          BlocListener<SettingsCubit, AppSettings>(
+            listenWhen: (previous, current) =>
+                previous.language != current.language,
+            listener: (context, _) => rebuildAll(context as Element),
+          ),
           BlocListener<SettingsCubit, AppSettings>(
             listenWhen: (previous, current) =>
                 previous.dnsOverHttps != current.dnsOverHttps,
@@ -115,6 +123,13 @@ class _YoruAppState extends State<YoruApp> {
               return MaterialApp(
                 debugShowCheckedModeBanner: false,
                 title: AppVariables.appName,
+                locale: Locale(settings.language.code),
+                supportedLocales: [
+                  for (final language in AppLanguage.values)
+                    Locale(language.code),
+                ],
+                // Material's own text: menus, tooltips, pickers.
+                localizationsDelegates: GlobalMaterialLocalizations.delegates,
                 navigatorKey: _navigator,
                 builder: (context, child) => AppShortcuts(
                   navigator: _navigator,

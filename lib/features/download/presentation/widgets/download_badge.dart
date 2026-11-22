@@ -25,17 +25,17 @@ class DownloadBadge extends StatelessWidget {
       DownloadStatus.completed => icon(
         LucideIcons300.arrowDownToLine,
         c.inkFaint,
-        AppText.downloadedLabel,
+        AppText.t.downloadedLabel,
       ),
       DownloadStatus.queued => icon(
         LucideIcons300.clock,
         c.inkFaint,
-        AppText.downloadWaiting,
+        AppText.t.downloadWaiting,
       ),
       DownloadStatus.failed => icon(
         LucideIcons300.circleAlert,
         c.accentText,
-        AppText.downloadFailed,
+        AppText.t.downloadFailed,
       ),
       DownloadStatus.downloading => Text(
         download.pageCount == 0

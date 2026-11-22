@@ -29,8 +29,8 @@ class UpdateSheet extends StatelessWidget {
       children: [
         ActionSheetHeader(
           icon: LucideIcons300.download,
-          title: AppText.updateAvailable,
-          subtitle: '${AppText.version} ${release.version}',
+          title: AppText.t.updateAvailable,
+          subtitle: '${AppText.t.version} ${release.version}',
         ),
         if (changes.isNotEmpty) ...[
           const SizedBox(height: DotSpace.s4),
@@ -39,10 +39,10 @@ class UpdateSheet extends StatelessWidget {
         const SizedBox(height: DotSpace.s5),
         ...switch (state) {
           UpdateInstallingState() => [
-            Text(AppText.updateInstalling, style: DotlineText.body),
+            Text(AppText.t.updateInstalling, style: DotlineText.body),
             const SizedBox(height: DotSpace.s3),
             Text(
-              AppText.updateApprovalHint,
+              AppText.t.updateApprovalHint,
               style: DotlineText.body.copyWith(color: c.inkFaint),
             ),
           ],
@@ -50,7 +50,7 @@ class UpdateSheet extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  '${AppText.updateDownloading} $percent%'.toUpperCase(),
+                  '${AppText.t.updateDownloading} $percent%'.toUpperCase(),
                   style: DotlineText.label.copyWith(color: c.inkFaint),
                 ),
                 const Spacer(),
@@ -60,25 +60,25 @@ class UpdateSheet extends StatelessWidget {
           ],
           UpdateInstallFailedState() => [
             Text(
-              AppText.updateFailed,
+              AppText.t.updateFailed,
               style: DotlineText.body.copyWith(color: c.accentText),
             ),
             const SizedBox(height: DotSpace.s3),
             DotButton(
-              label: AppText.updateRetry,
+              label: AppText.t.updateRetry,
               onTap: () => context.read<UpdateCubit>().install(),
             ),
           ],
           _ => [
             DotButton(
-              label: AppText.updateNow,
+              label: AppText.t.updateNow,
               onTap: () => context.read<UpdateCubit>().install(),
             ),
           ],
         },
         const SizedBox(height: DotSpace.s3),
         DotButton.outline(
-          label: AppText.viewRelease,
+          label: AppText.t.viewRelease,
           onTap: () => launchUrl(
             Uri.parse(release.pageUrl),
             mode: LaunchMode.externalApplication,
@@ -86,7 +86,7 @@ class UpdateSheet extends StatelessWidget {
         ),
         const SizedBox(height: DotSpace.s3),
         DotButton.outline(
-          label: AppText.updateLater,
+          label: AppText.t.updateLater,
           onTap: () => Navigator.of(context).pop(),
         ),
       ],

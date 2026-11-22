@@ -110,7 +110,7 @@ class _FilterComicState extends State<FilterComic> {
           children: [
             Expanded(
               child: Text(
-                AppText.filter,
+                AppText.t.filter,
                 style: DotlineText.title.copyWith(color: c.ink),
               ),
             ),
@@ -120,14 +120,14 @@ class _FilterComicState extends State<FilterComic> {
               child: Padding(
                 padding: const EdgeInsets.all(DotSpace.s3),
                 child: Text(
-                  AppText.reset,
+                  AppText.t.reset,
                   style: DotlineText.body.copyWith(color: c.inkMuted),
                 ),
               ),
             ),
             RoundIconButton(
               icon: LucideIcons300.x,
-              semanticLabel: AppText.close,
+              semanticLabel: AppText.t.close,
               background: Colors.transparent,
               onTap: () => Navigator.of(context).pop(),
             ),
@@ -143,7 +143,7 @@ class _FilterComicState extends State<FilterComic> {
                   Padding(
                     padding: const EdgeInsets.only(top: DotSpace.s5),
                     child: Text(
-                      AppText.noFilters,
+                      AppText.t.noFilters,
                       style: DotlineText.body.copyWith(color: c.inkMuted),
                     ),
                   ),
@@ -160,7 +160,7 @@ class _FilterComicState extends State<FilterComic> {
         ),
         const Divider(),
         const SizedBox(height: DotSpace.s4),
-        DotButton(label: AppText.showResults, onTap: _apply),
+        DotButton(label: AppText.t.showResults, onTap: _apply),
       ],
     );
   }
@@ -194,7 +194,7 @@ class _SectionState extends State<_Section> {
     final group = widget.group;
     final selected = widget.selected;
     final label = group.multi && selected.isNotEmpty
-        ? '${group.label} · ${selected.length} ${AppText.selected}'
+        ? '${group.label} · ${selected.length} ${AppText.t.selected}'
         : group.label;
     final foldable = group.options.length > _folded + 2;
     final options = !foldable || _expanded
@@ -234,7 +234,7 @@ class _SectionState extends State<_Section> {
             ),
           if (foldable && !group.sort)
             Pressable(
-              semanticLabel: _expanded ? AppText.showLess : AppText.showAll,
+              semanticLabel: _expanded ? AppText.t.showLess : AppText.t.showAll,
               onTap: () => setState(() => _expanded = !_expanded),
               child: Padding(
                 padding: const EdgeInsets.only(top: DotSpace.s3),
@@ -243,8 +243,8 @@ class _SectionState extends State<_Section> {
                   children: [
                     Text(
                       (_expanded
-                              ? AppText.showLess
-                              : '${AppText.showAll} · ${group.options.length}')
+                              ? AppText.t.showLess
+                              : '${AppText.t.showAll} · ${group.options.length}')
                           .toUpperCase(),
                       style: DotlineText.label.copyWith(color: c.inkMuted),
                     ),

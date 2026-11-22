@@ -36,7 +36,7 @@ class SyncSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: DotSpace.s3),
-        const SectionLabel(label: AppText.sync),
+        SectionLabel(label: AppText.t.sync),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: DotSpace.s4),
           child: ListGroup(
@@ -44,16 +44,16 @@ class SyncSection extends StatelessWidget {
               if (!state.signedIn)
                 ListRow(
                   icon: LucideIcons300.cloud,
-                  title: AppText.syncDrive,
+                  title: AppText.t.syncDrive,
                   subtitle: state.status == SyncStatus.signingIn
-                      ? AppText.syncSigningIn
-                      : AppText.syncDriveDescription,
+                      ? AppText.t.syncSigningIn
+                      : AppText.t.syncDriveDescription,
                   onTap: state.busy ? null : cubit.signIn,
                 )
               else ...[
                 ListRow(
                   icon: LucideIcons300.cloud,
-                  title: AppText.googleDrive,
+                  title: AppText.t.googleDrive,
                   subtitle: state.email,
                   showChevron: true,
                   onTap: state.busy ? null : () => _disconnect(context, state),
@@ -62,7 +62,7 @@ class SyncSection extends StatelessWidget {
                   icon: state.status == SyncStatus.failed
                       ? LucideIcons300.cloudAlert
                       : LucideIcons300.cloudSync,
-                  title: AppText.syncNow,
+                  title: AppText.t.syncNow,
                   subtitle: _status(state),
                   onTap: state.busy ? null : cubit.sync,
                 ),
@@ -81,11 +81,11 @@ class SyncSection extends StatelessWidget {
       AppVariables.googleDesktopClientId.isNotEmpty;
 
   static String _status(SyncState state) => switch (state.status) {
-    SyncStatus.syncing => AppText.syncing,
-    SyncStatus.failed => AppText.syncFailed,
+    SyncStatus.syncing => AppText.t.syncing,
+    SyncStatus.failed => AppText.t.syncFailed,
     _ => switch (state.lastSyncedAt) {
-      final time? => '${AppText.syncLast} ${formatSyncTime(time)}',
-      null => AppText.syncNever,
+      final time? => '${AppText.t.syncLast} ${formatSyncTime(time)}',
+      null => AppText.t.syncNever,
     },
   };
 }
@@ -117,22 +117,22 @@ class DisconnectDriveSheet extends StatelessWidget {
       children: [
         ActionSheetHeader(
           icon: LucideIcons300.cloud,
-          title: AppText.googleDrive,
+          title: AppText.t.googleDrive,
           subtitle: email,
         ),
         const SizedBox(height: DotSpace.s4),
         Text(
-          AppText.syncSignOutDescription,
+          AppText.t.syncSignOutDescription,
           style: DotlineText.body.copyWith(color: c.inkMuted),
         ),
         const SizedBox(height: DotSpace.s5),
         DotButton.destructive(
-          label: AppText.syncDisconnect,
+          label: AppText.t.syncDisconnect,
           onTap: () => Navigator.of(context).pop(true),
         ),
         const SizedBox(height: DotSpace.s3),
         DotButton.outline(
-          label: AppText.cancel,
+          label: AppText.t.cancel,
           onTap: () => Navigator.of(context).pop(false),
         ),
       ],

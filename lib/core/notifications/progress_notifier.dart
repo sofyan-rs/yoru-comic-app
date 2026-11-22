@@ -107,7 +107,7 @@ class LocalProgressNotifier implements ProgressNotifier {
                 actions: [
                   DarwinNotificationAction.plain(
                     cancelAction,
-                    AppText.cancel,
+                    AppText.t.cancel,
                     options: {DarwinNotificationActionOption.destructive},
                   ),
                 ],
@@ -162,7 +162,7 @@ class LocalProgressNotifier implements ProgressNotifier {
       notificationDetails: NotificationDetails(
         android: AndroidNotificationDetails(
           _channelId,
-          AppText.progressChannel,
+          AppText.t.progressChannel,
           importance: Importance.low,
           priority: Priority.low,
           ongoing: true,
@@ -175,7 +175,7 @@ class LocalProgressNotifier implements ProgressNotifier {
           dismissIsolate: NotificationDismissedIsolate.main,
           actions: [
             if (cancelable)
-              const AndroidNotificationAction(cancelAction, AppText.cancel),
+              AndroidNotificationAction(cancelAction, AppText.t.cancel),
           ],
         ),
         iOS: DarwinNotificationDetails(
@@ -200,10 +200,10 @@ class LocalProgressNotifier implements ProgressNotifier {
           id: id,
           title: title,
           body: body,
-          notificationDetails: const NotificationDetails(
+          notificationDetails: NotificationDetails(
             android: AndroidNotificationDetails(
               _channelId,
-              AppText.progressChannel,
+              AppText.t.progressChannel,
               importance: Importance.low,
               priority: Priority.low,
             ),

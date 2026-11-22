@@ -16,7 +16,7 @@ class LatestChapterScreen extends StatelessWidget {
         bottom: false,
         child: Column(
           children: [
-            const DotTopBar(title: AppText.latest),
+            DotTopBar(title: AppText.t.latest),
             Expanded(
               child: BlocProvider(
                 create: (_) => getIt<LatestBloc>(),

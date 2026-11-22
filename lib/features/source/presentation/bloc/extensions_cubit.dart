@@ -47,7 +47,7 @@ class ExtensionsState {
   /// fetched, else the repo's host; bundled extensions have none.
   String repoNameOf(ExtensionMeta meta) {
     final url = meta.repoUrl;
-    if (url == null) return AppText.builtInExtension;
+    if (url == null) return AppText.t.builtInExtension;
     final name = repos.where((r) => r.url == url).firstOrNull?.name;
     return name ?? Uri.tryParse(url)?.host ?? url;
   }
@@ -130,7 +130,7 @@ class ExtensionsCubit extends Cubit<ExtensionsState> {
     } on ServerException catch (e) {
       return e.message;
     } catch (_) {
-      return AppText.repoInvalid;
+      return AppText.t.repoInvalid;
     }
     await refresh();
     return null;

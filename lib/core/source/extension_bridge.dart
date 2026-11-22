@@ -112,7 +112,7 @@ class ExtensionBridge {
         if (!connection) rethrow;
         if (attempt >= _connectionAttempts) {
           throw ServerException(
-            AppText.connectionFailed(e.requestOptions.uri.host),
+            AppText.t.connectionFailed(e.requestOptions.uri.host),
           );
         }
         await Future<void>.delayed(Duration(milliseconds: 400 * attempt));

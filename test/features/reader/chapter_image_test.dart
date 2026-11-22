@@ -54,17 +54,17 @@ void main() {
     await tester.pump();
 
     expect(requests, 1);
-    expect(find.text(AppText.pageNotLoaded), findsOneWidget);
+    expect(find.text(AppText.t.pageNotLoaded), findsOneWidget);
     final failedHeight = tester.getSize(find.byType(ChapterImg)).height;
 
-    await tester.tap(find.text(AppText.retry));
+    await tester.tap(find.text(AppText.t.retry));
     await tester.pump();
     await tester.pump();
     await tester.pump();
 
     expect(requests, 2);
     verify(() => cache.removeFile(url)).called(1);
-    expect(find.text(AppText.pageNotLoaded), findsOneWidget);
+    expect(find.text(AppText.t.pageNotLoaded), findsOneWidget);
     expect(tester.getSize(find.byType(ChapterImg)).height, failedHeight);
   });
 
@@ -109,8 +109,8 @@ void main() {
       await tester.pump();
     }
 
-    expect(find.text(AppText.avifNotSupported), findsOneWidget);
-    await tester.tap(find.text(AppText.openInBrowser));
+    expect(find.text(AppText.t.avifNotSupported), findsOneWidget);
+    await tester.tap(find.text(AppText.t.openInBrowser));
     expect(opened, 1);
   });
 

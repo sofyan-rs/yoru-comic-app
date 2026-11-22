@@ -52,7 +52,7 @@ void main() {
         matching: find.byType(ComicCover),
       ),
     );
-    final search = _button(AppText.exploreSearchHint);
+    final search = _button(AppText.t.exploreSearchHint);
     expect(find.byType(SearchField), findsNothing);
     // Scrolling down hides the header, scrolling up brings it back.
     final results = find.descendant(
@@ -119,14 +119,14 @@ void main() {
     final tile = find.byType(ChapterTile).first;
     await tester.longPress(tile);
     await _settle(tester, const Duration(seconds: 1));
-    await tester.tap(_button(AppText.download));
+    await tester.tap(_button(AppText.t.download));
     await _settle(tester, const Duration(seconds: 25));
     await _shot(tester, 'download');
 
     // The comic's actions are in its ⋮ menu.
     await tester.tap(find.byType(DotMenuButton));
     await _settle(tester, const Duration(seconds: 1));
-    await tester.tap(find.text(AppText.openWebView));
+    await tester.tap(find.text(AppText.t.openWebView));
     await _settle(tester, const Duration(seconds: 12));
     await _shot(tester, 'webview');
   });

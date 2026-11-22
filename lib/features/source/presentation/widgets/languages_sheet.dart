@@ -48,8 +48,8 @@ class _LanguagesSheetState extends State<_LanguagesSheet> {
       children: [
         ActionSheetHeader(
           icon: LucideIcons300.languages,
-          title: '${widget.meta.name} · ${AppText.languages}',
-          subtitle: AppText.languagesDescription,
+          title: '${widget.meta.name} · ${AppText.t.languages}',
+          subtitle: AppText.t.languagesDescription,
         ),
         const SizedBox(height: DotSpace.s4),
         Flexible(
@@ -78,7 +78,7 @@ class _LanguagesSheetState extends State<_LanguagesSheet> {
         ),
         const SizedBox(height: DotSpace.s3),
         Text(
-          AppText.languagesHint,
+          AppText.t.languagesHint,
           style: DotlineText.bodyS.copyWith(color: c.inkFaint),
         ),
       ],

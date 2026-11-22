@@ -87,11 +87,11 @@ class _ExtensionsViewState extends State<_ExtensionsView> {
   );
 
   /// Shown when the filter hides every extension of a tab.
-  Widget get _noMatch => const SliverToBoxAdapter(
+  Widget get _noMatch => SliverToBoxAdapter(
     child: EmptyState(
       icon: LucideIcons300.searchX,
-      title: AppText.noMatchingExtensions,
-      message: AppText.noMatchingExtensionsHint,
+      title: AppText.t.noMatchingExtensions,
+      message: AppText.t.noMatchingExtensionsHint,
     ),
   );
 
@@ -106,7 +106,7 @@ class _ExtensionsViewState extends State<_ExtensionsView> {
     if (!mounted) return;
     _message(
       error ??
-          '${meta.name} ${update ? AppText.extensionUpdated : AppText.extensionInstalled}',
+          '${meta.name} ${update ? AppText.t.extensionUpdated : AppText.t.extensionInstalled}',
     );
   }
 
@@ -121,22 +121,22 @@ class _ExtensionsViewState extends State<_ExtensionsView> {
           children: [
             ActionSheetHeader(
               icon: LucideIcons300.trash2,
-              title: '${AppText.uninstall} ${meta.name}',
+              title: '${AppText.t.uninstall} ${meta.name}',
               subtitle: extensionLine(meta),
             ),
             const SizedBox(height: DotSpace.s4),
             Text(
-              AppText.uninstallDescription,
+              AppText.t.uninstallDescription,
               style: DotlineText.body.copyWith(color: c.inkMuted),
             ),
             const SizedBox(height: DotSpace.s5),
             DotButton.destructive(
-              label: AppText.uninstall,
+              label: AppText.t.uninstall,
               onTap: () => Navigator.of(context).pop(true),
             ),
             const SizedBox(height: DotSpace.s3),
             DotButton.outline(
-              label: AppText.cancel,
+              label: AppText.t.cancel,
               onTap: () => Navigator.of(context).pop(false),
             ),
           ],
@@ -161,11 +161,11 @@ class _ExtensionsViewState extends State<_ExtensionsView> {
           children: [
             // Outside the scroll view so the title stays put.
             DotTopBar(
-              title: AppText.extensions,
+              title: AppText.t.extensions,
               actions: [
                 RoundIconButton(
                   icon: LucideIcons300.gitBranch,
-                  semanticLabel: AppText.manageRepos,
+                  semanticLabel: AppText.t.manageRepos,
                   iconSize: DotSize.iconSmall,
                   onTap: () => showReposSheet(context, cubit),
                 ),
@@ -187,13 +187,10 @@ class _ExtensionsViewState extends State<_ExtensionsView> {
                     Segment(
                       value: _Tab.installed,
                       label: state.updateCount > 0
-                          ? '${AppText.installed} · ${state.updateCount}'
-                          : AppText.installed,
+                          ? '${AppText.t.installed} · ${state.updateCount}'
+                          : AppText.t.installed,
                     ),
-                    const Segment(
-                      value: _Tab.available,
-                      label: AppText.available,
-                    ),
+                    Segment(value: _Tab.available, label: AppText.t.available),
                   ],
                 ),
               ),
@@ -233,9 +230,9 @@ class _ExtensionsViewState extends State<_ExtensionsView> {
         SliverToBoxAdapter(
           child: EmptyState(
             icon: LucideIcons300.puzzle,
-            title: AppText.noSourceShort,
-            message: AppText.noExtensionsHint,
-            actionLabel: AppText.available,
+            title: AppText.t.noSourceShort,
+            message: AppText.t.noExtensionsHint,
+            actionLabel: AppText.t.available,
             onAction: () => setState(() => _tab = _Tab.available),
           ),
         ),
@@ -256,7 +253,7 @@ class _ExtensionsViewState extends State<_ExtensionsView> {
             busy: state.busy.contains(meta.id),
             action: update != null && update.supported
                 ? _RowAction(
-                    label: AppText.update,
+                    label: AppText.t.update,
                     onTap: () => _install(update, update: true),
                   )
                 : null,
@@ -292,7 +289,7 @@ class _ExtensionsViewState extends State<_ExtensionsView> {
               DotSpace.s3,
             ),
             child: Text(
-              '${AppText.repoFailed}: ${repo.url}',
+              '${AppText.t.repoFailed}: ${repo.url}',
               style: DotlineText.bodyS.copyWith(
                 color: Dotline.of(context).accentText,
               ),
@@ -312,8 +309,8 @@ class _ExtensionsViewState extends State<_ExtensionsView> {
         SliverToBoxAdapter(
           child: EmptyState(
             icon: LucideIcons300.packageCheck,
-            title: AppText.noAvailableExtensions,
-            message: AppText.noAvailableExtensionsHint,
+            title: AppText.t.noAvailableExtensions,
+            message: AppText.t.noAvailableExtensionsHint,
           ),
         )
       else
@@ -327,8 +324,8 @@ class _ExtensionsViewState extends State<_ExtensionsView> {
               busy: state.busy.contains(meta.id),
               action: _RowAction(
                 label: meta.supported
-                    ? AppText.install
-                    : AppText.needsAppUpdate,
+                    ? AppText.t.install
+                    : AppText.t.needsAppUpdate,
                 onTap: meta.supported ? () => _install(meta) : null,
               ),
             );
@@ -430,7 +427,7 @@ class _ExtensionRow extends StatelessWidget {
                 if (onLanguages != null)
                   RoundIconButton(
                     icon: LucideIcons300.languages,
-                    semanticLabel: '${AppText.languages} ${meta.name}',
+                    semanticLabel: '${AppText.t.languages} ${meta.name}',
                     iconSize: DotSize.iconSmall,
                     background: Colors.transparent,
                     onTap: onLanguages,
@@ -438,7 +435,7 @@ class _ExtensionRow extends StatelessWidget {
                 if (onSettings != null)
                   RoundIconButton(
                     icon: LucideIcons300.settings2,
-                    semanticLabel: '${AppText.sourceSettings} ${meta.name}',
+                    semanticLabel: '${AppText.t.sourceSettings} ${meta.name}',
                     iconSize: DotSize.iconSmall,
                     background: Colors.transparent,
                     onTap: onSettings,
@@ -446,7 +443,7 @@ class _ExtensionRow extends StatelessWidget {
                 if (onRemove != null)
                   RoundIconButton(
                     icon: LucideIcons300.trash2,
-                    semanticLabel: '${AppText.uninstall} ${meta.name}',
+                    semanticLabel: '${AppText.t.uninstall} ${meta.name}',
                     iconSize: DotSize.iconSmall,
                     background: Colors.transparent,
                     onTap: onRemove,

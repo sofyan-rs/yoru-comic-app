@@ -9,21 +9,6 @@ class HistoryDay {
   final String label;
   final List<ComicLatestHistory> items;
 
-  static const _months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
-
   /// Groups [latest] (newest first, one entry per comic) by local day.
   static List<HistoryDay> group(List<ComicLatestHistory> latest, DateTime now) {
     final today = DateTime(now.year, now.month, now.day);
@@ -42,9 +27,9 @@ class HistoryDay {
 
   static String dayLabel(DateTime day, DateTime today) {
     final diff = today.difference(day).inDays;
-    if (diff == 0) return AppText.today;
-    if (diff == 1) return AppText.yesterday;
-    return '${day.day} ${_months[day.month - 1]} ${day.year}';
+    if (diff == 0) return AppText.t.today;
+    if (diff == 1) return AppText.t.yesterday;
+    return '${day.day} ${AppText.t.monthsShort.split(',')[day.month - 1]} ${day.year}';
   }
 
   /// `09:12`.

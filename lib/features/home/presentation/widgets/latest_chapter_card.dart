@@ -48,9 +48,9 @@ class LatestChapterCard extends StatelessWidget {
         if (type != '-' && type.isNotEmpty) type,
         // Imported files say nothing about the series' status.
         if (!LocalSource.isLocalKey(ComicKey.sourceOf(slug)))
-          isCompleted ? 'Completed' : 'Ongoing'
+          isCompleted ? AppText.t.completed : AppText.t.ongoing
         else
-          AppText.onThisDevice,
+          AppText.t.onThisDevice,
       ].join(' · '),
       value: chapter == '-' ? null : 'CH. $chapter',
       onTap: () => ComicDetailsScreen.open(

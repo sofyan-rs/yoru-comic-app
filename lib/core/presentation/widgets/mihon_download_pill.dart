@@ -21,8 +21,8 @@ class MihonDownloadPill extends StatelessWidget {
         if (download == null) return const SizedBox.shrink();
         final c = Dotline.of(context);
         final label = switch (download.kind) {
-          MihonDownloadKind.runtime => AppText.downloadingMihonRuntime,
-          MihonDownloadKind.browser => AppText.downloadingMihonBrowser,
+          MihonDownloadKind.runtime => AppText.t.downloadingMihonRuntime,
+          MihonDownloadKind.browser => AppText.t.downloadingMihonBrowser,
         };
         return SafeArea(
           child: Align(

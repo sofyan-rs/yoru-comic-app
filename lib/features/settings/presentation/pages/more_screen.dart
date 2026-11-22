@@ -36,10 +36,10 @@ class _MoreScreenState extends State<MoreScreen> {
       context.read<HistoryCubit>().load();
     }
     final message = switch (state) {
-      BackupSaved() => AppText.successBackupData,
-      BackupFailed() => AppText.failedBackupData,
-      BackupRestored() => AppText.successRestoreData,
-      BackupRestoreFailed() => AppText.failedRestoreData,
+      BackupSaved() => AppText.t.successBackupData,
+      BackupFailed() => AppText.t.failedBackupData,
+      BackupRestored() => AppText.t.successRestoreData,
+      BackupRestoreFailed() => AppText.t.failedRestoreData,
       BackupIdle() || BackupBusy() => null,
     };
     if (message != null) showSnackBar(context: context, message: message);
@@ -66,14 +66,14 @@ class _MoreScreenState extends State<MoreScreen> {
                   current.status == SyncStatus.signInFailed,
               listener: (context, _) => showSnackBar(
                 context: context,
-                message: AppText.syncSignInFailed,
+                message: AppText.t.syncSignInFailed,
               ),
             ),
           ],
           child: Column(
             children: [
               // Outside the list so the title stays put.
-              const CenteredContent(child: ScreenHeader(title: AppText.more)),
+              CenteredContent(child: ScreenHeader(title: AppText.t.more)),
               Expanded(
                 child: LayoutBuilder(
                   builder: (context, constraints) => ListView(
@@ -91,7 +91,7 @@ class _MoreScreenState extends State<MoreScreen> {
                             Expanded(
                               child: StatTile(
                                 value: '$bookmarks',
-                                label: AppText.bookmark,
+                                label: AppText.t.bookmark,
                                 labelOnTop: true,
                               ),
                             ),
@@ -99,7 +99,7 @@ class _MoreScreenState extends State<MoreScreen> {
                             Expanded(
                               child: StatTile(
                                 value: '$chaptersRead',
-                                label: AppText.chaptersRead,
+                                label: AppText.t.chaptersRead,
                                 labelOnTop: true,
                               ),
                             ),
