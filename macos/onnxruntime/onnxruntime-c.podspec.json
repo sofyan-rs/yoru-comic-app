@@ -17,19 +17,20 @@
   "platforms": {
     "osx": "14.0"
   },
-  "prepare_command": "mkdir -p Headers && cp onnxruntime.xcframework/macos-arm64_x86_64/Headers/onnxruntime/*.h Headers/",
-  "vendored_frameworks": "onnxruntime.xcframework",
+  "prepare_command": "mkdir -p Headers lib && cp onnxruntime.xcframework/macos-arm64_x86_64/Headers/onnxruntime/*.h Headers/ && cp onnxruntime.xcframework/macos-arm64_x86_64/libonnxruntime-macos.a lib/libonnxruntime.a",
   "static_framework": true,
   "weak_frameworks": [
     "CoreML"
   ],
   "source_files": "Headers/*.h",
   "preserve_paths": [
-    "LICENSE"
+    "LICENSE",
+    "lib/libonnxruntime.a"
   ],
   "description": "ONNX Runtime 1.28.0's C/C++ library, from the masicai/onnxruntime-swift-package-manager release (download.onnxruntime.ai is gone).",
   "libraries": "c++",
   "pod_target_xcconfig": {
     "OTHER_CPLUSPLUSFLAGS": "-fvisibility=hidden -fvisibility-inlines-hidden"
-  }
+  },
+  "vendored_libraries": "lib/libonnxruntime.a"
 }
