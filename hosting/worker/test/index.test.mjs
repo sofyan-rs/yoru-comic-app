@@ -220,7 +220,7 @@ test('altstore.json lists the iOS IPA of each release, newest first', async () =
       localizedDescription: 'Fixes.',
       downloadURL: 'https://x/ipa',
       size: 15725511,
-      minOSVersion: '15.0',
+      minOSVersion: '16.0',
     },
   ]);
 });

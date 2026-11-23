@@ -17,9 +17,9 @@ A reader for manga, manhwa and manhua from several sources. Each source is a sma
 Get it from the [Releases](https://github.com/sofyan-rs/yoru-comic-app/releases) page:
 
 - **Android:** the APK; `arm64-v8a` fits almost every phone. Android 7.0 or newer.
-- **iOS:** the `.ipa` (iOS 15 or newer), unsigned: sideload it with AltStore, SideStore or Sideloadly. For updates, add the source `https://yoru.kurodev.org/altstore.json` in AltStore or SideStore. See [iOS limits](#ios-limits).
+- **iOS:** the `.ipa` (iOS 16 or newer), unsigned: sideload it with AltStore, SideStore or Sideloadly. For updates, add the source `https://yoru.kurodev.org/altstore.json` in AltStore or SideStore. See [iOS limits](#ios-limits).
 - **Windows:** `windows-setup.exe` (Windows 10 and 11, 64-bit).
-- **macOS:** the `.dmg` (macOS 12 or newer). Not signed yet: open it the first time with right click → Open.
+- **macOS:** the `.dmg` (macOS 14 or newer). Not signed yet: open it the first time with right click → Open.
 - **Linux:** the `.AppImage` (64-bit), or `.rpm` for Fedora (`sudo dnf install ./Yoru-<version>-linux-x86_64.rpm`). The in-app WebView needs WebKitGTK 4.1, which most desktops already have (`libwebkit2gtk-4.1-0` on Debian and Ubuntu, `webkit2gtk4.1` on Fedora); without it "Open in WebView" opens the browser and sources that need a WebView do not load.
 
 The app checks for new releases and updates itself (on Linux when run from the AppImage; on iOS it hands the IPA to AltStore or SideStore). More on the [website](https://yoru.kurodev.org).
@@ -67,10 +67,10 @@ Desktop screenshots were taken on Windows 11 running v2.21.0.
 - **Comic details:** alternative titles (other languages and romanized names; tap to see them all), source and language, rating, chapter count, release year, synopsis and genres. The chapter list can be searched and sorted, marks new, read, partly read (`5 / 24`) and downloaded chapters, and supports selecting chapters to download them or mark them read or unread. Share a comic as a link that opens the app, save its cover, or long-press the title to copy it. Without a connection, comics you downloaded, bookmarked or read still open from the details saved on the phone.
 - **Reader:** vertical strip or page by page (right-to-left or left-to-right), fit to width or height, keep the screen on, optional gap between pages. Double-tap or pinch to zoom, and move the zoomed page in any direction; page meter, previous/next chapter, and a "chapter finished" card. Reopens a chapter at the page you stopped at. Auto-scroll with adjustable speed in the vertical reader. Downloaded chapters open from the phone. Long press a page to save it to the gallery.
 - **Page translation (optional, off by default):** in the reader's ⋮ menu, turn on Translate pages for a comic; translated text is laid over each speech balloon, and a small button on each page shows the original again. The text is read on the device (PaddleOCR; its model, about 25 MB, downloads the first time) and only the text, never the page, is translated by what you pick in More → Translation → Translate pages:
-  - **Server:** any OpenAI-compatible API (OpenAI, Gemini, OpenRouter, Claude, DeepSeek) or a local one (Ollama, LM Studio), with your own key.
+  - **Server:** any OpenAI-compatible API (OpenAI, Gemini, OpenRouter, Claude, DeepSeek) or a local one (Ollama, LM Studio), with your own key. A local server on another computer must be reachable from the phone: same network, and the server listening on the network (for Ollama, `OLLAMA_HOST=0.0.0.0`), e.g. `http://192.168.1.10:11434/v1`.
   - **ML Kit** (Android and iOS): Google's offline translation; language packs (about 30 MB each) download the first time. Fast and free, plainer than an AI model.
 
-  Nothing downloads until you use it, translations are cached so a page is translated once, and only the page on screen and the next three are translated. Settings also cover the target language, your own notes for the translator, all caps and the lettering font (Patrick Hand, Komika Hand, Comic Neue, or a `.ttf`/`.otf` you import).
+  Nothing downloads until you use it, translations are cached so a page is translated once, and only the page on screen and the next three are translated. Settings also cover the target language, the kind of text in pages (picked from the source's language by default: Japanese/Chinese, Korean, English or other Latin letters), your own notes for the translator, all caps and the lettering font (Patrick Hand, Komika Hand, Comic Neue, or a `.ttf`/`.otf` you import).
 - **Bookmarks:** language badge and unread-chapter badge on each card, read progress and search by title or alternative title across every tab (tab counts show the matches). Swipe the comics sideways to change tab. Group them by status, source or your own categories (a comic can be in several); pick a category when you bookmark, or skip. Pull to refresh checks the comics on screen (the open group, narrowed by a search) for new chapters, with a progress notification; stop it from the notification's Cancel button or the stop button in the header. A comic that takes too long is skipped.
 - **History:** last read chapter per comic, grouped by day; swipe to delete.
 - **Downloads:** download chapters for offline reading. Downloads keep going in the background and while the phone is locked, with a progress notification. More → Downloads shows the storage used, the queue with retry and cancel, and downloads grouped per comic. Files stay in the app's own storage and are removed when the app is uninstalled.
@@ -104,8 +104,8 @@ Some extensions are reimplemented from the Tachiyomi / Mihon extensions in [keiy
 ## Requirements
 
 - Android 7.0+ (API 24); Mihon extensions need Android 9+ (API 28)
-- iOS 15+ (sideloaded); DNS over HTTPS for WebViews and extensions needs iOS 17+
-- Windows 10+ (x64), macOS 12+, Linux x64; Mihon extensions run there too
+- iOS 16+ (sideloaded); DNS over HTTPS for WebViews and extensions needs iOS 17+
+- Windows 10+ (x64), macOS 14+, Linux x64; Mihon extensions run there too
 - Page translation: ML Kit on Android and iOS; server translation and OCR on every platform
 
 To build from source, see [Contributing](docs/CONTRIBUTION.md).
@@ -118,7 +118,7 @@ The iOS app is the same app, with what iOS allows:
 - **No Mihon extensions.** They are Android code (APKs), which iOS cannot run. Only Yoru extensions (`…/index.json` repos) work.
 - **Updates go through the sideloading app.** The app tells you about a new version and opens it in AltStore or SideStore (or the IPA in Safari); it cannot install itself.
 - **Work stops in the background.** iOS suspends the app a few seconds after you leave it, so a bookmark refresh or download pauses until you come back. Refresh progress is a plain `done / total` notification, without a progress bar.
-- **DNS over HTTPS** covers WebViews and extensions only on iOS 17 or newer; on iOS 15 and 16 they use the system DNS.
+- **DNS over HTTPS** covers WebViews and extensions only on iOS 17 or newer; on iOS 16 they use the system DNS.
 - **Less tested** than Android: background downloads and extensions that render pages in a hidden WebView.
 
 ## Docs

@@ -38,7 +38,7 @@ const ISSUES =
   'https://github.com/sofyan-rs/yoru-comic-app/issues/new';
 
 // Shown on the privacy page. Bump when the policy text changes.
-const PRIVACY_UPDATED = '22 November 2026';
+const PRIVACY_UPDATED = '23 November 2026';
 
 // Display names of the extension sources the app ships; others show their id.
 const SOURCE_NAMES = { voratoon: 'VoraToon' };
@@ -124,7 +124,7 @@ const SOURCE_TTL = 15 * 60;
 // Release notes end here; the rest is the download tables
 // (AppRelease.apkTableHeading in the app).
 const NOTES_END = '## Which APK?';
-const MIN_IOS = '15.0';
+const MIN_IOS = '16.0';
 
 // AltStore source format (https://faq.altstore.io/developers/make-a-source).
 // Versions are the releases with an `…-ios.ipa` asset, newest first.
@@ -504,6 +504,7 @@ const ICONS = {
   archive: '<rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/>',
   smartphone: '<rect width="14" height="20" x="5" y="2" rx="2"/><path d="M12 18h.01"/>',
   shield: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>',
+  languages: '<path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/>',
   'eye-off': '<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/>',
 };
 
@@ -708,6 +709,24 @@ export function privacyPage() {
     API Services User Data Policy</a>, including the Limited Use
     requirements.</p>
 
+    <h2 id="page-translation-optional">Page translation (optional)</h2>
+    <p>Page translation is off until you turn it on for a comic. The text
+    on a page is read on your device; the page image is not sent anywhere.</p>
+    <ul>
+      <li>The text reading model (about 25 MB) is downloaded once from
+      ModelScope (<code>modelscope.cn</code>) the first time you translate.</li>
+      <li>With a server: the text read from the page, the comic's title, a
+      few translated lines of the page before and your own translator notes
+      are sent to the server you set up (for example OpenAI, Gemini,
+      OpenRouter, Claude, DeepSeek, or Ollama or LM Studio on your own
+      computer), with the API key you enter. That server's own privacy policy
+      applies. We do not receive this text.</li>
+      <li>With ML Kit (Android and iOS): text is translated on your device.
+      Google's language packs are downloaded once from Google.</li>
+      <li>Your API key and translation settings stay on your device; they are
+      not in backups or sync. Translations are cached on your device.</li>
+    </ul>
+
     <h2 id="backups-and-imports">Backups and imports</h2>
     <p>Backup files, Mihon / Tachiyomi backups and Comix.to exports are read
     and written on your device only. A file leaves your device only if you
@@ -730,6 +749,7 @@ export function privacyPage() {
           <a href="#data-on-your-device">Data on your device</a>
           <a href="#comic-content-and-sources">Comic content and sources</a>
           <a href="#google-drive-sync-optional">Google Drive sync</a>
+          <a href="#page-translation-optional">Page translation</a>
           <a href="#backups-and-imports">Backups and imports</a>
           <a href="#app-updates">App updates</a>
           <a href="#ads-and-tracking">Ads and tracking</a>
@@ -751,9 +771,9 @@ const FEATURES = [
   ['search', 'Browse and search', 'Latest and popular comics, title search, and filters by the source’s own genres, type and status.'],
   ['bookmark', 'Bookmarks and history', 'Your own categories, new chapter badges, and a reading history that keeps the last page.'],
   ['download', 'Offline reading', 'Download chapters and read them without a connection.'],
-  ['arrow-left-right', 'Bring your library', 'Move it to another source, or import a Mihon / Tachiyomi backup or a Comix.to export.'],
+  ['arrow-left-right', 'Bring your library', 'Back it up to a file, move it to another source, or import a Mihon / Tachiyomi backup or a Comix.to export.'],
   ['cloud', 'Google Drive sync', 'Optional. Bookmarks and history go to a hidden app folder in your own Drive; the app cannot see your other files.'],
-  ['archive', 'Backup and restore', 'Save your whole library to a file and bring it back later.'],
+  ['languages', 'Page translation', 'Optional. Speech balloons translated in place, read on your device and translated by your own AI server or offline with ML Kit.'],
 ];
 
 // Hero phones: back left, front, back right.

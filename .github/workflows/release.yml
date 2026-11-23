@@ -113,7 +113,7 @@ jobs:
           GOOGLE_DESKTOP_CLIENT_ID: ${{ secrets.GOOGLE_DESKTOP_CLIENT_ID }}
           GOOGLE_DESKTOP_CLIENT_SECRET: ${{ secrets.GOOGLE_DESKTOP_CLIENT_SECRET }}
         # CocoaPods instead of Swift Package Manager: the Podfile raises every
-        # plugin to macOS 12, and flutter_inappwebview_macos at its declared
+        # plugin to macOS 14, and flutter_inappwebview_macos at its declared
         # 10.14 fails newer Xcode's availability checks.
         run: |
           flutter config --no-enable-swift-package-manager
@@ -318,7 +318,7 @@ jobs:
 
           \`Yoru-$VERSION-ios.ipa\` is unsigned: install it with AltStore, SideStore or
           Sideloadly, which sign it with your Apple ID (a free one must refresh the app
-          every 7 days). Requires iOS 15 or newer; DNS over HTTPS reaches WebViews and
+          every 7 days). Requires iOS 16 or newer; DNS over HTTPS reaches WebViews and
           extensions on iOS 17 or newer. Mihon extensions don't run on iOS.
 
           ## Desktop
@@ -326,7 +326,7 @@ jobs:
           | File | For |
           |---|---|
           | \`Yoru-$VERSION-windows-setup.exe\` | Windows 10 and 11 (64-bit) |
-          | \`Yoru-$VERSION-macos.dmg\` | macOS 12 or newer, Intel and Apple silicon |
+          | \`Yoru-$VERSION-macos.dmg\` | macOS 14 or newer, Intel and Apple silicon |
           | \`Yoru-$VERSION-linux-x86_64.AppImage\` | Linux (64-bit) |
           | \`Yoru-$VERSION-linux-x86_64.rpm\` | Fedora (64-bit), install with \`sudo dnf install ./Yoru-$VERSION-linux-x86_64.rpm\` |
 

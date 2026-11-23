@@ -1,4 +1,5 @@
-platform :osx, '12.0'
+# flutter_onnxruntime (page translation OCR) needs macOS 14.
+platform :osx, '14.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -41,7 +42,7 @@ post_install do |installer|
     # The app's minimum. Plugins declaring older ones (flutter_inappwebview
     # says 10.14) fail availability checks in newer Xcode.
     target.build_configurations.each do |config|
-      config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '12.0'
+      config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '14.0'
     end
   end
 end
