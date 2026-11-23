@@ -31,6 +31,12 @@ target 'Runner' do
   use_frameworks!
 
   flutter_install_all_macos_pods File.dirname(File.realpath(__FILE__))
+
+  # ONNX Runtime's pods download from download.onnxruntime.ai, which is gone
+  # (as is github.com/microsoft/onnxruntime); the same 1.28.0 build comes from
+  # flutter_onnxruntime's own mirror instead (see onnxruntime/).
+  pod 'onnxruntime-c', :podspec => 'onnxruntime/onnxruntime-c.podspec.json'
+  pod 'onnxruntime-objc', :podspec => 'onnxruntime/onnxruntime-objc.podspec.json'
   target 'RunnerTests' do
     inherit! :search_paths
   end
