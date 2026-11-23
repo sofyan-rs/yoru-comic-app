@@ -2981,7 +2981,7 @@ abstract class AppLocalizations {
   /// No description provided for @translateModelHint.
   ///
   /// In en, this message translates to:
-  /// **'A model that reads images'**
+  /// **'Any chat model'**
   String get translateModelHint;
 
   /// No description provided for @translateLanguage.
@@ -2999,7 +2999,7 @@ abstract class AppLocalizations {
   /// No description provided for @translatePrivacy.
   ///
   /// In en, this message translates to:
-  /// **'Pages you read are sent to this server to be translated. The key stays on this device and is not in backups or sync. Translations are kept in the cache, so a page is translated once.'**
+  /// **'The text of pages you read is sent to this server to be translated; the images stay on this device. The key stays on this device and is not in backups or sync. Translations are kept in the cache, so a page is translated once.'**
   String get translatePrivacy;
 
   /// No description provided for @translating.
@@ -3073,6 +3073,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Import…'**
   String get translateFontImport;
+
+  /// No description provided for @translateScript.
+  ///
+  /// In en, this message translates to:
+  /// **'Text in pages'**
+  String get translateScript;
+
+  /// No description provided for @translateScriptCjk.
+  ///
+  /// In en, this message translates to:
+  /// **'Japanese · Chinese · English'**
+  String get translateScriptCjk;
+
+  /// No description provided for @translateScriptKorean.
+  ///
+  /// In en, this message translates to:
+  /// **'Korean'**
+  String get translateScriptKorean;
+
+  /// No description provided for @translateScriptLatin.
+  ///
+  /// In en, this message translates to:
+  /// **'Other Latin letters'**
+  String get translateScriptLatin;
+
+  /// No description provided for @translateScriptHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Read on this device. Auto goes by the source\'s language. Its reading model (about 25 MB) is downloaded the first time.'**
+  String get translateScriptHint;
+
+  /// No description provided for @translateNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Translation notes'**
+  String get translateNotes;
+
+  /// No description provided for @translateNotesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional, e.g. keep attack names in English; Orun is a girl'**
+  String get translateNotesHint;
+
+  /// No description provided for @showTranslation.
+  ///
+  /// In en, this message translates to:
+  /// **'Show translation'**
+  String get showTranslation;
+
+  /// No description provided for @translateScriptAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto'**
+  String get translateScriptAuto;
+
+  /// No description provided for @translateEngine.
+  ///
+  /// In en, this message translates to:
+  /// **'Translated by'**
+  String get translateEngine;
+
+  /// No description provided for @translateEngineServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Server'**
+  String get translateEngineServer;
+
+  /// No description provided for @translateMlKitHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Google\'s offline translation: fast, free and light, but plainer than an AI model; it cannot fix misread text or follow notes. Its language packs (about 30 MB each) download the first time. The comic\'s language comes from its source.'**
+  String get translateMlKitHint;
+
+  /// No description provided for @translateScriptEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get translateScriptEnglish;
 }
 
 class _AppLocalizationsDelegate

@@ -8,6 +8,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   flutter_avif_linux
   flutter_inappwebview_linux
   flutter_js
+  flutter_onnxruntime
   url_launcher_linux
 )
 

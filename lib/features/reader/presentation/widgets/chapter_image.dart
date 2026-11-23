@@ -40,12 +40,16 @@ class ChapterImg extends StatefulWidget {
     this.headers = const {},
     this.onOpenWeb,
     this.translator,
+    this.previousPage,
     @visibleForTesting this.cacheManager,
   });
 
   /// Translates the page once shown and lays the text over it; null for
   /// none (translation off in the reader's menu).
   final TranslatorConfig? translator;
+
+  /// The page before (URL or file path): its translation is the context.
+  final String? previousPage;
 
   /// Opens the chapter on its site; offered on a page in a format this
   /// device cannot show (AVIF before Android 12, on the desktops).
@@ -158,6 +162,7 @@ class _ChapterImgState extends State<ChapterImg> {
           pageId: widget.chapterImage,
           readImage: _readImage,
           config: widget.translator,
+          previousPageId: widget.previousPage,
           fit: fit,
           alignment: widget.alignment,
           child: image,

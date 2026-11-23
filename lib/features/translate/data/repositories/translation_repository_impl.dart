@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
@@ -7,17 +8,24 @@ import 'package:yoru/core/error/failures.dart';
 import 'package:yoru/core/network/network_info.dart';
 import 'package:yoru/core/network/remote_call.dart';
 import 'package:yoru/features/translate/data/datasources/llm_translator.dart';
-import 'package:yoru/features/translate/data/datasources/page_tiler.dart';
 import 'package:yoru/features/translate/data/datasources/translation_cache.dart';
+import 'package:yoru/features/translate/data/ocr/paddle_ocr.dart';
+import 'package:yoru/features/translate/data/ocr/text_grouping.dart';
 import 'package:yoru/features/translate/domain/entities/page_translation.dart';
 import 'package:yoru/features/translate/domain/entities/translator_config.dart';
 import 'package:yoru/features/translate/domain/repositories/translation_repository.dart';
 
 @LazySingleton(as: TranslationRepository)
 class TranslationRepositoryImpl implements TranslationRepository {
-  TranslationRepositoryImpl(this._networkInfo, this._llm, this._cache);
+  TranslationRepositoryImpl(
+    this._networkInfo,
+    this._ocr,
+    this._llm,
+    this._cache,
+  );
 
   final NetworkInfo _networkInfo;
+  final PageOcr _ocr;
   final LlmTranslator _llm;
   final TranslationCache _cache;
 
@@ -30,10 +38,19 @@ class TranslationRepositoryImpl implements TranslationRepository {
   /// Runs in progress by cache key.
   final _inFlight = <String, Future<Either<Failure, PageTranslation>>>{};
 
-  /// Bumped when stored translations should be made again (v2: boxes read
-  /// on a square, see [modelCanvas]; v3: boxes around the lettering, not
-  /// the bubble; v4: with the balloon).
-  static const _version = 'v4';
+  /// Bumped when stored translations should be made again (v5: read by
+  /// OCR in the app instead of by the model; v6: texts sent by number; v7:
+  /// with the letters' size; v8: a style guide per language; v9: aku/kamu,
+  /// never gue/lo).
+  static const _version = 'v9';
+
+  /// Bumped when stored OCR text should be read again.
+  static const _ocrVersion = 'ocr3';
+
+  /// Translated lines of the page before sent as context, and their
+  /// length: enough for names and tone, few tokens.
+  static const _contextLines = 6;
+  static const _contextLength = 80;
 
   static String _key(String pageId, TranslatorConfig config) =>
       '$_version|$pageId|${config.cacheTag}';
@@ -47,14 +64,20 @@ class TranslationRepositoryImpl implements TranslationRepository {
     required String pageId,
     required Future<Uint8List> Function() readImage,
     required TranslatorConfig config,
+    String? previousPageId,
   }) {
     final key = _key(pageId, config);
-    return _inFlight[key] ??= _run(key, readImage, config)
-        .then((result) {
-          if (result.isRight()) _completed.add(pageId);
-          return result;
-        })
-        .whenComplete(() => _inFlight.remove(key));
+    return _inFlight[key] ??=
+        _run(key, pageId, readImage, config, previousPageId)
+            .then((result) {
+              if (result.isRight()) _completed.add(pageId);
+              return result;
+            })
+            .whenComplete(() {
+              // A block, not `=> remove(key)`: that returns this very
+              // future, and whenComplete would wait for it forever.
+              _inFlight.remove(key);
+            });
   }
 
   final _completed = StreamController<String>.broadcast();
@@ -64,39 +87,99 @@ class TranslationRepositoryImpl implements TranslationRepository {
 
   Future<Either<Failure, PageTranslation>> _run(
     String key,
+    String pageId,
     Future<Uint8List> Function() readImage,
     TranslatorConfig config,
+    String? previousPageId,
   ) async {
     if (await _cache.get(key) case final stored?) return right(stored);
-    final local = _isLocal(config.baseUrl);
+    final local = config.mlKit || _isLocal(config.baseUrl);
     return runRemote(_networkInfo, offline: local, () async {
       final watch = Stopwatch()..start();
-      final bytes = await readImage();
+      final source = await _source(pageId, readImage, config.script);
       final read = watch.elapsedMilliseconds;
-      final page = await tilePage(bytes);
-      debugPrint(
-        'Translate: page read in $read ms, ${page.tiles.length} tile(s) '
-        'in ${watch.elapsedMilliseconds - read} ms; waiting: ${_waiting.length}',
+      final context = await _context(previousPageId, config);
+      final translations = await _limited(
+        () => _llm.translate(
+          [for (final b in source.blocks) b.text],
+          config: config,
+          context: context,
+        ),
       );
-      final blocks = <TextBlock>[];
-      final results = await Future.wait([
-        for (final tile in page.tiles)
-          _limited(
-            () => _llm.translate(
-              tile.png,
-              width: modelCanvas,
-              height: modelCanvas,
-              config: config,
-            ),
-          ),
-      ]);
-      for (final (i, tile) in page.tiles.indexed) {
-        blocks.addAll(placeOnPage(results[i], tile));
-      }
-      final translation = PageTranslation(aspect: page.aspect, blocks: blocks);
+      debugPrint(
+        'Translate: ${source.blocks.length} texts read in $read ms, '
+        'translated in ${watch.elapsedMilliseconds - read} ms',
+      );
+      final translation = PageTranslation(
+        aspect: source.aspect,
+        blocks: [
+          for (final (i, b) in source.blocks.indexed)
+            if (translations[i].isNotEmpty)
+              TextBlock(
+                left: b.left,
+                top: b.top,
+                right: b.right,
+                bottom: b.bottom,
+                text: translations[i],
+                letterSize: b.letterSize,
+              ),
+        ],
+      );
       await _cache.put(key, translation);
       return translation;
     });
+  }
+
+  /// The text of [pageId] as the OCR reads it (blocks holding the original
+  /// text), stored apart from translations: another language or model
+  /// translates it again without reading the page again.
+  Future<PageTranslation> _source(
+    String pageId,
+    Future<Uint8List> Function() readImage,
+    OcrScript script,
+  ) async {
+    final key = '$_ocrVersion|$pageId|${script.name}';
+    if (await _cache.get(key) case final stored?) return stored;
+    final page = await _ocr.read(await readImage(), script);
+    final source = PageTranslation(
+      aspect: page.height / page.width,
+      blocks: [
+        for (final b in groupLines(page.lines))
+          TextBlock(
+            left: b.rect.left / page.width,
+            top: b.rect.top / page.height,
+            right: b.rect.right / page.width,
+            bottom: b.rect.bottom / page.height,
+            text: b.text,
+            letterSize: b.letterSize / page.width,
+          ),
+      ],
+    );
+    await _cache.put(key, source);
+    return source;
+  }
+
+  /// The last lines of [previousPageId]'s translation, waiting for it while
+  /// it runs, so a page reads on from the one before (names, forms of
+  /// address, tone).
+  Future<List<String>> _context(
+    String? previousPageId,
+    TranslatorConfig config,
+  ) async {
+    if (previousPageId == null) return const [];
+    final key = _key(previousPageId, config);
+    if (_inFlight[key] case final running?) {
+      await running
+          .timeout(const Duration(seconds: 60))
+          .then((_) {}, onError: (Object _) {});
+    }
+    final previous = await _cache.get(key);
+    if (previous == null) return const [];
+    final lines = previous.blocks.map((b) => b.text).toList();
+    return [
+      for (final l in lines.skip(max(0, lines.length - _contextLines)))
+        l.length > _contextLength ? '${l.substring(0, _contextLength)}…' : l,
+    ];
   }
 
   Future<T> _limited<T>(Future<T> Function() call) async {
@@ -122,46 +205,4 @@ class TranslationRepositoryImpl implements TranslationRepository {
         RegExp(r'^(127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)')
             .hasMatch(host);
   }
-}
-
-/// [blocks] of [tile] in page fractions, without those whose centre lies in
-/// the part of the tile another tile answers for.
-///
-/// [blocks] are in fractions of the [modelCanvas] square; the tile covers
-/// its top left [PageTile.contentWidth] × [PageTile.contentHeight].
-List<TextBlock> placeOnPage(List<TextBlock> blocks, PageTile tile) {
-  final span = tile.bottom - tile.top;
-  double x(double v) => (v / tile.contentWidth).clamp(0.0, 1.0);
-  double y(double v) => (v / tile.contentHeight).clamp(0.0, 1.0);
-  final placed = <TextBlock>[];
-  for (final b in blocks) {
-    // Blocks in the white margin are no text of the page.
-    if (x(b.left) >= 1 || y(b.top) >= 1) continue;
-    final top = tile.top + y(b.top) * span;
-    final bottom = tile.top + y(b.bottom) * span;
-    final centre = (top + bottom) / 2;
-    final owned =
-        centre >= tile.ownTop &&
-        (centre < tile.ownBottom || tile.ownBottom >= 1);
-    if (!owned) continue;
-    placed.add(
-      TextBlock(
-        left: x(b.left),
-        top: top,
-        right: x(b.right),
-        bottom: bottom,
-        text: b.text,
-        balloon: switch (b.balloon) {
-          final o? => (
-            left: x(o.left),
-            top: tile.top + y(o.top) * span,
-            right: x(o.right),
-            bottom: tile.top + y(o.bottom) * span,
-          ),
-          null => null,
-        },
-      ),
-    );
-  }
-  return placed;
 }

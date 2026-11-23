@@ -12,6 +12,9 @@ typedef TranslatePageParams = ({
   String pageId,
   Future<Uint8List> Function() readImage,
   TranslatorConfig config,
+
+  /// The page before, whose translation is the context.
+  String? previousPageId,
 });
 
 /// Translates one chapter page, from the cache when it was done before.
@@ -35,5 +38,6 @@ class TranslatePage implements UseCase<PageTranslation, TranslatePageParams> {
         pageId: p.pageId,
         readImage: p.readImage,
         config: p.config,
+        previousPageId: p.previousPageId,
       );
 }

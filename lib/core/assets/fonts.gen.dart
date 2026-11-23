@@ -23,4 +23,7 @@ abstract final class FontFamily {
 
   /// Font family: KomikaHand
   static const String komikaHand = 'KomikaHand';
+
+  /// Font family: PatrickHand
+  static const String patrickHand = 'PatrickHand';
 }

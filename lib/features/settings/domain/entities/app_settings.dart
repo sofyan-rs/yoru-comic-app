@@ -135,6 +135,19 @@ abstract class AppSettings with _$AppSettings {
     /// the app's language.
     @Default('') String translateLanguage,
 
+    /// What translates pages: `api` (an OpenAI-compatible server) or
+    /// `mlkit` (Google's ML Kit translation, offline).
+    @Default('api') String translateEngine,
+
+    /// The user's own instructions for the translations (forms of address,
+    /// names, terms), sent with every page.
+    @Default('') String translateNotes,
+
+    /// Writing of the pages to translate, which picks the OCR model:
+    /// `auto` (by the source's language), `cjk` (Japanese, Chinese,
+    /// English), `korean` or `latin`.
+    @Default('auto') String translateScript,
+
     /// Translations lettered in capitals, as comics usually are.
     @Default(true) bool translateUppercase,
 

@@ -57,6 +57,9 @@ add_subdirectory(${FLUTTER_MANAGED_DIR})
 add_subdirectory("runner")
 
 
+# ONNX Runtime for the OCR plugin, from NuGet; see the file.
+include(onnxruntime.cmake)
+
 # Generated plugin build rules, which manage building the plugins and adding
 # them to the application.
 include(flutter/generated_plugins.cmake)

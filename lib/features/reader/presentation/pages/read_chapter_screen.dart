@@ -25,6 +25,7 @@ import 'package:yoru/features/translate/presentation/reader_translation.dart';
 import 'package:yoru/features/translate/presentation/pages/translate_settings_screen.dart';
 import 'package:yoru/features/settings/domain/entities/app_settings.dart';
 import 'package:yoru/features/settings/presentation/bloc/settings_cubit.dart';
+import 'package:yoru/features/source/presentation/bloc/sources_cubit.dart';
 import 'package:yoru/features/source/presentation/pages/web_view_screen.dart';
 import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
@@ -564,6 +565,7 @@ class _ReadChapterViewState extends State<_ReadChapterView>
     final images = segment.images;
     segment.loadLimit = 0;
     segment.settled.clear();
+    if (identical(segment, _current)) _translateAhead(segment, _page.value);
     // Downloaded pages are on the device; nothing to fetch.
     if (segment.content.isOffline) {
       setState(() => segment.loadLimit = images.length);
@@ -620,11 +622,18 @@ class _ReadChapterViewState extends State<_ReadChapterView>
   bool get _translating => translatedComics.contains(widget.comicSlug);
 
   /// What [ChapterImg] translates with; null while translation is off.
-  TranslatorConfig? _translator(AppSettings settings) =>
-      _translating ? TranslatorConfig.configured(settings) : null;
+  TranslatorConfig? _translator(AppSettings settings) => _translating
+      ? TranslatorConfig.configured(settings)?.forComic(
+          widget.comicDetails.title,
+          sourceLanguage: context.sourceOf(widget.comicSlug)?.lang,
+        )
+      : null;
 
+  /// Translates [page] of [segment] and the few after it (see
+  /// [translateAhead]).
   void _translateAhead(_Segment segment, int page) => translateAhead(
-    pages: segment.images.skip(page + 1).take(translateAheadPages),
+    pages: segment.images,
+    page: page,
     isFile: segment.content.isOffline,
     headers: segment.content.imageHeaders,
     config: _translator(_settings.state),
@@ -1349,6 +1358,7 @@ class _ReadChapterViewState extends State<_ReadChapterView>
               fitHeight: height,
               maxWidth: _pageWidth(settings),
               translator: _translator(settings),
+              previousPage: page > 0 ? segment.images[page - 1] : null,
             ),
           ),
         ),
@@ -1441,6 +1451,7 @@ class _ReadChapterViewState extends State<_ReadChapterView>
           maxWidth: _pageWidth(settings),
           alignment: alignment,
           translator: _translator(settings),
+          previousPage: index > 0 ? pages[index - 1] : null,
         );
 
     final viewCount = useSpreads ? spreads.count : pages.length;

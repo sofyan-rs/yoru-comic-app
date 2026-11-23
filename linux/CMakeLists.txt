@@ -70,6 +70,9 @@ set_target_properties(${BINARY_NAME}
 )
 
 
+# ONNX Runtime for the OCR plugin, from NuGet; see the file.
+include(onnxruntime.cmake)
+
 # Generated plugin build rules, which manage building the plugins and adding
 # them to the application.
 include(flutter/generated_plugins.cmake)
@@ -113,6 +116,12 @@ foreach(bundled_library ${PLUGIN_BUNDLED_LIBRARIES})
     DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
     COMPONENT Runtime)
 endforeach(bundled_library)
+
+# ONNX Runtime under its SONAME, which the OCR plugin links against (it
+# bundles the library only as libonnxruntime.so); see onnxruntime.cmake.
+install(FILES "${ORT_SONAME_COPY}"
+  DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
+  COMPONENT Runtime)
 
 # Copy the native assets provided by the build.dart from all packages.
 set(NATIVE_ASSETS_DIR "${PROJECT_BUILD_DIR}native_assets/linux/")

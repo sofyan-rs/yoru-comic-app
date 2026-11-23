@@ -16,6 +16,7 @@ class RoundIconButton extends StatelessWidget {
     this.background,
     this.foreground,
     this.outlined = false,
+    this.borderColor,
   });
 
   final IconData icon;
@@ -28,6 +29,9 @@ class RoundIconButton extends StatelessWidget {
 
   /// Transparent with a `lineStrong` border instead of a `surface` fill.
   final bool outlined;
+
+  /// A border of this color around the fill; [outlined] has its own.
+  final Color? borderColor;
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +52,8 @@ class RoundIconButton extends StatelessWidget {
             color: outlined ? Colors.transparent : background ?? c.surface,
             border: outlined
                 ? Border.all(color: c.lineStrong, width: DotSize.stroke)
+                : borderColor != null
+                ? Border.all(color: borderColor!, width: DotSize.stroke)
                 : null,
           ),
           child: Icon(

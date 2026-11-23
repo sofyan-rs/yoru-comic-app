@@ -3,36 +3,38 @@ import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:injectable/injectable.dart';
 import 'package:yoru/core/di/register_module.dart';
 import 'package:yoru/core/error/exceptions.dart';
-import 'package:yoru/features/translate/domain/entities/page_translation.dart';
+import 'package:yoru/features/translate/data/device/mlkit_translation.dart';
 import 'package:yoru/features/translate/domain/entities/translator_config.dart';
 
-/// Reads and translates the text of one image through an OpenAI-compatible
-/// `chat/completions` API (OpenAI, Gemini, OpenRouter, Claude, Ollama,
-/// LM Studio…).
+/// Translates the text read off a page through an OpenAI-compatible
+/// `chat/completions` API (OpenAI, Gemini, OpenRouter, Claude, DeepSeek,
+/// Ollama, LM Studio…). Any chat model does: it sees text, not the image.
 abstract interface class LlmTranslator {
-  /// Blocks of the PNG [image] ([width] × [height] px), boxes in fractions
-  /// of it.
-  Future<List<TextBlock>> translate(
-    Uint8List image, {
-    required int width,
-    required int height,
+  /// [texts] (a page's balloons in reading order) translated, one for each
+  /// and in the same order; empty for one that is no real text. [context]:
+  /// the last translated lines of the page before.
+  Future<List<String>> translate(
+    List<String> texts, {
     required TranslatorConfig config,
+    List<String> context = const [],
   });
 }
 
 @LazySingleton(as: LlmTranslator)
 class LlmTranslatorImpl implements LlmTranslator {
-  LlmTranslatorImpl(@Named(filesDio) this._dio);
+  LlmTranslatorImpl(@Named(filesDio) this._dio, this._mlKit);
 
   final Dio _dio;
+  final MlKitTranslation _mlKit;
 
   /// `<baseUrl>|<model>` pairs that answered 400 to [noThinking]'s fields.
   final _thinkingRefused = <String>{};
 
-  /// Local models can take a while for one page.
+  /// Local models can take a while.
   static const _timeout = Duration(minutes: 3);
 
   Future<Response<dynamic>> _post(
@@ -54,29 +56,35 @@ class LlmTranslatorImpl implements LlmTranslator {
   );
 
   @override
-  Future<List<TextBlock>> translate(
-    Uint8List image, {
-    required int width,
-    required int height,
+  Future<List<String>> translate(
+    List<String> texts, {
     required TranslatorConfig config,
+    List<String> context = const [],
   }) async {
+    if (texts.isEmpty) return const [];
+    if (config.mlKit) {
+      try {
+        return await _mlKit.translate(texts, config: config);
+      } on StateError catch (e) {
+        throw ServerException(e.message);
+      } on PlatformException catch (e) {
+        throw ServerException('ML Kit: ${e.message}');
+      }
+    }
     final watch = Stopwatch()..start();
     final body = {
       'model': config.model,
       'temperature': 0.2,
       'messages': [
         {
-          'role': 'user',
-          'content': [
-            {'type': 'text', 'text': translatePrompt(config.language)},
-            {
-              'type': 'image_url',
-              'image_url': {
-                'url': 'data:image/png;base64,${base64Encode(image)}',
-              },
-            },
-          ],
+          'role': 'system',
+          'content': translatePrompt(
+            config.language,
+            comic: config.comic,
+            notes: config.notes,
+          ),
         },
+        {'role': 'user', 'content': _userMessage(texts, context)},
       ],
     };
     final server = '${config.baseUrl}|${config.model}';
@@ -104,7 +112,7 @@ class LlmTranslatorImpl implements LlmTranslator {
     final data = response.data;
     debugPrint(
       'Translate: ${config.model} answered in ${watch.elapsedMilliseconds} ms '
-      '(${image.length ~/ 1024} KB sent, usage '
+      '(${texts.length} texts, usage '
       '${data is Map ? jsonEncode(data['usage']) : '?'})',
     );
     final content = _content(response.data);
@@ -112,7 +120,7 @@ class LlmTranslatorImpl implements LlmTranslator {
       throw const ServerException('The model sent no answer');
     }
     try {
-      return parseTextBlocks(content, width: width, height: height);
+      return parseTranslations(content, texts.length);
     } on FormatException catch (e) {
       debugPrint('Translate: unreadable answer: $content');
       throw ServerException('Unreadable answer from the model: ${e.message}');
@@ -153,6 +161,14 @@ class LlmTranslatorImpl implements LlmTranslator {
   }
 }
 
+/// The texts of a page as the model gets them: by number, so one it merges
+/// or skips cannot shift the others into the wrong balloons; with the page
+/// before's last lines as context.
+String _userMessage(List<String> texts, List<String> context) => jsonEncode({
+  if (context.isNotEmpty) 'before': context,
+  'texts': {for (final (i, t) in texts.indexed) '${i + 1}': t},
+});
+
 /// Request fields that turn a model's thinking off. Reading and
 /// translating bubbles needs none, and a thinking model spends most of its
 /// time on it (DeepSeek's flash models think by default: 3000–8000 tokens,
@@ -178,97 +194,75 @@ Map<String, Object> noThinking(String baseUrl) {
   return const {'reasoning_effort': 'none'};
 }
 
-/// Instructions sent with each image.
+/// Instructions sent before the texts of a page. The same for every page
+/// of a comic, so servers that cache a prompt's start (DeepSeek, OpenAI)
+/// charge it once.
 @visibleForTesting
-String translatePrompt(String language) =>
-    '''
-You translate comic pages (manga, manhwa, manhua).
-The image is 1000 × 1000 pixels; the page fills its top left part and the rest is white.
-Find every piece of text on the page: speech bubbles, thought bubbles, captions, narration boxes and signs. Skip page numbers, watermarks and scanlation credits.
-Translate each one into $language. Keep it natural and short enough to fit its bubble. Keep character names as they are.
-Reply with JSON only, nothing else:
-{"blocks":[{"balloon":[x1,y1,x2,y2],"box":[x1,y1,x2,y2],"text":"translation"}]}
-Coordinates are pixels of this 1000 × 1000 image: x1,y1 the top-left corner and x2,y2 the bottom-right (0,0 is the top-left of the image).
-"balloon" is the speech balloon, thought bubble or caption box the text is in; for text with none around it, the same as "box".
-"box" is the original lettering itself, boxed tightly from the first to the last line.
-List the blocks in reading order. If there is no text, reply {"blocks":[]}.''';
+String translatePrompt(
+  String language, {
+  String comic = '',
+  String notes = '',
+}) {
+  final style = _styles[language.toLowerCase()];
+  return '''
+You translate comics (manga, manhwa, manhua) into $language, like a good fan translation: natural, spoken $language that fits each character and situation, not word for word.${comic.isEmpty ? '' : '\nThe comic: "$comic".'}
+You get {"before": [...], "texts": {"1": "...", "2": "...", ...}}. "texts" are the speech balloons, captions and signs of one page in reading order, numbered, read by OCR: letters can be misread, and some are noise from the artwork. "before" (if given) are the last translated lines of the page before: keep names, forms of address and tone consistent with them, but do not translate them.
+Translate each text on its own, using the others for context and fixing obvious OCR mistakes. Never merge two texts into one or split one: each number gets its own translation. Keep it short enough to fit its balloon. Keep the speaker's tone (casual, polite, rough, childish) and their way of addressing others the same from line to line. Keep "…", "!" and "?" where they carry feeling; sound effects in balloons become $language ones. Keep character names as they are, romanized the usual way.${style == null ? '' : '\n$style'}${notes.isEmpty ? '' : '\nThe reader asks: $notes'}
+Reply with JSON only: {"1": "...", "2": "...", ...}, one entry for every number. Use "" for one that is not real text (noise, a page number, a watermark, a scanlation credit).''';
+}
 
-/// Reads the model's answer. Takes the JSON out of code fences or extra
-/// text, a bare list or `{"blocks": [...]}`, boxes as `box`, `bbox` or
-/// `box_2d`, and a `balloon` (or `bubble`) around each when given.
-/// Coordinates are read as 0–1000 (as asked); above 1000 as
-/// pixels of the [width] × [height] image, and all at or under 1 as
-/// fractions.
+/// How dialogue reads naturally, per target language.
+const _styles = {
+  'indonesian': 'Write like Indonesian manga fan translations: everyday spoken Indonesian in dialogue (nggak, udah, aja, kok, sih, dong, deh, kan where they fit), standard Indonesian for narration and formal speakers. Characters address each other with aku/kamu, or saya/Anda in polite or formal speech; never gue/lo. Keep Japanese honorifics (-san, -kun, -chan, -sama, senpai, sensei) as they are. Avoid stiff word-for-word phrasing.',
+  'english': 'Write like a good official localization: natural American English with contractions, idioms that fit the character, no stiff word-for-word phrasing. Keep Japanese honorifics (-san, -kun, -chan, -sama, senpai, sensei) as they are.',
+  'malay': 'Write natural, spoken Malay in dialogue (tak, dah, je, la where they fit) and standard Malay in narration. Keep Japanese honorifics as they are.',
+};
+
+/// The translations in the model's answer, [count] of them, by number
+/// (`{"1": ..., "2": ...}`, also inside `"translations"`); a list is read
+/// in order. Missing ones are empty, extra ones dropped. Takes the JSON out
+/// of code fences or extra text.
 ///
 /// Throws [FormatException] when no JSON is found.
-List<TextBlock> parseTextBlocks(
-  String content, {
-  required int width,
-  required int height,
-}) {
-  final json = _extractJson(content);
-  final List<dynamic> items = switch (json) {
-    final List<dynamic> list => list,
-    final Map<dynamic, dynamic> map => switch (map['blocks'] ??
-        map['texts'] ??
-        map['items']) {
-      final List<dynamic> list => list,
-      _ => const [],
-    },
-    _ => const [],
+@visibleForTesting
+List<String> parseTranslations(String content, int count) {
+  Object? json;
+  try {
+    json = _extractJson(content);
+  } on FormatException {
+    // Broken JSON, as small local models write it (a comma inside a
+    // string instead of after it, say): take the numbered texts as found.
+    final found = {
+      for (final m in _numberedText.allMatches(content))
+        m.group(1)!: _unescape(m.group(2)!),
+    };
+    if (found.isEmpty) rethrow;
+    json = found;
+  }
+  if (json is Map && json['translations'] is Object) {
+    json = json['translations'];
+  }
+  String text(Object? v) => (v?.toString() ?? '').trim();
+  return switch (json) {
+    final List<dynamic> list => [
+      for (var i = 0; i < count; i++) i < list.length ? text(list[i]) : '',
+    ],
+    final Map<dynamic, dynamic> map => [
+      for (var i = 1; i <= count; i++) text(map['$i']),
+    ],
+    _ => List.filled(count, ''),
   };
+}
 
-  List<double>? numbers(Object? box) {
-    if (box is! List || box.length != 4) return null;
-    final values = box.map((v) => v is num ? v.toDouble() : null).toList();
-    return values.contains(null) ? null : values.cast<double>();
+/// `"<number>": "<text>"`, the text with its escapes.
+final _numberedText = RegExp(r'"(\d+)"\s*:\s*"((?:[^"\\]|\\.)*)"');
+
+String _unescape(String text) {
+  try {
+    return jsonDecode('"$text"') as String;
+  } on FormatException {
+    return text;
   }
-
-  final raw = <(List<double>, List<double>?, String)>[];
-  for (final item in items) {
-    if (item is! Map) continue;
-    final text = (item['text'] ?? item['translation'])?.toString().trim();
-    final box = numbers(item['box'] ?? item['bbox'] ?? item['box_2d']);
-    if (text == null || text.isEmpty || box == null) continue;
-    raw.add((box, numbers(item['balloon'] ?? item['bubble']), text));
-  }
-  if (raw.isEmpty) return const [];
-
-  final largest = raw.expand((r) => [...r.$1, ...?r.$2]).reduce(max);
-  final (double sx, double sy) = largest <= 1
-      ? (1, 1)
-      : largest <= 1000
-      ? (1000, 1000)
-      : (width.toDouble(), height.toDouble());
-
-  PageBox scaled(List<double> box) {
-    final x1 = (box[0] / sx).clamp(0.0, 1.0);
-    final y1 = (box[1] / sy).clamp(0.0, 1.0);
-    final x2 = (box[2] / sx).clamp(0.0, 1.0);
-    final y2 = (box[3] / sy).clamp(0.0, 1.0);
-    return (
-      left: min(x1, x2),
-      top: min(y1, y2),
-      right: max(x1, x2),
-      bottom: max(y1, y2),
-    );
-  }
-
-  final blocks = <TextBlock>[];
-  for (final (box, balloon, text) in raw) {
-    final b = scaled(box);
-    final block = TextBlock(
-      left: b.left,
-      top: b.top,
-      right: b.right,
-      bottom: b.bottom,
-      text: text,
-      balloon: balloon == null ? null : scaled(balloon),
-    );
-    if (block.width <= 0.005 || block.height <= 0.005) continue;
-    blocks.add(block);
-  }
-  return blocks;
 }
 
 Object? _extractJson(String content) {

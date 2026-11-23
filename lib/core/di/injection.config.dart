@@ -179,6 +179,10 @@ import 'package:yoru/features/translate/data/datasources/llm_translator.dart'
     as _i568;
 import 'package:yoru/features/translate/data/datasources/translation_cache.dart'
     as _i701;
+import 'package:yoru/features/translate/data/device/mlkit_translation.dart'
+    as _i571;
+import 'package:yoru/features/translate/data/ocr/ocr_models.dart' as _i686;
+import 'package:yoru/features/translate/data/ocr/paddle_ocr.dart' as _i875;
 import 'package:yoru/features/translate/data/repositories/translation_repository_impl.dart'
     as _i1064;
 import 'package:yoru/features/translate/domain/repositories/translation_repository.dart'
@@ -213,6 +217,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i895.Connectivity>(() => registerModule.connectivity);
     gh.lazySingleton<_i738.HiveInterface>(() => registerModule.hive);
     gh.lazySingleton<_i220.Clock>(() => _i220.Clock());
+    gh.lazySingleton<_i571.MlKitTranslation>(() => _i571.MlKitTranslation());
     gh.lazySingleton<_i675.ProgressNotifier>(
       () => _i675.LocalProgressNotifier(),
     );
@@ -338,9 +343,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i738.Box<String>>(instanceName: 'comic_categories'),
       ),
     );
-    gh.lazySingleton<_i568.LlmTranslator>(
-      () => _i568.LlmTranslatorImpl(gh<_i361.Dio>(instanceName: 'files_dio')),
-    );
     gh.lazySingleton<_i761.NetworkInfo>(
       () => _i761.NetworkInfoImpl(gh<_i895.Connectivity>()),
     );
@@ -358,9 +360,18 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i345.ApiClient>(
       () => _i345.ApiClient(gh<_i361.Dio>(instanceName: 'files_dio')),
     );
+    gh.lazySingleton<_i686.OcrModels>(
+      () => _i686.OcrModels(gh<_i361.Dio>(instanceName: 'files_dio')),
+    );
     gh.lazySingleton<_i917.PageDownloadQueue>(
       () =>
           _i917.BackgroundPageDownloadQueue(gh<_i736.DownloadFileDataSource>()),
+    );
+    gh.lazySingleton<_i568.LlmTranslator>(
+      () => _i568.LlmTranslatorImpl(
+        gh<_i361.Dio>(instanceName: 'files_dio'),
+        gh<_i571.MlKitTranslation>(),
+      ),
     );
     gh.lazySingleton<_i697.DownloadLocalDataSource>(
       () => _i697.DownloadLocalDataSourceImpl(
@@ -406,13 +417,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i220.Clock>(),
       ),
     );
-    gh.lazySingleton<_i509.TranslationRepository>(
-      () => _i1064.TranslationRepositoryImpl(
-        gh<_i761.NetworkInfo>(),
-        gh<_i568.LlmTranslator>(),
-        gh<_i701.TranslationCache>(),
-      ),
-    );
     gh.lazySingleton<_i328.HistoryRepository>(
       () => _i942.HistoryRepositoryImpl(
         gh<_i326.HistoryLocalDataSource>(),
@@ -448,8 +452,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i1050.LibraryJournal>(),
       ),
     );
-    gh.factory<_i296.TranslatePage>(
-      () => _i296.TranslatePage(gh<_i509.TranslationRepository>()),
+    gh.lazySingleton<_i875.PageOcr>(
+      () => _i875.PaddleOcr(gh<_i686.OcrModels>()),
     );
     gh.factory<_i934.GetBookmarks>(
       () => _i934.GetBookmarks(gh<_i614.BookmarkRepository>()),
@@ -604,6 +608,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i730.SaveSettings>(
       () => _i730.SaveSettings(gh<_i87.SettingsRepository>()),
     );
+    gh.lazySingleton<_i509.TranslationRepository>(
+      () => _i1064.TranslationRepositoryImpl(
+        gh<_i761.NetworkInfo>(),
+        gh<_i875.PageOcr>(),
+        gh<_i568.LlmTranslator>(),
+        gh<_i701.TranslationCache>(),
+      ),
+    );
     gh.factory<_i1054.ImportLibrary>(
       () => _i1054.ImportLibrary(
         gh<_i614.BookmarkRepository>(),
@@ -625,6 +637,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i618.BackupLibrary>(),
         gh<_i618.RestoreLibrary>(),
       ),
+    );
+    gh.factory<_i296.TranslatePage>(
+      () => _i296.TranslatePage(gh<_i509.TranslationRepository>()),
     );
     gh.factory<_i277.CategoryCubit>(
       () => _i277.CategoryCubit(

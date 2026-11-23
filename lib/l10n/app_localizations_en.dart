@@ -1578,7 +1578,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get translateModel => 'Model';
 
   @override
-  String get translateModelHint => 'A model that reads images';
+  String get translateModelHint => 'Any chat model';
 
   @override
   String get translateLanguage => 'Translate into';
@@ -1589,7 +1589,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get translatePrivacy =>
-      'Pages you read are sent to this server to be translated. The key stays on this device and is not in backups or sync. Translations are kept in the cache, so a page is translated once.';
+      'The text of pages you read is sent to this server to be translated; the images stay on this device. The key stays on this device and is not in backups or sync. Translations are kept in the cache, so a page is translated once.';
 
   @override
   String get translating => 'Translating';
@@ -1627,4 +1627,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get translateFontImport => 'Import…';
+
+  @override
+  String get translateScript => 'Text in pages';
+
+  @override
+  String get translateScriptCjk => 'Japanese · Chinese · English';
+
+  @override
+  String get translateScriptKorean => 'Korean';
+
+  @override
+  String get translateScriptLatin => 'Other Latin letters';
+
+  @override
+  String get translateScriptHint =>
+      'Read on this device. Auto goes by the source\'s language. Its reading model (about 25 MB) is downloaded the first time.';
+
+  @override
+  String get translateNotes => 'Translation notes';
+
+  @override
+  String get translateNotesHint =>
+      'Optional, e.g. keep attack names in English; Orun is a girl';
+
+  @override
+  String get showTranslation => 'Show translation';
+
+  @override
+  String get translateScriptAuto => 'Auto';
+
+  @override
+  String get translateEngine => 'Translated by';
+
+  @override
+  String get translateEngineServer => 'Server';
+
+  @override
+  String get translateMlKitHint =>
+      'Google\'s offline translation: fast, free and light, but plainer than an AI model; it cannot fix misread text or follow notes. Its language packs (about 30 MB each) download the first time. The comic\'s language comes from its source.';
+
+  @override
+  String get translateScriptEnglish => 'English';
 }

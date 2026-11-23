@@ -29,6 +29,9 @@ class SettingsModel {
     this.translateApiKey = '',
     this.translateModel = '',
     this.translateLanguage = '',
+    this.translateEngine = 'api',
+    this.translateNotes = '',
+    this.translateScript = 'auto',
     this.translateUppercase = true,
     this.translateFontPath = '',
   });
@@ -56,6 +59,9 @@ class SettingsModel {
     translateApiKey: e.translateApiKey,
     translateModel: e.translateModel,
     translateLanguage: e.translateLanguage,
+    translateEngine: e.translateEngine,
+    translateNotes: e.translateNotes,
+    translateScript: e.translateScript,
     translateUppercase: e.translateUppercase,
     translateFontPath: e.translateFontPath,
   );
@@ -103,6 +109,9 @@ class SettingsModel {
   final String translateApiKey;
   final String translateModel;
   final String translateLanguage;
+  final String translateEngine;
+  final String translateNotes;
+  final String translateScript;
   final bool translateUppercase;
   final String translateFontPath;
 
@@ -131,6 +140,9 @@ class SettingsModel {
     translateApiKey: translateApiKey,
     translateModel: translateModel,
     translateLanguage: translateLanguage,
+    translateEngine: translateEngine,
+    translateNotes: translateNotes,
+    translateScript: translateScript,
     translateUppercase: translateUppercase,
     translateFontPath: translateFontPath,
   );

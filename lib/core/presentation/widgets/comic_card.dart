@@ -62,6 +62,9 @@ class ComicCard extends StatelessWidget {
           Text(
             title,
             style: DotlineText.body.copyWith(color: c.ink),
+            // Lines exactly as tall as the cell allows: an emoji's font
+            // would make them taller.
+            strutStyle: _titleStrut,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
@@ -79,3 +82,8 @@ class ComicCard extends StatelessWidget {
     );
   }
 }
+
+final _titleStrut = StrutStyle.fromTextStyle(
+  DotlineText.body,
+  forceStrutHeight: true,
+);

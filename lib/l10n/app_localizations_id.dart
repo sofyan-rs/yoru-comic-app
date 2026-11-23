@@ -1558,7 +1558,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get translateModel => 'Model';
 
   @override
-  String get translateModelHint => 'Model yang bisa membaca gambar';
+  String get translateModelHint => 'Model chat apa saja';
 
   @override
   String get translateLanguage => 'Terjemahkan ke';
@@ -1569,7 +1569,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get translatePrivacy =>
-      'Halaman yang kamu baca dikirim ke server ini untuk diterjemahkan. Kunci tetap di perangkat ini dan tidak ikut cadangan atau sinkronisasi. Terjemahan disimpan di cache, jadi satu halaman hanya diterjemahkan sekali.';
+      'Teks dari halaman yang kamu baca dikirim ke server ini untuk diterjemahkan; gambarnya tetap di perangkat ini. Kunci tetap di perangkat ini dan tidak ikut cadangan atau sinkronisasi. Terjemahan disimpan di cache, jadi satu halaman hanya diterjemahkan sekali.';
 
   @override
   String get translating => 'Menerjemahkan';
@@ -1607,4 +1607,46 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get translateFontImport => 'Impor…';
+
+  @override
+  String get translateScript => 'Teks di halaman';
+
+  @override
+  String get translateScriptCjk => 'Jepang · Mandarin · Inggris';
+
+  @override
+  String get translateScriptKorean => 'Korea';
+
+  @override
+  String get translateScriptLatin => 'Huruf Latin lain';
+
+  @override
+  String get translateScriptHint =>
+      'Dibaca di perangkat ini. Otomatis memilih sesuai bahasa source. Model pembacanya (sekitar 25 MB) diunduh saat pertama dipakai.';
+
+  @override
+  String get translateNotes => 'Catatan terjemahan';
+
+  @override
+  String get translateNotesHint =>
+      'Opsional, mis. nama jurus tetap bahasa Inggris; Orun itu perempuan';
+
+  @override
+  String get showTranslation => 'Tampilkan terjemahan';
+
+  @override
+  String get translateScriptAuto => 'Otomatis';
+
+  @override
+  String get translateEngine => 'Diterjemahkan oleh';
+
+  @override
+  String get translateEngineServer => 'Server';
+
+  @override
+  String get translateMlKitHint =>
+      'Terjemahan offline dari Google: cepat, gratis, dan ringan, tapi lebih kaku dari model AI; tidak bisa membetulkan salah baca atau mengikuti catatan. Paket bahasanya (sekitar 30 MB) diunduh saat pertama dipakai. Bahasa komik diambil dari source-nya.';
+
+  @override
+  String get translateScriptEnglish => 'Inggris';
 }

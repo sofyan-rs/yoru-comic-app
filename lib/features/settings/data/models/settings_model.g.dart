@@ -78,6 +78,9 @@ SettingsModel _$SettingsModelFromJson(Map<String, dynamic> json) =>
       translateApiKey: json['translateApiKey'] as String? ?? '',
       translateModel: json['translateModel'] as String? ?? '',
       translateLanguage: json['translateLanguage'] as String? ?? '',
+      translateEngine: json['translateEngine'] as String? ?? 'api',
+      translateNotes: json['translateNotes'] as String? ?? '',
+      translateScript: json['translateScript'] as String? ?? 'auto',
       translateUppercase: json['translateUppercase'] as bool? ?? true,
       translateFontPath: json['translateFontPath'] as String? ?? '',
     );
@@ -107,6 +110,9 @@ Map<String, dynamic> _$SettingsModelToJson(SettingsModel instance) =>
       'translateApiKey': instance.translateApiKey,
       'translateModel': instance.translateModel,
       'translateLanguage': instance.translateLanguage,
+      'translateEngine': instance.translateEngine,
+      'translateNotes': instance.translateNotes,
+      'translateScript': instance.translateScript,
       'translateUppercase': instance.translateUppercase,
       'translateFontPath': instance.translateFontPath,
     };

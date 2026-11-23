@@ -9,6 +9,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   flutter_avif_windows
   flutter_inappwebview_windows
   flutter_js
+  flutter_onnxruntime
   gal
   url_launcher_windows
   share_plus

@@ -14,10 +14,12 @@ abstract interface class TranslationRepository {
 
   /// Translates the page [pageId] (its URL or file path), reading the
   /// image with [readImage] only when no translation is stored. Requests
-  /// for the same page share one run.
+  /// for the same page share one run. The translation of [previousPageId]
+  /// (waited for while it runs) is the context.
   Future<Either<Failure, PageTranslation>> translate({
     required String pageId,
     required Future<Uint8List> Function() readImage,
     required TranslatorConfig config,
+    String? previousPageId,
   });
 }

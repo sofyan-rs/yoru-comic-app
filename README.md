@@ -66,6 +66,11 @@ Desktop screenshots were taken on Windows 11 running v2.21.0.
 - **Explore:** title search combined with the source's own filters (type, status, sort, genres…), with infinite scroll. Long filter lists fold away behind "Show all".
 - **Comic details:** alternative titles (other languages and romanized names; tap to see them all), source and language, rating, chapter count, release year, synopsis and genres. The chapter list can be searched and sorted, marks new, read, partly read (`5 / 24`) and downloaded chapters, and supports selecting chapters to download them or mark them read or unread. Share a comic as a link that opens the app, save its cover, or long-press the title to copy it. Without a connection, comics you downloaded, bookmarked or read still open from the details saved on the phone.
 - **Reader:** vertical strip or page by page (right-to-left or left-to-right), fit to width or height, keep the screen on, optional gap between pages. Double-tap or pinch to zoom, and move the zoomed page in any direction; page meter, previous/next chapter, and a "chapter finished" card. Reopens a chapter at the page you stopped at. Auto-scroll with adjustable speed in the vertical reader. Downloaded chapters open from the phone. Long press a page to save it to the gallery.
+- **Page translation (optional, off by default):** in the reader's ⋮ menu, turn on Translate pages for a comic; translated text is laid over each speech balloon, and a small button on each page shows the original again. The text is read on the device (PaddleOCR; its model, about 25 MB, downloads the first time) and only the text, never the page, is translated by what you pick in More → Translation → Translate pages:
+  - **Server:** any OpenAI-compatible API (OpenAI, Gemini, OpenRouter, Claude, DeepSeek) or a local one (Ollama, LM Studio), with your own key.
+  - **ML Kit** (Android and iOS): Google's offline translation; language packs (about 30 MB each) download the first time. Fast and free, plainer than an AI model.
+
+  Nothing downloads until you use it, translations are cached so a page is translated once, and only the page on screen and the next three are translated. Settings also cover the target language, your own notes for the translator, all caps and the lettering font (Patrick Hand, Komika Hand, Comic Neue, or a `.ttf`/`.otf` you import).
 - **Bookmarks:** language badge and unread-chapter badge on each card, read progress and search by title or alternative title across every tab (tab counts show the matches). Swipe the comics sideways to change tab. Group them by status, source or your own categories (a comic can be in several); pick a category when you bookmark, or skip. Pull to refresh checks the comics on screen (the open group, narrowed by a search) for new chapters, with a progress notification; stop it from the notification's Cancel button or the stop button in the header. A comic that takes too long is skipped.
 - **History:** last read chapter per comic, grouped by day; swipe to delete.
 - **Downloads:** download chapters for offline reading. Downloads keep going in the background and while the phone is locked, with a progress notification. More → Downloads shows the storage used, the queue with retry and cancel, and downloads grouped per comic. Files stay in the app's own storage and are removed when the app is uninstalled.
@@ -101,6 +106,7 @@ Some extensions are reimplemented from the Tachiyomi / Mihon extensions in [keiy
 - Android 7.0+ (API 24); Mihon extensions need Android 9+ (API 28)
 - iOS 15+ (sideloaded); DNS over HTTPS for WebViews and extensions needs iOS 17+
 - Windows 10+ (x64), macOS 12+, Linux x64; Mihon extensions run there too
+- Page translation: ML Kit on Android and iOS; server translation and OCR on every platform
 
 To build from source, see [Contributing](docs/CONTRIBUTION.md).
 

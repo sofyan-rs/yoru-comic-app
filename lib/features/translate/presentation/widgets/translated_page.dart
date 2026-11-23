@@ -18,6 +18,7 @@ import 'package:yoru/features/translate/domain/entities/page_translation.dart';
 import 'package:yoru/features/translate/domain/entities/translator_config.dart';
 import 'package:yoru/features/settings/presentation/bloc/settings_cubit.dart';
 import 'package:yoru/features/translate/domain/usecases/translate_page.dart';
+import 'package:yoru/features/translate/presentation/reader_translation.dart';
 import 'package:yoru/features/translate/presentation/translate_font.dart';
 
 /// A shown chapter page ([child]) with its translation laid over it: each
@@ -34,6 +35,7 @@ class TranslatedPage extends StatefulWidget {
     required this.pageId,
     required this.readImage,
     required this.config,
+    this.previousPageId,
     required this.fit,
     required this.alignment,
     required this.child,
@@ -43,6 +45,9 @@ class TranslatedPage extends StatefulWidget {
   final String pageId;
   final Future<Uint8List> Function() readImage;
   final TranslatorConfig? config;
+
+  /// The page before, whose translation is the context.
+  final String? previousPageId;
   final BoxFit fit;
   final Alignment alignment;
   final Widget child;
@@ -72,13 +77,24 @@ class _TranslatedPageState extends State<TranslatedPage> {
     _finished = getIt<TranslatePage>().completed.listen((page) {
       if (page == widget.pageId && _status != _Status.done) _start();
     });
+    translateWindow.addListener(_windowMoved);
     _start();
   }
 
   @override
   void dispose() {
     _finished?.cancel();
+    translateWindow.removeListener(_windowMoved);
     super.dispose();
+  }
+
+  /// Translates once the reader comes near this page.
+  void _windowMoved() {
+    if (_status == _Status.idle &&
+        _translation == null &&
+        translateWindow.value.contains(widget.pageId)) {
+      _start();
+    }
   }
 
   @override
@@ -106,12 +122,18 @@ class _TranslatedPageState extends State<TranslatedPage> {
       });
       return;
     }
+    // Far from the page on screen: nothing until the reader comes near.
+    if (!translateWindow.value.contains(widget.pageId)) {
+      setState(() => _status = _Status.idle);
+      return;
+    }
     setState(() => _status = _Status.running);
     if (_aspect == null) unawaited(_measure());
     final result = await translate((
       pageId: widget.pageId,
       readImage: widget.readImage,
       config: config,
+      previousPageId: widget.previousPageId,
     ));
     if (!mounted || run != _run) return;
     setState(() {
@@ -148,7 +170,7 @@ class _TranslatedPageState extends State<TranslatedPage> {
   }
 
   /// Lettering family in use, and the font setting it came from.
-  String _family = FontFamily.komikaHand;
+  String _family = FontFamily.patrickHand;
   String? _fontPath;
 
   /// Switches to the font at [path] once it is registered.
@@ -156,7 +178,7 @@ class _TranslatedPageState extends State<TranslatedPage> {
     _fontPath = path;
     translateFontFamily(path).then((family) {
       if (!mounted || _fontPath != path) return;
-      final next = family ?? FontFamily.komikaHand;
+      final next = family ?? FontFamily.patrickHand;
       if (next != _family) setState(() => _family = next);
     });
   }
@@ -184,7 +206,7 @@ class _TranslatedPageState extends State<TranslatedPage> {
                 final image = _imageRect(aspect, box);
                 return Stack(
                   children: [
-                    if (translation != null)
+                    if (translation != null && !_original)
                       Positioned.fill(
                         child: IgnorePointer(
                           child: _blocks(
@@ -204,6 +226,16 @@ class _TranslatedPageState extends State<TranslatedPage> {
                           failed: _status == _Status.failed,
                           error: _error,
                           onRetry: _start,
+                        ),
+                      )
+                    else if (translation != null &&
+                        translation.blocks.isNotEmpty)
+                      Positioned(
+                        top: image.top + DotSpace.s2,
+                        right: box.width - image.right + DotSpace.s2,
+                        child: _OriginalToggle(
+                          original: _original,
+                          onTap: () => setState(() => _original = !_original),
                         ),
                       ),
                   ],
@@ -227,7 +259,12 @@ class _TranslatedPageState extends State<TranslatedPage> {
     required bool uppercase,
   }) {
     final scaler = MediaQuery.textScalerOf(context);
-    return Stack(
+    // Fitting the text measures it many times: done once for a page at a
+    // size, not on every rebuild.
+    final key = (translation, image, uppercase, _family, scaler);
+    if (key == _laidOutFor && _laidOut != null) return _laidOut!;
+    _laidOutFor = key;
+    return _laidOut = Stack(
       children: [
         for (final b in translation.blocks)
           _bubble(
@@ -239,6 +276,13 @@ class _TranslatedPageState extends State<TranslatedPage> {
       ],
     );
   }
+
+  /// The page shown as it is, its translation hidden (the page's toggle).
+  bool _original = false;
+
+  /// The bubbles last laid out, and what for.
+  Widget? _laidOut;
+  Object? _laidOutFor;
 
   /// [block] placed on the [image] rect, as [layoutBubble] lays it out.
   Widget _bubble(
@@ -253,15 +297,13 @@ class _TranslatedPageState extends State<TranslatedPage> {
       image.left + r * image.width,
       image.top + b * image.height,
     );
+    final sizes = bubbleFontSizes(block.letterSize, image.width);
     final layout = layoutBubble(
       onImage(block.left, block.top, block.right, block.bottom),
       text,
-      balloon: switch (block.balloon) {
-        final o? => onImage(o.left, o.top, o.right, o.bottom),
-        null => null,
-      },
       bounds: image,
-      maxFontSize: bubbleMaxFontSize(image.width),
+      maxFontSize: sizes.max,
+      minFontSize: sizes.min,
       scaler: scaler,
       fontFamily: _family,
     );
@@ -281,15 +323,19 @@ class _TranslatedPageState extends State<TranslatedPage> {
 @visibleForTesting
 typedef BubbleLayout = ({Rect rect, double fontSize, double padding});
 
-/// Lettering of the translations: [fontFamily] (Komika Hand by default),
+/// Lettering of the translations: [fontFamily] (Patrick Hand by default),
 /// bold, black. It inherits nothing, so it is drawn exactly as measured
 /// (the app theme's letter spacing would widen it and split words).
 TextStyle bubbleTextStyle(double size, {String? fontFamily}) => TextStyle(
   inherit: false,
-  fontFamily: fontFamily ?? FontFamily.komikaHand,
+  fontFamily: fontFamily ?? FontFamily.patrickHand,
   // Letters a font lacks (accents, other scripts) come from these.
   fontFamilyFallback: const [FontFamily.comicNeue, FontFamily.geist],
-  fontWeight: FontWeight.w700,
+  // The bundled lettering fonts come in bold; others (Patrick Hand, an
+  // imported one) are drawn as they are rather than made bold.
+  fontWeight: _boldFonts.contains(fontFamily ?? FontFamily.patrickHand)
+      ? FontWeight.w700
+      : FontWeight.w400,
   fontSize: size,
   height: 1.1,
   letterSpacing: 0,
@@ -298,43 +344,50 @@ TextStyle bubbleTextStyle(double size, {String? fontFamily}) => TextStyle(
   decoration: TextDecoration.none,
 );
 
-/// Largest lettering on a page shown [pageWidth] wide: about the size of
-/// a comic's own lettering (2.8 % of the page width), 9 to 18.
+const _boldFonts = {FontFamily.komikaHand, FontFamily.comicNeue};
+
+/// Largest lettering on a page shown [pageWidth] wide when the original's
+/// size is not known: about a comic's usual (2.5 % of the page width), 9
+/// to 16.
 double bubbleMaxFontSize(double pageWidth) =>
-    (pageWidth * 0.028).clamp(_minFontSize, 18.0);
+    (pageWidth * 0.025).clamp(_minFontSize, 16.0);
+
+/// The sizes to letter a translation at, on a page shown [pageWidth]
+/// wide: at most as big as the original letters ([letterSize], a fraction
+/// of the page width), and down to 70 % of that before the box grows
+/// instead; [bubbleMaxFontSize] to 9 when the size is not known.
+({double min, double max}) bubbleFontSizes(
+  double? letterSize,
+  double pageWidth,
+) {
+  if (letterSize == null || letterSize <= 0) {
+    return (min: _minFontSize, max: bubbleMaxFontSize(pageWidth));
+  }
+  // A font draws its letters a little smaller than its size.
+  final max = (letterSize * pageWidth * 0.8).clamp(8.0, 28.0);
+  return (min: (max * 0.7).clamp(8.0, max), max: max);
+}
 
 /// Smallest size worth reading; below it the bubble grows instead.
 const _minFontSize = 9.0;
 
-/// Lays out [text] over the model's box [area], which hugs the original
-/// lettering, kept inside [bounds] (the image):
-///
-/// 1. The box a hair larger (so no letter edge shows), centred on its
-///    [balloon] when the letters lie in one (models place balloons more
-///    reliably), at the largest size up to [maxFontSize] whose wrapped
-///    lines fit without splitting a word.
-/// 2. When that is small (a tall, narrow column of vertical Japanese, say),
-///    the inside of the balloon if the text is larger there: a white box
-///    just around the text, also covering the original letters.
-/// 3. When even [_minFontSize] fits nowhere, the box grown around its
-///    centre just enough to hold the text.
+/// Lays out [text] over [area], the box around the original lettering
+/// the OCR found, kept inside [bounds] (the image): the box a hair larger
+/// (so no letter edge shows) at the largest size from [maxFontSize] down to
+/// [minFontSize] whose wrapped lines fit without splitting a word, and when
+/// even [minFontSize] does not fit, the box grown around its centre just
+/// enough to hold the text.
 @visibleForTesting
 BubbleLayout layoutBubble(
   Rect area,
   String text, {
   required Rect bounds,
-  Rect? balloon,
   TextScaler scaler = TextScaler.noScaling,
   String? fontFamily,
   double maxFontSize = 18,
+  double minFontSize = _minFontSize,
 }) {
-  final inBalloon = balloon != null && balloon.contains(area.center);
-  final centre = inBalloon ? balloon.center : area.center;
-  final letters = Rect.fromCenter(
-    center: centre,
-    width: area.width + 4,
-    height: area.height + 4,
-  ).intersect(bounds);
+  final letters = area.inflate(2).intersect(bounds);
   double padFor(Rect r) => (r.shortestSide * 0.04).clamp(1.5, 3.0);
 
   TextPainter paint(double size, double maxWidth) => TextPainter(
@@ -354,7 +407,9 @@ BubbleLayout layoutBubble(
     final painter = paint(size, inner.width);
     final ok =
         painter.height <= inner.height &&
-        painter.minIntrinsicWidth <= inner.width + 0.5;
+        // A pixel to spare: drawn at a fractional width, a word that only
+        // just fits would be split.
+        painter.minIntrinsicWidth <= inner.width - 1;
     painter.dispose();
     return ok;
   }
@@ -362,8 +417,8 @@ BubbleLayout layoutBubble(
   /// The largest size up to [maxFontSize] that fits [rect], or null.
   double? bestSize(Rect rect) {
     if (fits(rect, maxFontSize)) return maxFontSize;
-    if (!fits(rect, _minFontSize)) return null;
-    var lo = _minFontSize;
+    if (!fits(rect, minFontSize)) return null;
+    var lo = minFontSize;
     var hi = maxFontSize;
     for (var i = 0; i < 8; i++) {
       final mid = (lo + hi) / 2;
@@ -377,45 +432,18 @@ BubbleLayout layoutBubble(
   }
 
   final inLetters = bestSize(letters);
-  if (inLetters != null && inLetters >= maxFontSize * 0.8) {
-    return (rect: letters, fontSize: inLetters, padding: padFor(letters));
-  }
-
-  if (inBalloon) {
-    // Balloons are round: keep clear of the outline.
-    final inside = balloon
-        .deflate(balloon.shortestSide * 0.12)
-        .intersect(bounds);
-    final size = inside.isEmpty ? null : bestSize(inside);
-    if (size != null && size > (inLetters ?? 0)) {
-      final pad = padFor(letters);
-      final painter = paint(size, inside.width - pad * 2);
-      final around = Rect.fromCenter(
-        center: inside.center,
-        width: painter.width + pad * 2 + 1,
-        height: painter.height + pad * 2,
-      );
-      painter.dispose();
-      return (
-        rect: around.expandToInclude(letters).intersect(bounds),
-        fontSize: size,
-        padding: pad,
-      );
-    }
-  }
-
   if (inLetters != null) {
     return (rect: letters, fontSize: inLetters, padding: padFor(letters));
   }
 
   // Too small even at the smallest size: grow the box around its centre.
   final padding = padFor(letters);
-  final painter = paint(_minFontSize, letters.width - padding * 2);
+  final painter = paint(minFontSize, letters.width - padding * 2);
   final width = max(
     letters.width,
-    max(painter.minIntrinsicWidth, painter.width) + padding * 2 + 1,
+    max(painter.minIntrinsicWidth, painter.width) + padding * 2 + 2,
   );
-  final measured = paint(_minFontSize, width - padding * 2);
+  final measured = paint(minFontSize, width - padding * 2);
   final height = max(letters.height, measured.height + padding * 2);
   painter.dispose();
   measured.dispose();
@@ -438,7 +466,7 @@ BubbleLayout layoutBubble(
           : 0,
     ),
   );
-  return (rect: grown, fontSize: _minFontSize, padding: padding);
+  return (rect: grown, fontSize: minFontSize, padding: padding);
 }
 
 /// A rounded white bubble over the original lettering with the
@@ -476,6 +504,35 @@ class _Bubble extends StatelessWidget {
       ),
     ),
   );
+}
+
+/// Small round button on a translated page: shows the page as it is, or
+/// its translation again. Half see-through, so it hides little of the art.
+class _OriginalToggle extends StatelessWidget {
+  const _OriginalToggle({required this.original, required this.onTap});
+
+  final bool original;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = Dotline.of(context);
+    return Opacity(
+      opacity: original ? 1 : 0.7,
+      child: RoundIconButton(
+        icon: original ? LucideIcons300.languages : LucideIcons300.image,
+        semanticLabel: original
+            ? AppText.t.showTranslation
+            : AppText.t.showOriginal,
+        size: 32,
+        iconSize: 16,
+        background: original ? c.ink : c.surfaceRaised,
+        foreground: original ? c.onInk : c.ink,
+        borderColor: original ? c.onInk : c.lineStrong,
+        onTap: onTap,
+      ),
+    );
+  }
 }
 
 class _StatusPill extends StatelessWidget {

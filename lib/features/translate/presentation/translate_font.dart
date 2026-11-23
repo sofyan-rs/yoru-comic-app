@@ -7,13 +7,14 @@ import 'package:path_provider/path_provider.dart';
 import 'package:yoru/core/assets/fonts.gen.dart';
 
 /// Lettering of the translations: a bundled font ([builtinTranslateFonts],
-/// Komika Hand by default), or a font file the user imported (a commercial
+/// Patrick Hand by default), or a font file the user imported (a commercial
 /// comic font they own, say, which the app cannot ship).
 
 /// Bundled fonts: the setting value (`AppSettings.translateFontPath`), the
 /// family and the name. An empty setting is the first.
 const builtinTranslateFonts = <(String, String, String)>[
-  ('', FontFamily.komikaHand, 'Komika Hand'),
+  ('', FontFamily.patrickHand, 'Patrick Hand'),
+  ('builtin:komika', FontFamily.komikaHand, 'Komika Hand'),
   ('builtin:comicneue', FontFamily.comicNeue, 'Comic Neue'),
 ];
 
