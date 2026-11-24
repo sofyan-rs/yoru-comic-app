@@ -3235,6 +3235,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The server refused the request'**
   String get translateErrorRefused;
+
+  /// No description provided for @translateChapterAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Translate chapter again'**
+  String get translateChapterAgain;
 }
 
 class _AppLocalizationsDelegate

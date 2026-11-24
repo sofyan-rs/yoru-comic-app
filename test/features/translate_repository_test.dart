@@ -29,6 +29,7 @@ class _Ocr implements PageOcr {
 
 class _Llm implements LlmTranslator {
   final contexts = <List<String>>[];
+  final sent = <List<String>>[];
 
   @override
   Future<List<String>> translate(
@@ -37,6 +38,7 @@ class _Llm implements LlmTranslator {
     List<String> context = const [],
   }) async {
     contexts.add(context);
+    sent.add(texts);
     await Future<void>.delayed(const Duration(milliseconds: 20));
     return [for (final t in texts) 'T:$t'];
   }
@@ -51,6 +53,9 @@ class _Cache implements TranslationCache {
   @override
   Future<void> put(String key, PageTranslation translation) async =>
       _store[key] = translation;
+
+  @override
+  Future<void> remove(String key) async => _store.remove(key);
 }
 
 void main() {
@@ -87,4 +92,66 @@ void main() {
     // All but the first page read on from the one before.
     expect(llm.contexts.where((c) => c.isNotEmpty), hasLength(3));
   });
+
+  test(
+    'a forgotten page is translated again, its text not read again',
+    () async {
+      final llm = _Llm();
+      final repository = TranslationRepositoryImpl(
+        _Online(),
+        _Ocr(),
+        llm,
+        _Cache(),
+      );
+      var reads = 0;
+      Future<Uint8List> read() async {
+        reads++;
+        return Uint8List(0);
+      }
+
+      await repository.translate(pageId: 'p', readImage: read, config: config);
+      expect(await repository.cached('p', config), isNotNull);
+      await repository.forget(['p'], config);
+      expect(await repository.cached('p', config), isNull);
+      await repository.translate(pageId: 'p', readImage: read, config: config);
+      expect(llm.contexts, hasLength(2));
+      expect(reads, 1);
+    },
+  );
+
+  test(
+    'pages after the one on screen go in one request, each text once',
+    () async {
+      final llm = _Llm();
+      final repository = TranslationRepositoryImpl(
+        _Online(),
+        _Ocr(),
+        llm,
+        _Cache(),
+      );
+      Future<Uint8List> read() async => Uint8List(0);
+
+      repository.translateTogether([
+        for (var i = 1; i <= 3; i++)
+          (pageId: 'p$i', readImage: read, previousPageId: 'p${i - 1}'),
+      ], config);
+      // A page asked for on its own joins the run.
+      final joined = await repository.translate(
+        pageId: 'p2',
+        readImage: read,
+        config: config,
+      );
+      expect(joined.isRight(), isTrue);
+      for (var i = 1; i <= 3; i++) {
+        expect(
+          (await repository.cached('p$i', config))?.blocks.single.text,
+          'T:HELLO',
+        );
+      }
+      // One request; HELLO on all three pages sent once.
+      expect(llm.sent, [
+        ['HELLO'],
+      ]);
+    },
+  );
 }

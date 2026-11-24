@@ -1700,4 +1700,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get translateErrorRefused => 'Server menolak permintaan';
+
+  @override
+  String get translateChapterAgain => 'Terjemahkan ulang chapter';
 }

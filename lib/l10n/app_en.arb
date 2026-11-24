@@ -637,5 +637,6 @@
   "translateErrorTooLong": "The page's text is too long for this server",
   "translateErrorRateLimit": "Too many requests, or the free quota is used up: wait a moment, or check your plan",
   "translateErrorServer": "The server has a problem: try again later",
-  "translateErrorRefused": "The server refused the request"
+  "translateErrorRefused": "The server refused the request",
+  "translateChapterAgain": "Translate chapter again"
 }

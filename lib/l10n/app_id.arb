@@ -522,5 +522,6 @@
   "translateErrorTooLong": "Teks halaman terlalu panjang untuk server ini",
   "translateErrorRateLimit": "Terlalu banyak permintaan, atau kuota gratis habis: tunggu sebentar, atau cek paketmu",
   "translateErrorServer": "Server sedang bermasalah: coba lagi nanti",
-  "translateErrorRefused": "Server menolak permintaan"
+  "translateErrorRefused": "Server menolak permintaan",
+  "translateChapterAgain": "Terjemahkan ulang chapter"
 }

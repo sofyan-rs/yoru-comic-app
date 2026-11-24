@@ -1720,4 +1720,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get translateErrorRefused => 'The server refused the request';
+
+  @override
+  String get translateChapterAgain => 'Translate chapter again';
 }

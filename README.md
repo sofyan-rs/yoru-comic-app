@@ -44,7 +44,11 @@ Fedora RPM installs can update from inside the app: approve the system's adminis
 |---|---|---|
 | <img src="screenshot/download-select.webp" width="200" alt="Selecting chapters to download for offline reading"> | <img src="screenshot/downloads.webp" width="200" alt="Download queue and downloads grouped by comic"> | <img src="screenshot/home-light.webp" width="200" alt="Home in the light theme"> |
 
-Screenshots were taken on a real device (iQOO I2218, Android 16) running v2.0.0.
+| Page translation | Translation settings |
+|---|---|
+| <img src="screenshot/translate.webp" width="200" alt="A manga page with its speech balloons translated into Indonesian in place"> | <img src="screenshot/translate-settings.webp" width="200" alt="Translate pages settings: server presets, API key, model, Test button and the kind of text in pages"> |
+
+Screenshots were taken on a real device (iQOO I2218, Android 16) running v2.0.0; the page translation ones on v2.26.
 
 ### Desktop
 
@@ -70,7 +74,7 @@ Desktop screenshots were taken on Windows 11 running v2.21.0.
   - **Server:** any OpenAI-compatible API (OpenAI, Gemini, OpenRouter, Claude, DeepSeek) or a local one (Ollama, LM Studio), with your own key. A local server on another computer must be reachable from the phone: same network, and the server listening on the network (for Ollama, `OLLAMA_HOST=0.0.0.0`), e.g. `http://192.168.1.10:11434/v1`.
   - **ML Kit** (Android and iOS): Google's offline translation; language packs (about 30 MB each) download the first time. Fast and free, plainer than an AI model.
 
-  Nothing downloads until you use it, translations are cached so a page is translated once, and only the page on screen and the next three are translated. Settings also cover the target language, the kind of text in pages (picked from the source's language by default: Japanese/Chinese, Korean, English or other Latin letters), your own notes for the translator, all caps and the lettering font (Patrick Hand, Komika Hand, Comic Neue, or a `.ttf`/`.otf` you import).
+  Nothing downloads until you use it, translations are cached so a page is translated once, and only the page on screen and the next three are translated, once you stop on a page (the next three in one request, to save tokens). Reader ⋮ → Translate chapter again, or holding a page's small button, tries a page again with the same model. Settings also cover the target language, the kind of text in pages (picked from the source's language by default: Japanese/Chinese, Korean, English or other Latin letters), your own notes for the translator, all caps and the lettering font (Patrick Hand, Komika Hand, Comic Neue, or a `.ttf`/`.otf` you import).
 - **Bookmarks:** language badge and unread-chapter badge on each card, read progress and search by title or alternative title across every tab (tab counts show the matches). Swipe the comics sideways to change tab. Group them by status, source or your own categories (a comic can be in several); pick a category when you bookmark, or skip. Pull to refresh checks the comics on screen (the open group, narrowed by a search) for new chapters, with a progress notification; stop it from the notification's Cancel button or the stop button in the header. A comic that takes too long is skipped.
 - **History:** last read chapter per comic, grouped by day; swipe to delete.
 - **Downloads:** download chapters for offline reading. Downloads keep going in the background and while the phone is locked, with a progress notification. More → Downloads shows the storage used, the queue with retry and cancel, and downloads grouped per comic. Files stay in the app's own storage and are removed when the app is uninstalled.

@@ -43,17 +43,45 @@ void translateAhead({
     for (var i = max(0, from - 1); i < to; i++) pages[i],
   };
   final translate = getIt<TranslatePage>();
-  for (var i = from; i < to; i++) {
-    final id = pages[i];
-    unawaited(
-      translate((
-        pageId: id,
-        readImage: () => readPage(id, isFile: isFile, headers: headers),
-        config: config,
-        previousPageId: i > 0 ? pages[i - 1] : null,
-      )),
-    );
+  Future<Uint8List> read(String id) =>
+      readPage(id, isFile: isFile, headers: headers);
+  // The page on screen alone, so it shows soon; the ones after it in one
+  // request, which sends the instructions and context once.
+  unawaited(
+    translate((
+      pageId: pages[from],
+      readImage: () => read(pages[from]),
+      config: config,
+      previousPageId: from > 0 ? pages[from - 1] : null,
+    )),
+  );
+  if (to > from + 1) {
+    translate.together([
+      for (var i = from + 1; i < to; i++)
+        (
+          pageId: pages[i],
+          readImage: () => read(pages[i]),
+          previousPageId: pages[i - 1],
+        ),
+    ], config);
   }
+}
+
+/// Pages (ids) whose stored translation was just dropped: a
+/// `TranslatedPage` showing one of them starts over.
+final translatedAgain = StreamController<Set<String>>.broadcast();
+
+/// Translates [pageIds] again with [config] (another try with the same
+/// model; a new model or language translates anew by itself): drops their
+/// stored translations, keeping the text read off them, and tells the
+/// pages, which translate again when they are near the reader.
+Future<void> translateAgain(
+  Iterable<String> pageIds,
+  TranslatorConfig config,
+) async {
+  final ids = pageIds.toSet();
+  await getIt<TranslatePage>().forget(ids, config);
+  translatedAgain.add(ids);
 }
 
 /// The bytes of a page: the file, or the copy the image cache keeps.

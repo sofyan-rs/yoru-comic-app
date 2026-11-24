@@ -403,29 +403,25 @@ class _Rgba {
   final int width;
   final int height;
 
-  /// The usual brightness (0-255) around [box]: the median luma along a
-  /// ring just outside it, where the balloon or panel shows rather than
-  /// the letters.
+  /// The usual brightness (0-255) behind the letters in [box]: the median
+  /// luma over a grid inside it. Letter strokes are thin, so most of a
+  /// line's box is its balloon (white) or panel (dark); a ring outside it
+  /// would land on the art around a small balloon instead.
   int backgroundLuma(Rect box) {
-    final r = box.inflate(box.shortestSide * 0.15);
     final lumas = <int>[];
-    const steps = 24;
-    void at(double x, double y) {
-      final px = x.round().clamp(0, width - 1);
-      final py = y.round().clamp(0, height - 1);
-      final i = (py * width + px) * 4;
-      lumas.add(
-        (pixels[i] * 299 + pixels[i + 1] * 587 + pixels[i + 2] * 114) ~/ 1000,
-      );
-    }
-
-    for (var s = 0; s <= steps; s++) {
-      final x = r.left + r.width * s / steps;
-      final y = r.top + r.height * s / steps;
-      at(x, r.top);
-      at(x, r.bottom);
-      at(r.left, y);
-      at(r.right, y);
+    const columns = 24;
+    const rows = 8;
+    for (var row = 0; row < rows; row++) {
+      for (var column = 0; column < columns; column++) {
+        final x = box.left + box.width * (column + 0.5) / columns;
+        final y = box.top + box.height * (row + 0.5) / rows;
+        final px = x.round().clamp(0, width - 1);
+        final py = y.round().clamp(0, height - 1);
+        final i = (py * width + px) * 4;
+        lumas.add(
+          (pixels[i] * 299 + pixels[i + 1] * 587 + pixels[i + 2] * 114) ~/ 1000,
+        );
+      }
     }
     lumas.sort();
     return lumas[lumas.length ~/ 2];

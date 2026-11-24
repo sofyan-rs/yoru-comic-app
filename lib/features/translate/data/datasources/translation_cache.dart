@@ -14,6 +14,8 @@ abstract interface class TranslationCache {
   Future<PageTranslation?> get(String key);
 
   Future<void> put(String key, PageTranslation translation);
+
+  Future<void> remove(String key);
 }
 
 @LazySingleton(as: TranslationCache)
@@ -40,6 +42,16 @@ class TranslationCacheImpl implements TranslationCache {
     } catch (e) {
       debugPrint('TranslationCache: $e');
       return null;
+    }
+  }
+
+  @override
+  Future<void> remove(String key) async {
+    try {
+      final file = await _file(key);
+      if (await file.exists()) await file.delete();
+    } catch (e) {
+      debugPrint('TranslationCache: $e');
     }
   }
 

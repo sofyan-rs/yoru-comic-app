@@ -70,12 +70,19 @@ class _TranslatedPageState extends State<TranslatedPage> {
   /// (its own run's answer lost, say, or started by the prefetch) is read
   /// from the cache.
   StreamSubscription<String>? _finished;
+  StreamSubscription<Set<String>>? _again;
 
   @override
   void initState() {
     super.initState();
     _finished = getIt<TranslatePage>().completed.listen((page) {
       if (page == widget.pageId && _status != _Status.done) _start();
+    });
+    _again = translatedAgain.stream.listen((pages) {
+      if (pages.contains(widget.pageId)) {
+        _original = false;
+        _start();
+      }
     });
     translateWindow.addListener(_windowMoved);
     _start();
@@ -84,6 +91,7 @@ class _TranslatedPageState extends State<TranslatedPage> {
   @override
   void dispose() {
     _finished?.cancel();
+    _again?.cancel();
     translateWindow.removeListener(_windowMoved);
     super.dispose();
   }
@@ -236,6 +244,11 @@ class _TranslatedPageState extends State<TranslatedPage> {
                         child: _OriginalToggle(
                           original: _original,
                           onTap: () => setState(() => _original = !_original),
+                          onLongPress: () {
+                            if (widget.config case final config?) {
+                              translateAgain([widget.pageId], config);
+                            }
+                          },
                         ),
                       ),
                   ],
@@ -379,8 +392,9 @@ const _minFontSize = 9.0;
 /// Lays out [text] over [area], the box around the original lettering
 /// the OCR found, kept inside [bounds] (the image): the box a hair larger
 /// (so no letter edge shows) at the largest size from [maxFontSize] down to
-/// [minFontSize] whose wrapped lines fit without splitting a word, and when
-/// even [minFontSize] does not fit, the box grown around its centre just
+/// [minFontSize] whose wrapped lines fit without splitting a word; then
+/// smaller, down to 9, rather than covering the balloons next to it; and
+/// when even that does not fit, the box grown around its centre just
 /// enough to hold the text.
 @visibleForTesting
 BubbleLayout layoutBubble(
@@ -406,24 +420,44 @@ BubbleLayout layoutBubble(
     textScaler: scaler,
   )..layout(maxWidth: max(maxWidth, 1));
 
+  // The widest word, measured word by word at one size and scaled: the
+  // paragraph's own minIntrinsicWidth under-reports it (67 px for a 75 px
+  // word in Komika Hand), so a word it says fits gets split.
+  const reference = 100.0;
+  var widestAtReference = 0.0;
+  for (final word in text.split(RegExp(r'\s+'))) {
+    if (word.isEmpty) continue;
+    final painter = TextPainter(
+      text: TextSpan(
+        text: word,
+        style: bubbleTextStyle(reference, fontFamily: fontFamily),
+      ),
+      textDirection: TextDirection.ltr,
+      textScaler: scaler,
+    )..layout();
+    widestAtReference = max(widestAtReference, painter.width);
+    painter.dispose();
+  }
+  double widestWord(double size) => widestAtReference * size / reference;
+
   bool fits(Rect rect, double size) {
     final inner = rect.deflate(padFor(rect));
     if (inner.width <= 0 || inner.height <= 0) return false;
+    // A pixel to spare: drawn at a fractional width, a word that only just
+    // fits would be split.
+    if (widestWord(size) > inner.width - 1) return false;
     final painter = paint(size, inner.width);
-    final ok =
-        painter.height <= inner.height &&
-        // A pixel to spare: drawn at a fractional width, a word that only
-        // just fits would be split.
-        painter.minIntrinsicWidth <= inner.width - 1;
+    final ok = painter.height <= inner.height;
     painter.dispose();
     return ok;
   }
 
-  /// The largest size up to [maxFontSize] that fits [rect], or null.
-  double? bestSize(Rect rect) {
+  /// The largest size from [floor] up to [maxFontSize] that fits [rect],
+  /// or null.
+  double? bestSize(Rect rect, double floor) {
     if (fits(rect, maxFontSize)) return maxFontSize;
-    if (!fits(rect, minFontSize)) return null;
-    var lo = minFontSize;
+    if (!fits(rect, floor)) return null;
+    var lo = floor;
     var hi = maxFontSize;
     for (var i = 0; i < 8; i++) {
       final mid = (lo + hi) / 2;
@@ -436,19 +470,23 @@ BubbleLayout layoutBubble(
     return lo;
   }
 
-  final inLetters = bestSize(letters);
+  // Smaller than the original letters before a box larger than theirs: a
+  // grown box covers the balloons next to it.
+  final smallest = min(minFontSize, _minFontSize);
+  final inLetters =
+      bestSize(letters, minFontSize) ?? bestSize(letters, smallest);
   if (inLetters != null) {
     return (rect: letters, fontSize: inLetters, padding: padFor(letters));
   }
 
   // Too small even at the smallest size: grow the box around its centre.
   final padding = padFor(letters);
-  final painter = paint(minFontSize, letters.width - padding * 2);
+  final painter = paint(smallest, letters.width - padding * 2);
   final width = max(
     letters.width,
-    max(painter.minIntrinsicWidth, painter.width) + padding * 2 + 2,
+    max(widestWord(smallest), painter.width) + padding * 2 + 2,
   );
-  final measured = paint(minFontSize, width - padding * 2);
+  final measured = paint(smallest, width - padding * 2);
   final height = max(letters.height, measured.height + padding * 2);
   painter.dispose();
   measured.dispose();
@@ -471,7 +509,7 @@ BubbleLayout layoutBubble(
           : 0,
     ),
   );
-  return (rect: grown, fontSize: minFontSize, padding: padding);
+  return (rect: grown, fontSize: smallest, padding: padding);
 }
 
 /// A rounded bubble over the original lettering with the translation in
@@ -521,27 +559,37 @@ class _Bubble extends StatelessWidget {
 /// Small round button on a translated page: shows the page as it is, or
 /// its translation again. Half see-through, so it hides little of the art.
 class _OriginalToggle extends StatelessWidget {
-  const _OriginalToggle({required this.original, required this.onTap});
+  const _OriginalToggle({
+    required this.original,
+    required this.onTap,
+    required this.onLongPress,
+  });
 
   final bool original;
   final VoidCallback onTap;
 
+  /// Translates the page again.
+  final VoidCallback onLongPress;
+
   @override
   Widget build(BuildContext context) {
     final c = Dotline.of(context);
-    return Opacity(
-      opacity: original ? 1 : 0.7,
-      child: RoundIconButton(
-        icon: original ? LucideIcons300.languages : LucideIcons300.image,
-        semanticLabel: original
-            ? AppText.t.showTranslation
-            : AppText.t.showOriginal,
-        size: 32,
-        iconSize: 16,
-        background: original ? c.ink : c.surfaceRaised,
-        foreground: original ? c.onInk : c.ink,
-        borderColor: original ? c.onInk : c.lineStrong,
-        onTap: onTap,
+    return GestureDetector(
+      onLongPress: onLongPress,
+      child: Opacity(
+        opacity: original ? 1 : 0.7,
+        child: RoundIconButton(
+          icon: original ? LucideIcons300.languages : LucideIcons300.image,
+          semanticLabel: original
+              ? AppText.t.showTranslation
+              : AppText.t.showOriginal,
+          size: 32,
+          iconSize: 16,
+          background: original ? c.ink : c.surfaceRaised,
+          foreground: original ? c.onInk : c.ink,
+          borderColor: original ? c.onInk : c.lineStrong,
+          onTap: onTap,
+        ),
       ),
     );
   }

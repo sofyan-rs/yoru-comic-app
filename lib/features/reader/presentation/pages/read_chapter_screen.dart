@@ -270,6 +270,7 @@ class _ReadChapterViewState extends State<_ReadChapterView>
   void dispose() {
     _autoHide?.cancel();
     _autoScrollResume?.cancel();
+    _translateTimer?.cancel();
     _lifecycle.dispose();
     _announceProgress();
     _itemPositions.itemPositions.removeListener(_onItemPositions);
@@ -654,11 +655,33 @@ class _ReadChapterViewState extends State<_ReadChapterView>
     if (_current case final segment?) _translateAhead(segment, _page.value);
   }
 
+  /// Translates the chapter on screen again (another try with the same
+  /// model), from the page on screen on.
+  Future<void> _translateChapterAgain() async {
+    final segment = _current;
+    final config = _translator(_settings.state);
+    if (segment == null || config == null) return;
+    await translateAgain(segment.images, config);
+    if (mounted) _translateAhead(segment, _page.value);
+  }
+
+  /// Waits for the reader to stay on a page before translating around it:
+  /// pages flicked past in a fast scroll cost no request.
+  Timer? _translateTimer;
+  static const _translateDelay = Duration(milliseconds: 700);
+
   void _onPageReached(int page) {
     final segment = _current;
     if (segment == null) return;
     if (page >= segment.loadLimit - 2) _loadNextBatch(segment);
-    _translateAhead(segment, page);
+    _translateTimer?.cancel();
+    if (_translating) {
+      _translateTimer = Timer(_translateDelay, () {
+        if (mounted && identical(_current, segment)) {
+          _translateAhead(segment, _page.value);
+        }
+      });
+    }
     if (identical(segment, _segments.last) &&
         page >= segment.images.length - 3) {
       _fetchNext();
@@ -1651,6 +1674,12 @@ class _ReadChapterViewState extends State<_ReadChapterView>
                             ? LucideIcons300.image
                             : LucideIcons300.languages,
                         onTap: _toggleTranslation,
+                      ),
+                    if (chapter != null && _translating)
+                      DotMenuItem(
+                        label: AppText.t.translateChapterAgain,
+                        icon: LucideIcons300.refreshCw,
+                        onTap: _translateChapterAgain,
                       ),
                     DotMenuItem(
                       label: AppText.t.readerSettings,

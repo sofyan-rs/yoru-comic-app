@@ -99,6 +99,33 @@ class LlmTranslatorImpl implements LlmTranslator {
         throw ServerException('ML Kit: ${e.message}');
       }
     }
+    final first = await _ask(texts, config, context);
+    final missing = [
+      for (var i = 0; i < texts.length; i++)
+        if (first[i] == null) i,
+    ];
+    if (missing.isEmpty) return [for (final t in first) t!];
+    // A small model can leave numbers out (often the last ones): those
+    // alone, once more, rather than leaving their balloons untranslated.
+    debugPrint('Translate: ${missing.length} left out, asking again');
+    final again = await _ask(
+      [for (final i in missing) texts[i]],
+      config,
+      context,
+    );
+    for (final (n, i) in missing.indexed) {
+      first[i] = again[n];
+    }
+    return [for (final t in first) t ?? ''];
+  }
+
+  /// [texts] sent to the server in one request: a translation each, or
+  /// null for one the answer left out.
+  Future<List<String?>> _ask(
+    List<String> texts,
+    TranslatorConfig config,
+    List<String> context,
+  ) async {
     final watch = Stopwatch()..start();
     final body = {
       'model': config.model,
@@ -148,7 +175,7 @@ class LlmTranslatorImpl implements LlmTranslator {
       throw const ServerException('The model sent no answer');
     }
     try {
-      return parseTranslations(content, texts.length);
+      return parseAnswer(content, texts.length);
     } on FormatException catch (e) {
       debugPrint('Translate: unreadable answer: $content');
       throw ServerException('Unreadable answer from the model: ${e.message}');
@@ -286,16 +313,16 @@ String translatePrompt(
 }) {
   final style = _styles[language.toLowerCase()];
   return '''
-You translate comics (manga, manhwa, manhua) into $language, like a good fan translation: natural, spoken $language that fits each character and situation, not word for word.${comic.isEmpty ? '' : '\nThe comic: "$comic".'}
-You get {"before": [...], "texts": {"1": "...", "2": "...", ...}}. "texts" are the speech balloons, captions and signs of one page in reading order, numbered, read by OCR: letters can be misread, and some are noise from the artwork. "before" (if given) are the last translated lines of the page before: keep names, forms of address and tone consistent with them, but do not translate them.
-Translate each text on its own, using the others for context and fixing obvious OCR mistakes. Never merge two texts into one or split one: each number gets its own translation. Keep it short enough to fit its balloon. Keep the speaker's tone (casual, polite, rough, childish) and their way of addressing others the same from line to line. Keep "…", "!" and "?" where they carry feeling. Sound effects drawn in the art (BOOM, 쾅, ドドド, footsteps, impacts) are not translated: give them "". A sound a character makes in a balloon (ah, huh, ugh) is dialogue: translate it. Keep character names as they are, romanized the usual way.${style == null ? '' : '\n$style'}${notes.isEmpty ? '' : '\nThe reader asks: $notes'}
-Reply with JSON only: {"1": "...", "2": "...", ...}, one entry for every number. Use "" for one that is not part of the story: noise, a page number, a watermark, scanlation credits and staff lists, the comic's own title or chapter number on a cover, or a plug for a site, Discord, Patreon or social media.''';
+Translate comic text (manga, manhwa, manhua) into $language like a good fan translation: natural, spoken $language, not word for word.${comic.isEmpty ? '' : '\nThe comic: "$comic".'}
+Input: {"before": [...], "texts": {"1": "...", ...}}. "texts": balloons, captions and signs in reading order (one page or a few), read by OCR, so letters may be misread, words run together ("YOUREHUGE") or a balloon cut short: translate what is there, fixing obvious mistakes. "before": lines translated just before, for consistent names, address and tone; do not translate them.
+One translation per number: never merge or split. Keep it short, keep each speaker's tone, keep names as they are. Spoken sounds (ah, ugh) are dialogue; sound effects drawn in the art (BOOM, 쾅) get "".${style == null ? '' : '\n$style'}${notes.isEmpty ? '' : '\nThe reader asks: $notes'}
+Reply with JSON only: {"1": "...", ...}, every number. "" only for what clearly is not story (noise, page number, watermark, credits, cover title, plugs); when in doubt, translate.''';
 }
 
 /// How dialogue reads naturally, per target language.
 const _styles = {
-  'indonesian': 'Write like Indonesian manga fan translations: everyday spoken Indonesian in dialogue (nggak, udah, aja, kok, sih, dong, deh, kan where they fit), standard Indonesian for narration and formal speakers. Characters address each other with aku/kamu, or saya/Anda in polite or formal speech; never gue/lo. Keep Japanese honorifics (-san, -kun, -chan, -sama, senpai, sensei) as they are. Avoid stiff word-for-word phrasing.',
-  'english': 'Write like a good official localization: natural American English with contractions, idioms that fit the character, no stiff word-for-word phrasing. Keep Japanese honorifics (-san, -kun, -chan, -sama, senpai, sensei) as they are.',
+  'indonesian': 'Indonesian fan-translation style: everyday spoken Indonesian in dialogue (nggak, udah, aja, kok, sih, dong where they fit), standard Indonesian in narration. Address: aku/kamu, or saya/Anda when polite; never gue/lo. Keep honorifics (-san, -kun, -chan, -sama, senpai, sensei).',
+  'english': 'Official-localization style: natural American English with contractions. Keep honorifics (-san, -kun, -chan, -sama, senpai, sensei).',
   'malay': 'Write natural, spoken Malay in dialogue (tak, dah, je, la where they fit) and standard Malay in narration. Keep Japanese honorifics as they are.',
 };
 
@@ -306,7 +333,14 @@ const _styles = {
 ///
 /// Throws [FormatException] when no JSON is found.
 @visibleForTesting
-List<String> parseTranslations(String content, int count) {
+List<String> parseTranslations(String content, int count) => [
+  for (final t in parseAnswer(content, count)) t ?? '',
+];
+
+/// [parseTranslations], with null for a number the answer left out (an
+/// empty string is a text the model meant to drop).
+@visibleForTesting
+List<String?> parseAnswer(String content, int count) {
   Object? json;
   try {
     json = _extractJson(content);
@@ -323,15 +357,15 @@ List<String> parseTranslations(String content, int count) {
   if (json is Map && json['translations'] is Object) {
     json = json['translations'];
   }
-  String text(Object? v) => (v?.toString() ?? '').trim();
+  String? text(Object? v) => v?.toString().trim();
   return switch (json) {
     final List<dynamic> list => [
-      for (var i = 0; i < count; i++) i < list.length ? text(list[i]) : '',
+      for (var i = 0; i < count; i++) i < list.length ? text(list[i]) : null,
     ],
     final Map<dynamic, dynamic> map => [
       for (var i = 1; i <= count; i++) text(map['$i']),
     ],
-    _ => List.filled(count, ''),
+    _ => List<String?>.filled(count, null),
   };
 }
 

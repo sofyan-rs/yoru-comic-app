@@ -42,14 +42,17 @@ class TranslationRepositoryImpl implements TranslationRepository {
   /// OCR in the app instead of by the model; v6: texts sent by number; v7:
   /// with the letters' size; v8: a style guide per language; v9: aku/kamu,
   /// never gue/lo).
-  static const _version = 'v11';
+  static const _version = 'v12';
 
   /// Bumped when stored OCR text should be read again.
-  static const _ocrVersion = 'ocr5';
+  static const _ocrVersion = 'ocr6';
 
   /// Translated lines of the page before sent as context, and their
   /// length: enough for names and tone, few tokens.
-  static const _contextLines = 6;
+  static const _contextLines = 3;
+
+  /// Texts sent in one request at most; more go in several.
+  static const _maxTexts = 40;
   static const _contextLength = 80;
 
   static String _key(String pageId, TranslatorConfig config) =>
@@ -60,6 +63,10 @@ class TranslationRepositoryImpl implements TranslationRepository {
       _cache.get(_key(pageId, config));
 
   @override
+  Future<void> forget(Iterable<String> pageIds, TranslatorConfig config) =>
+      Future.wait([for (final id in pageIds) _cache.remove(_key(id, config))]);
+
+  @override
   Future<Either<Failure, PageTranslation>> translate({
     required String pageId,
     required Future<Uint8List> Function() readImage,
@@ -67,20 +74,171 @@ class TranslationRepositoryImpl implements TranslationRepository {
     String? previousPageId,
   }) {
     final key = _key(pageId, config);
-    return _inFlight[key] ??=
-        _run(key, pageId, readImage, config, previousPageId)
-            .then((result) {
-              result.fold(
-                (f) => debugPrint('Translate: page failed: ${f.message}'),
-                (_) => _completed.add(pageId),
-              );
-              return result;
-            })
-            .whenComplete(() {
-              // A block, not `=> remove(key)`: that returns this very
-              // future, and whenComplete would wait for it forever.
-              _inFlight.remove(key);
-            });
+    return _inFlight[key] ??
+        _track(
+          key,
+          pageId,
+          _run(key, pageId, readImage, config, previousPageId),
+        );
+  }
+
+  /// [run] as the run of [pageId] under [key], until it ends: announced on
+  /// [completed] when it succeeds.
+  Future<Either<Failure, PageTranslation>> _track(
+    String key,
+    String pageId,
+    Future<Either<Failure, PageTranslation>> run,
+  ) => _inFlight[key] = run
+      .then((result) {
+        result.fold(
+          (f) => debugPrint('Translate: page failed: ${f.message}'),
+          (_) => _completed.add(pageId),
+        );
+        return result;
+      })
+      .whenComplete(() {
+        // A block, not `=> remove(key)`: that returns this very future,
+        // and whenComplete would wait for it forever.
+        _inFlight.remove(key);
+      });
+
+  @override
+  void translateTogether(List<PageRequest> pages, TranslatorConfig config) {
+    final mine = <_Pending>[];
+    for (final page in pages) {
+      final key = _key(page.pageId, config);
+      if (_inFlight.containsKey(key)) continue;
+      final done = Completer<Either<Failure, PageTranslation>>();
+      // Taken now, before any wait, so a page asking at once joins it.
+      unawaited(_track(key, page.pageId, done.future));
+      mine.add((page: page, key: key, done: done));
+    }
+    if (mine.isNotEmpty) unawaited(_runTogether(mine, config));
+  }
+
+  Future<void> _runTogether(
+    List<_Pending> pages,
+    TranslatorConfig config,
+  ) async {
+    final todo = <_Pending>[];
+    for (final p in pages) {
+      if (await _cache.get(p.key) case final stored?) {
+        p.done.complete(right(stored));
+      } else {
+        todo.add(p);
+      }
+    }
+    if (todo.isEmpty) return;
+    final local = config.mlKit || _isLocal(config.baseUrl);
+    final result = await runRemote(_networkInfo, offline: local, () async {
+      final watch = Stopwatch()..start();
+      final sources = [
+        for (final p in todo)
+          await _source(p.page.pageId, p.page.readImage, config.script),
+      ];
+      final read = watch.elapsedMilliseconds;
+      final withText = <int>[];
+      for (final (i, source) in sources.indexed) {
+        if (source.blocks.isNotEmpty) {
+          withText.add(i);
+          continue;
+        }
+        final empty = PageTranslation(aspect: source.aspect, blocks: const []);
+        await _cache.put(todo[i].key, empty);
+        todo[i].done.complete(right(empty));
+      }
+      if (withText.isEmpty) return unit;
+      final context = await _context(
+        todo[withText.first].page.previousPageId,
+        config,
+      );
+      final texts = [
+        for (final i in withText)
+          for (final b in sources[i].blocks) b.text,
+      ];
+      final translations = await _translateTexts(texts, config, context);
+      debugPrint(
+        'Translate: ${withText.length} pages together, ${texts.length} '
+        'texts read in $read ms, translated in '
+        '${watch.elapsedMilliseconds - read} ms',
+      );
+      var at = 0;
+      for (final i in withText) {
+        final n = sources[i].blocks.length;
+        final translation = _translated(
+          sources[i],
+          translations.sublist(at, at + n),
+        );
+        at += n;
+        await _cache.put(todo[i].key, translation);
+        todo[i].done.complete(right(translation));
+      }
+      return unit;
+    });
+    for (final p in todo) {
+      if (!p.done.isCompleted) {
+        p.done.complete(
+          result.fold(left, (_) => left(const ServerFailure('No translation'))),
+        );
+      }
+    }
+  }
+
+  /// [texts] translated, each text once (a "..." or a cry repeated on a
+  /// page is sent one time), at most [_maxTexts] a request.
+  Future<List<String>> _translateTexts(
+    List<String> texts,
+    TranslatorConfig config,
+    List<String> context,
+  ) async {
+    final unique = <String>[];
+    final index = <String, int>{};
+    final slots = [
+      for (final t in texts)
+        index.putIfAbsent(t, () {
+          unique.add(t);
+          return unique.length - 1;
+        }),
+    ];
+    final out = <String>[];
+    for (var from = 0; from < unique.length; from += _maxTexts) {
+      final chunk = unique.sublist(from, min(from + _maxTexts, unique.length));
+      out.addAll(
+        await _limited(
+          () => _llm.translate(chunk, config: config, context: context),
+        ),
+      );
+    }
+    return [for (final i in slots) out[i]];
+  }
+
+  /// [source]'s blocks with their [translations] (one each), leaving out
+  /// those the model dropped.
+  PageTranslation _translated(
+    PageTranslation source,
+    List<String> translations,
+  ) {
+    if (!kReleaseMode) {
+      for (final (i, b) in source.blocks.indexed) {
+        debugPrint('Translate:   ${b.text} -> ${translations[i]}');
+      }
+    }
+    return PageTranslation(
+      aspect: source.aspect,
+      blocks: [
+        for (final (i, b) in source.blocks.indexed)
+          if (translations[i].isNotEmpty)
+            TextBlock(
+              left: b.left,
+              top: b.top,
+              right: b.right,
+              bottom: b.bottom,
+              text: translations[i],
+              letterSize: b.letterSize,
+              dark: b.dark,
+            ),
+      ],
+    );
   }
 
   final _completed = StreamController<String>.broadcast();
@@ -108,38 +266,16 @@ class TranslationRepositoryImpl implements TranslationRepository {
         return empty;
       }
       final context = await _context(previousPageId, config);
-      final translations = await _limited(
-        () => _llm.translate(
-          [for (final b in source.blocks) b.text],
-          config: config,
-          context: context,
-        ),
+      final translations = await _translateTexts(
+        [for (final b in source.blocks) b.text],
+        config,
+        context,
       );
       debugPrint(
         'Translate: ${source.blocks.length} texts read in $read ms, '
         'translated in ${watch.elapsedMilliseconds - read} ms',
       );
-      final translation = PageTranslation(
-        aspect: source.aspect,
-        blocks: [
-          for (final (i, b) in source.blocks.indexed)
-            if (translations[i].isNotEmpty)
-              TextBlock(
-                left: b.left,
-                top: b.top,
-                right: b.right,
-                bottom: b.bottom,
-                text: translations[i],
-                letterSize: b.letterSize,
-                dark: b.dark,
-              ),
-        ],
-      );
-      if (!kReleaseMode) {
-        for (final (i, b) in source.blocks.indexed) {
-          debugPrint('Translate:   ${b.text} -> ${translations[i]}');
-        }
-      }
+      final translation = _translated(source, translations);
       await _cache.put(key, translation);
       return translation;
     });
@@ -225,3 +361,10 @@ class TranslationRepositoryImpl implements TranslationRepository {
             .hasMatch(host);
   }
 }
+
+/// A page of [TranslationRepositoryImpl.translateTogether] not done yet.
+typedef _Pending = ({
+  PageRequest page,
+  String key,
+  Completer<Either<Failure, PageTranslation>> done,
+});

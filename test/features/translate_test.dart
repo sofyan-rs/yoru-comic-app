@@ -396,6 +396,12 @@ void main() {
     );
   });
 
+  test('a number left out of the answer is told apart from a dropped one', () {
+    expect(parseAnswer('{"1": "Halo", "2": ""}', 3), ['Halo', '', null]);
+    expect(parseTranslations('{"1": "Halo", "2": ""}', 3), ['Halo', '', '']);
+    expect(parseAnswer('["a"]', 2), ['a', null]);
+  });
+
   test('a block on a dark background stays dark when stored', () {
     final block = groupLines(const [
       OcrLine(rect: ui.Rect.fromLTWH(0, 0, 100, 20), text: 'ONE', dark: true),

@@ -32,6 +32,15 @@ class TranslatePage implements UseCase<PageTranslation, TranslatePageParams> {
   Future<PageTranslation?> cached(String pageId, TranslatorConfig config) =>
       _repository.cached(pageId, config);
 
+  /// Translates [pages] in one request (see
+  /// [TranslationRepository.translateTogether]).
+  void together(List<PageRequest> pages, TranslatorConfig config) =>
+      _repository.translateTogether(pages, config);
+
+  /// Drops stored translations, so the pages are translated again.
+  Future<void> forget(Iterable<String> pageIds, TranslatorConfig config) =>
+      _repository.forget(pageIds, config);
+
   @override
   Future<Either<Failure, PageTranslation>> call(TranslatePageParams p) =>
       _repository.translate(
