@@ -502,7 +502,7 @@
   "translateScriptLatin": "Huruf Latin lain",
   "translateScriptHint": "Dibaca di perangkat ini. Otomatis memilih sesuai bahasa source. Model pembacanya (sekitar 25 MB) diunduh saat pertama dipakai.",
   "translateNotes": "Catatan terjemahan",
-  "translateNotesHint": "Opsional, mis. nama jurus tetap bahasa Inggris; Orun itu perempuan",
+  "translateNotesHint": "Opsional, mis. nama jurus tetap bahasa Inggris",
   "showTranslation": "Tampilkan terjemahan",
   "translateScriptAuto": "Otomatis",
   "translateEngine": "Diterjemahkan oleh",

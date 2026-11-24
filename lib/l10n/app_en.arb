@@ -607,7 +607,7 @@
   "translateScriptLatin": "Other Latin letters",
   "translateScriptHint": "Read on this device. Auto goes by the source's language. Its reading model (about 25 MB) is downloaded the first time.",
   "translateNotes": "Translation notes",
-  "translateNotesHint": "Optional, e.g. keep attack names in English; Orun is a girl",
+  "translateNotesHint": "Optional, e.g. keep attack names in English",
   "showTranslation": "Show translation",
   "translateScriptAuto": "Auto",
   "translateEngine": "Translated by",

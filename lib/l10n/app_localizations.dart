@@ -3113,7 +3113,7 @@ abstract class AppLocalizations {
   /// No description provided for @translateNotesHint.
   ///
   /// In en, this message translates to:
-  /// **'Optional, e.g. keep attack names in English; Orun is a girl'**
+  /// **'Optional, e.g. keep attack names in English'**
   String get translateNotesHint;
 
   /// No description provided for @showTranslation.

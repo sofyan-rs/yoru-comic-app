@@ -1649,7 +1649,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get translateNotesHint =>
-      'Optional, e.g. keep attack names in English; Orun is a girl';
+      'Optional, e.g. keep attack names in English';
 
   @override
   String get showTranslation => 'Show translation';

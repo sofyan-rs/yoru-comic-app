@@ -1629,7 +1629,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get translateNotesHint =>
-      'Opsional, mis. nama jurus tetap bahasa Inggris; Orun itu perempuan';
+      'Opsional, mis. nama jurus tetap bahasa Inggris';
 
   @override
   String get showTranslation => 'Tampilkan terjemahan';
