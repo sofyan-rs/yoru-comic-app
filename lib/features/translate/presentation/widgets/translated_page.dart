@@ -311,6 +311,7 @@ class _TranslatedPageState extends State<TranslatedPage> {
       rect: layout.rect,
       child: _Bubble(
         text: text,
+        dark: block.dark,
         layout: layout,
         scaler: scaler,
         fontFamily: _family,
@@ -326,7 +327,11 @@ typedef BubbleLayout = ({Rect rect, double fontSize, double padding});
 /// Lettering of the translations: [fontFamily] (Patrick Hand by default),
 /// bold, black. It inherits nothing, so it is drawn exactly as measured
 /// (the app theme's letter spacing would widen it and split words).
-TextStyle bubbleTextStyle(double size, {String? fontFamily}) => TextStyle(
+TextStyle bubbleTextStyle(
+  double size, {
+  String? fontFamily,
+  Color color = const Color(0xFF000000),
+}) => TextStyle(
   inherit: false,
   fontFamily: fontFamily ?? FontFamily.patrickHand,
   // Letters a font lacks (accents, other scripts) come from these.
@@ -340,7 +345,7 @@ TextStyle bubbleTextStyle(double size, {String? fontFamily}) => TextStyle(
   height: 1.1,
   letterSpacing: 0,
   wordSpacing: 0,
-  color: const Color(0xFF000000),
+  color: color,
   decoration: TextDecoration.none,
 );
 
@@ -469,17 +474,20 @@ BubbleLayout layoutBubble(
   return (rect: grown, fontSize: minFontSize, padding: padding);
 }
 
-/// A rounded white bubble over the original lettering with the
-/// translation in it, laid out by [layoutBubble].
+/// A rounded bubble over the original lettering with the translation in
+/// it, laid out by [layoutBubble]: black on white, or white on black over
+/// a dark background ([dark]).
 class _Bubble extends StatelessWidget {
   const _Bubble({
     required this.text,
+    required this.dark,
     required this.layout,
     required this.scaler,
     required this.fontFamily,
   });
 
   final String text;
+  final bool dark;
   final BubbleLayout layout;
   final TextScaler scaler;
   final String fontFamily;
@@ -487,7 +495,7 @@ class _Bubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) => DecoratedBox(
     decoration: BoxDecoration(
-      color: const Color(0xFFFFFFFF),
+      color: dark ? const Color(0xFF000000) : const Color(0xFFFFFFFF),
       // Rounded, hugging the lettering it covers.
       borderRadius: BorderRadius.circular(layout.rect.shortestSide * 0.3),
     ),
@@ -499,7 +507,11 @@ class _Bubble extends StatelessWidget {
           textAlign: TextAlign.center,
           textScaler: scaler,
           overflow: TextOverflow.clip,
-          style: bubbleTextStyle(layout.fontSize, fontFamily: fontFamily),
+          style: bubbleTextStyle(
+            layout.fontSize,
+            fontFamily: fontFamily,
+            color: dark ? const Color(0xFFFFFFFF) : const Color(0xFF000000),
+          ),
         ),
       ),
     ),

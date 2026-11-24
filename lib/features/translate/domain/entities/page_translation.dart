@@ -9,6 +9,7 @@ class TextBlock {
     required this.bottom,
     required this.text,
     this.letterSize,
+    this.dark = false,
   });
 
   factory TextBlock.fromJson(Map<String, dynamic> json) => TextBlock(
@@ -18,6 +19,7 @@ class TextBlock {
     bottom: (json['b'] as num).toDouble(),
     text: json['text'] as String,
     letterSize: (json['s'] as num?)?.toDouble(),
+    dark: json['d'] == true,
   );
 
   final double left;
@@ -32,6 +34,9 @@ class TextBlock {
   /// the translation is lettered about as big.
   final double? letterSize;
 
+  /// The original is on a dark background: lettered white on black.
+  final bool dark;
+
   double get width => right - left;
   double get height => bottom - top;
 
@@ -42,6 +47,7 @@ class TextBlock {
     'b': bottom,
     'text': text,
     's': ?letterSize,
+    if (dark) 'd': true,
   };
 
   @override

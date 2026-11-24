@@ -42,10 +42,10 @@ class TranslationRepositoryImpl implements TranslationRepository {
   /// OCR in the app instead of by the model; v6: texts sent by number; v7:
   /// with the letters' size; v8: a style guide per language; v9: aku/kamu,
   /// never gue/lo).
-  static const _version = 'v9';
+  static const _version = 'v10';
 
   /// Bumped when stored OCR text should be read again.
-  static const _ocrVersion = 'ocr3';
+  static const _ocrVersion = 'ocr4';
 
   /// Translated lines of the page before sent as context, and their
   /// length: enough for names and tone, few tokens.
@@ -70,7 +70,10 @@ class TranslationRepositoryImpl implements TranslationRepository {
     return _inFlight[key] ??=
         _run(key, pageId, readImage, config, previousPageId)
             .then((result) {
-              if (result.isRight()) _completed.add(pageId);
+              result.fold(
+                (f) => debugPrint('Translate: page failed: ${f.message}'),
+                (_) => _completed.add(pageId),
+              );
               return result;
             })
             .whenComplete(() {
@@ -98,6 +101,12 @@ class TranslationRepositoryImpl implements TranslationRepository {
       final watch = Stopwatch()..start();
       final source = await _source(pageId, readImage, config.script);
       final read = watch.elapsedMilliseconds;
+      // Nothing to translate: no request, no waiting for the page before.
+      if (source.blocks.isEmpty) {
+        final empty = PageTranslation(aspect: source.aspect, blocks: const []);
+        await _cache.put(key, empty);
+        return empty;
+      }
       final context = await _context(previousPageId, config);
       final translations = await _limited(
         () => _llm.translate(
@@ -122,9 +131,15 @@ class TranslationRepositoryImpl implements TranslationRepository {
                 bottom: b.bottom,
                 text: translations[i],
                 letterSize: b.letterSize,
+                dark: b.dark,
               ),
         ],
       );
+      if (!kReleaseMode) {
+        for (final (i, b) in source.blocks.indexed) {
+          debugPrint('Translate:   ${b.text} -> ${translations[i]}');
+        }
+      }
       await _cache.put(key, translation);
       return translation;
     });
@@ -144,7 +159,7 @@ class TranslationRepositoryImpl implements TranslationRepository {
     final source = PageTranslation(
       aspect: page.height / page.width,
       blocks: [
-        for (final b in groupLines(page.lines))
+        for (final b in storyBlocks(groupLines(page.lines)))
           TextBlock(
             left: b.rect.left / page.width,
             top: b.rect.top / page.height,
@@ -152,6 +167,7 @@ class TranslationRepositoryImpl implements TranslationRepository {
             bottom: b.rect.bottom / page.height,
             text: b.text,
             letterSize: b.letterSize / page.width,
+            dark: b.dark,
           ),
       ],
     );

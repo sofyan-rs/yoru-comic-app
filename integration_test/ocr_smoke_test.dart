@@ -42,9 +42,17 @@ void main() {
           '${page.width}x${page.height}: ${lines.length} lines in '
           '${watch.elapsedMilliseconds} ms',
         );
+        for (final l in lines) {
+          // ignore: avoid_print
+          print(
+            '  line ${l.text} (score ${l.score.toStringAsFixed(2)}, '
+            '${l.rect.width.round()}x${l.rect.height.round()}${l.dark ? ' dark' : ''} '
+            'at ${l.rect.left.round()},${l.rect.top.round()})',
+          );
+        }
         for (final b in groupLines(lines)) {
           // ignore: avoid_print
-          print('BLOCK ${b.text}');
+          print('BLOCK ${b.text}${b.dark ? ' (dark)' : ''}');
         }
       }
       expect(lines, isNotEmpty);

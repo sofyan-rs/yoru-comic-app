@@ -283,6 +283,74 @@ void main() {
     expect(bubbleFontSizes(0.2, 800).max, 28);
   });
 
+  test('watermarks and blocks without letters are not translated', () {
+    expect(isWatermark('VORTEXSCANS.COM'), isTrue);
+    expect(isWatermark('www.asura-scans.net/'), isTrue);
+    expect(isWatermark('Go to the site.'), isFalse);
+    expect(isWatermark('WAIT... WHAT?'), isFalse);
+    final blocks = groupLines(const [
+      OcrLine(rect: ui.Rect.fromLTWH(50, 0, 120, 28), text: 'VORTEXSCANS.COM'),
+      OcrLine(rect: ui.Rect.fromLTWH(40, 50, 400, 35), text: 'KALAU AKU BISA'),
+      OcrLine(rect: ui.Rect.fromLTWH(500, 400, 26, 23), text: '2'),
+      OcrLine(rect: ui.Rect.fromLTWH(500, 600, 40, 23), text: '...!?'),
+    ]);
+    expect(blocks.map((b) => b.text), ['KALAU AKU BISA']);
+  });
+
+  test('credits are not translated, nor a credits page at all', () {
+    OcrBlock block(String text) =>
+        OcrBlock(rect: ui.Rect.zero, text: text, letterSize: 20);
+    expect(isCredit('TL: Kuro  PR: Yami'), isTrue);
+    expect(isCredit('JOIN OUR DISCORD FOR EARLY CHAPTERS'), isTrue);
+    expect(isCredit('Support us on Ko-fi'), isTrue);
+    expect(isCredit('THE COMMON DORMITORY GHOST INCIDENT'), isFalse);
+    expect(isCredit("I'll translate it for you."), isFalse);
+    expect(isCredit('TOP STUDENT?'), isFalse);
+    expect(
+      storyBlocks([block('WAIT!'), block('Join our Discord!')])
+          .map((b) => b.text),
+      ['WAIT!'],
+    );
+    expect(
+      storyBlocks([
+        block('CHAPTER 12'),
+        block('Translator: Kuro'),
+        block('Typesetter: Yami'),
+      ]),
+      isEmpty,
+    );
+  });
+
+  test('a block on a dark background stays dark when stored', () {
+    final block = groupLines(const [
+      OcrLine(rect: ui.Rect.fromLTWH(0, 0, 100, 20), text: 'ONE', dark: true),
+      OcrLine(rect: ui.Rect.fromLTWH(0, 24, 100, 20), text: 'TWO', dark: true),
+      OcrLine(rect: ui.Rect.fromLTWH(0, 48, 100, 20), text: 'END'),
+    ]).single;
+    expect(block.dark, isTrue);
+    const stored = TextBlock(
+      left: 0,
+      top: 0,
+      right: 1,
+      bottom: 1,
+      text: 'x',
+      dark: true,
+    );
+    expect(TextBlock.fromJson(stored.toJson()).dark, isTrue);
+    expect(
+      TextBlock.fromJson(
+        const TextBlock(
+          left: 0,
+          top: 0,
+          right: 1,
+          bottom: 1,
+          text: 'x',
+        ).toJson(),
+      ).dark,
+      isFalse,
+    );
+  });
+
   test('a block knows the size of its letters and keeps it stored', () {
     final block = groupLines(const [
       OcrLine(rect: ui.Rect.fromLTWH(0, 0, 100, 20), text: 'ONE'),

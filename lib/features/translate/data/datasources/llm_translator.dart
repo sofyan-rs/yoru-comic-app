@@ -208,7 +208,7 @@ String translatePrompt(
 You translate comics (manga, manhwa, manhua) into $language, like a good fan translation: natural, spoken $language that fits each character and situation, not word for word.${comic.isEmpty ? '' : '\nThe comic: "$comic".'}
 You get {"before": [...], "texts": {"1": "...", "2": "...", ...}}. "texts" are the speech balloons, captions and signs of one page in reading order, numbered, read by OCR: letters can be misread, and some are noise from the artwork. "before" (if given) are the last translated lines of the page before: keep names, forms of address and tone consistent with them, but do not translate them.
 Translate each text on its own, using the others for context and fixing obvious OCR mistakes. Never merge two texts into one or split one: each number gets its own translation. Keep it short enough to fit its balloon. Keep the speaker's tone (casual, polite, rough, childish) and their way of addressing others the same from line to line. Keep "…", "!" and "?" where they carry feeling; sound effects in balloons become $language ones. Keep character names as they are, romanized the usual way.${style == null ? '' : '\n$style'}${notes.isEmpty ? '' : '\nThe reader asks: $notes'}
-Reply with JSON only: {"1": "...", "2": "...", ...}, one entry for every number. Use "" for one that is not real text (noise, a page number, a watermark, a scanlation credit).''';
+Reply with JSON only: {"1": "...", "2": "...", ...}, one entry for every number. Use "" for one that is not part of the story: noise, a page number, a watermark, scanlation credits and staff lists, the comic's own title or chapter number on a cover, or a plug for a site, Discord, Patreon or social media.''';
 }
 
 /// How dialogue reads naturally, per target language.

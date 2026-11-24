@@ -82,6 +82,7 @@ class PaddleOcr implements PageOcr {
             rect: ui.Rect.fromLTRB(l.left, l.top, l.right, l.bottom),
             text: l.text,
             score: l.score,
+            dark: l.dark,
           ),
       ],
     );

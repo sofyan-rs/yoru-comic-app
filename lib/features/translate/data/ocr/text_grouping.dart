@@ -4,11 +4,19 @@ import 'dart:ui' show Rect;
 /// One line (or, in vertical writing, one column) of text the OCR read,
 /// in page pixels.
 class OcrLine {
-  const OcrLine({required this.rect, required this.text, this.score = 1});
+  const OcrLine({
+    required this.rect,
+    required this.text,
+    this.score = 1,
+    this.dark = false,
+  });
 
   final Rect rect;
   final String text;
   final double score;
+
+  /// On a dark background: its translation is lettered white on black.
+  final bool dark;
 
   /// A column of vertical writing (Japanese, Chinese): much taller than
   /// wide. The recognizer reads it turned a quarter.
@@ -16,6 +24,38 @@ class OcrLine {
 
   @override
   String toString() => 'OcrLine($rect, $text)';
+}
+
+final _letter = RegExp(r'\p{L}', unicode: true);
+
+/// A web address on its own (a scanlation site's watermark or credit), not
+/// something a character says.
+bool isWatermark(String text) => RegExp(
+  r'^\W*(https?://)?(www\.)?[\w-]+(\.[\w-]+)*\.[a-z]{2,6}(/\S*)?\W*$',
+  caseSensitive: false,
+).hasMatch(text.trim());
+
+final _credit = RegExp(
+  r'discord|patreon|ko-?fi|paypal|saweria|trakteer|typeset|proofread|'
+  r'redraw|clean(er|ing|ed)\b|translat(or|ed by|ion by)|scanlat|'
+  r'\b(tl|pr|ts|qc|raws?|scans?)\b|join (us|our)|support us|donat',
+  caseSensitive: false,
+);
+
+/// Scanlation credits or a plug (`TL: ...`, `Join our Discord`), not
+/// story.
+bool isCredit(String text) => _credit.hasMatch(text);
+
+/// The blocks of a page worth translating: none on a credits page (two or
+/// more [isCredit] blocks: a scanlator's staff or promo page), else all
+/// but the credits.
+List<OcrBlock> storyBlocks(List<OcrBlock> blocks) {
+  final credits = blocks.where((b) => isCredit(b.text)).length;
+  if (credits >= 2) return const [];
+  return [
+    for (final b in blocks)
+      if (!isCredit(b.text)) b,
+  ];
 }
 
 /// Whether a text box is a column of vertical writing.
@@ -27,10 +67,14 @@ class OcrBlock {
     required this.rect,
     required this.text,
     required this.letterSize,
+    this.dark = false,
   });
 
   final Rect rect;
   final String text;
+
+  /// Most of its lines are on a dark background.
+  final bool dark;
 
   /// How big the original letters are, in page pixels: the usual height
   /// of its lines, or width of its columns.
@@ -44,8 +88,11 @@ class OcrBlock {
 /// of a balloon below, or the next column to its left) are one block.
 /// Blocks come in reading order: top to bottom, and in a row, right to
 /// left for vertical writing and left to right otherwise.
+///
+/// Lines that are not for translating are left out: a site's watermark
+/// (`VORTEXSCANS.COM`), and blocks without a letter (`2`, `...`).
 List<OcrBlock> groupLines(List<OcrLine> all) {
-  final lines = withoutRuby(all);
+  final lines = withoutRuby(all).where((l) => !isWatermark(l.text)).toList();
   final parent = List<int>.generate(lines.length, (i) => i);
   int find(int i) {
     while (parent[i] != i) {
@@ -79,7 +126,7 @@ List<OcrBlock> groupLines(List<OcrLine> all) {
         .map((l) => l.text.trim())
         .where((t) => t.isNotEmpty)
         .reduce((a, b) => _join(a, b));
-    if (text.trim().isEmpty) continue;
+    if (!_letter.hasMatch(text)) continue;
     blocks.add(
       OcrBlock(
         rect: group.map((l) => l.rect).reduce((a, b) => a.expandToInclude(b)),
@@ -87,6 +134,7 @@ List<OcrBlock> groupLines(List<OcrLine> all) {
         letterSize: _median([
           for (final l in group) l.vertical ? l.rect.width : l.rect.height,
         ]),
+        dark: group.where((l) => l.dark).length * 2 > group.length,
       ),
     );
   }

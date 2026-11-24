@@ -21,6 +21,9 @@ typedef OcrResult = ({
   double bottom,
   String text,
   double score,
+
+  /// On a dark background (white lettering on black, say).
+  bool dark,
 });
 
 /// A page read: the size it was read at, and its lines.
@@ -132,6 +135,10 @@ class _Engine {
 
   /// A line read with less confidence is art, not text.
   static const _minScore = 0.5;
+
+  /// Background luma (0-255) below which a line counts as on a dark
+  /// background.
+  static const _darkLuma = 100;
 
   Future<OrtSession> _session(String path) =>
       _sessions[path] ??= _runtime.createSession(path);
@@ -311,6 +318,7 @@ class _Engine {
           bottom: b.bottom,
           text: read.text,
           score: read.score,
+          dark: image.backgroundLuma(b) < _darkLuma,
         ));
       }
     }
@@ -394,6 +402,34 @@ class _Rgba {
   final Uint8List pixels;
   final int width;
   final int height;
+
+  /// The usual brightness (0-255) around [box]: the median luma along a
+  /// ring just outside it, where the balloon or panel shows rather than
+  /// the letters.
+  int backgroundLuma(Rect box) {
+    final r = box.inflate(box.shortestSide * 0.15);
+    final lumas = <int>[];
+    const steps = 24;
+    void at(double x, double y) {
+      final px = x.round().clamp(0, width - 1);
+      final py = y.round().clamp(0, height - 1);
+      final i = (py * width + px) * 4;
+      lumas.add(
+        (pixels[i] * 299 + pixels[i + 1] * 587 + pixels[i + 2] * 114) ~/ 1000,
+      );
+    }
+
+    for (var s = 0; s <= steps; s++) {
+      final x = r.left + r.width * s / steps;
+      final y = r.top + r.height * s / steps;
+      at(x, r.top);
+      at(x, r.bottom);
+      at(r.left, y);
+      at(r.right, y);
+    }
+    lumas.sort();
+    return lumas[lumas.length ~/ 2];
+  }
 
   /// Writes a [width] × [height] image sampled through [transform] into
   /// [out] at [offset], as CHW planes in BGR order, normalized; rows
