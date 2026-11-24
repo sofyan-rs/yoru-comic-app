@@ -1649,4 +1649,15 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get translateScriptEnglish => 'Inggris';
+
+  @override
+  String get translateCustomServer => 'Kustom';
+
+  @override
+  String get translateTest => 'Tes';
+
+  @override
+  String translateTestOk(int ms, String reply) {
+    return 'Dijawab dalam $ms md: “$reply”';
+  }
 }

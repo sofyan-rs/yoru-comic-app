@@ -3151,6 +3151,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'English'**
   String get translateScriptEnglish;
+
+  /// No description provided for @translateCustomServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get translateCustomServer;
+
+  /// No description provided for @translateTest.
+  ///
+  /// In en, this message translates to:
+  /// **'Test'**
+  String get translateTest;
+
+  /// No description provided for @translateTestOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Replied in {ms} ms: “{reply}”'**
+  String translateTestOk(int ms, String reply);
 }
 
 class _AppLocalizationsDelegate

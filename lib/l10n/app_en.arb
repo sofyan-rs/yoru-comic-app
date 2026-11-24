@@ -613,5 +613,18 @@
   "translateEngine": "Translated by",
   "translateEngineServer": "Server",
   "translateMlKitHint": "Google's offline translation: fast, free and light, but plainer than an AI model; it cannot fix misread text or follow notes. Its language packs (about 30 MB each) download the first time. The comic's language comes from its source.",
-  "translateScriptEnglish": "English"
+  "translateScriptEnglish": "English",
+  "translateCustomServer": "Custom",
+  "translateTest": "Test",
+  "translateTestOk": "Replied in {ms} ms: “{reply}”",
+  "@translateTestOk": {
+    "placeholders": {
+      "ms": {
+        "type": "int"
+      },
+      "reply": {
+        "type": "String"
+      }
+    }
+  }
 }

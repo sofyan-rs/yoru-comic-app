@@ -4,12 +4,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lucide_icons_flutter/lucide_icons_300.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:yoru/core/constants/texts.dart';
+import 'package:yoru/core/di/injection.dart';
+import 'package:yoru/core/error/exceptions.dart';
 import 'package:yoru/core/presentation/widgets/dotline/dotline.dart';
 import 'package:yoru/core/theme/dotline_colors.dart';
 import 'package:yoru/core/theme/dotline_text.dart';
 import 'package:yoru/core/theme/dotline_tokens.dart';
 import 'package:yoru/features/settings/domain/entities/app_settings.dart';
 import 'package:yoru/features/settings/presentation/bloc/settings_cubit.dart';
+import 'package:yoru/features/translate/data/datasources/llm_translator.dart';
 import 'package:yoru/features/translate/domain/entities/translator_config.dart';
 import 'package:yoru/core/utils/utils.dart';
 import 'package:yoru/features/translate/presentation/translate_font.dart';
@@ -60,12 +63,22 @@ class TranslateSettingsScreen extends StatefulWidget {
 
 class _TranslateSettingsScreenState extends State<TranslateSettingsScreen> {
   late final TextEditingController _url;
+  final _urlFocus = FocusNode();
+
+  /// Custom picked: the URL is typed in, not one of [translatePresets].
+  bool _custom = false;
   late final TextEditingController _key;
   late final TextEditingController _model;
   late String _language;
   late final TextEditingController _notes;
   bool _showKey = false;
   String? _error;
+
+  /// A test request is running.
+  bool _testing = false;
+
+  /// What the last test got: the reply, or the server's error.
+  ({bool ok, String text})? _tested;
 
   @override
   void initState() {
@@ -81,6 +94,7 @@ class _TranslateSettingsScreenState extends State<TranslateSettingsScreen> {
   @override
   void dispose() {
     _url.dispose();
+    _urlFocus.dispose();
     _key.dispose();
     _model.dispose();
     _notes.dispose();
@@ -106,6 +120,50 @@ class _TranslateSettingsScreenState extends State<TranslateSettingsScreen> {
       ),
     );
     Navigator.of(context).pop(url.isNotEmpty);
+  }
+
+  /// Sends one short line through the server and model as typed (not yet
+  /// saved), the way a page is sent, and shows the reply or the error.
+  Future<void> _test() async {
+    final url = TranslatorConfig.normalizeBaseUrl(_url.text);
+    final model = _model.text.trim();
+    if (url.isEmpty || model.isEmpty) {
+      setState(() => _error = AppText.t.translateMissing);
+      return;
+    }
+    setState(() {
+      _testing = true;
+      _tested = null;
+    });
+    final watch = Stopwatch()..start();
+    ({bool ok, String text}) tested;
+    try {
+      final reply = await getIt<LlmTranslator>().translate(
+        const ['Hello! Nice to meet you.'],
+        config: TranslatorConfig(
+          baseUrl: url,
+          apiKey: _key.text.trim(),
+          model: model,
+          language: _language,
+        ),
+      );
+      tested = (
+        ok: true,
+        text: AppText.t.translateTestOk(
+          watch.elapsedMilliseconds,
+          reply.firstOrNull ?? '',
+        ),
+      );
+    } on ServerException catch (e) {
+      tested = (ok: false, text: e.message);
+    } catch (e) {
+      tested = (ok: false, text: e.toString());
+    }
+    if (!mounted) return;
+    setState(() {
+      _testing = false;
+      _tested = tested;
+    });
   }
 
   /// Picks a font file to letter with; the previous import is deleted.
@@ -141,6 +199,9 @@ class _TranslateSettingsScreenState extends State<TranslateSettingsScreen> {
     await cubit.update((s) => s.copyWith(translateFontPath: setting));
     await deleteTranslateFont(old);
   }
+
+  bool _presetUrl(String url) =>
+      TranslatorConfig.normalizeBaseUrl(_url.text) == url;
 
   @override
   Widget build(BuildContext context) {
@@ -221,21 +282,36 @@ class _TranslateSettingsScreenState extends State<TranslateSettingsScreen> {
                           for (final p in translatePresets)
                             DotChip(
                               label: p.name,
-                              selected:
-                                  TranslatorConfig.normalizeBaseUrl(
-                                    _url.text,
-                                  ) ==
-                                  p.url,
+                              selected: !_custom && _presetUrl(p.url),
                               onTap: () => setState(() {
+                                _custom = false;
                                 _url.text = p.url;
                                 _error = null;
                               }),
                             ),
+                          DotChip(
+                            label: AppText.t.translateCustomServer,
+                            selected:
+                                _custom ||
+                                (_url.text.trim().isNotEmpty &&
+                                    !translatePresets.any(
+                                      (p) => _presetUrl(p.url),
+                                    )),
+                            onTap: () {
+                              setState(() {
+                                _custom = true;
+                                _url.clear();
+                                _error = null;
+                              });
+                              _urlFocus.requestFocus();
+                            },
+                          ),
                         ],
                       ),
                       const SizedBox(height: DotSpace.s3),
                       TextField(
                         controller: _url,
+                        focusNode: _urlFocus,
                         keyboardType: TextInputType.url,
                         autocorrect: false,
                         style: style,
@@ -279,6 +355,25 @@ class _TranslateSettingsScreenState extends State<TranslateSettingsScreen> {
                           if (_error != null) setState(() => _error = null);
                         },
                       ),
+                      const SizedBox(height: DotSpace.s3),
+                      DotButton(
+                        label: AppText.t.translateTest,
+                        leading: LucideIcons300.send,
+                        variant: DotButtonVariant.outline,
+                        size: DotButtonSize.medium,
+                        expand: false,
+                        loading: _testing,
+                        onTap: _testing ? null : _test,
+                      ),
+                      if (_tested case final t?) ...[
+                        const SizedBox(height: DotSpace.s2),
+                        Text(
+                          t.text,
+                          style: DotlineText.bodyS.copyWith(
+                            color: t.ok ? c.positive : c.accentText,
+                          ),
+                        ),
+                      ],
                     ],
                     label(AppText.t.translateScript),
                     Wrap(

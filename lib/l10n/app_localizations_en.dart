@@ -1669,4 +1669,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get translateScriptEnglish => 'English';
+
+  @override
+  String get translateCustomServer => 'Custom';
+
+  @override
+  String get translateTest => 'Test';
+
+  @override
+  String translateTestOk(int ms, String reply) {
+    return 'Replied in $ms ms: “$reply”';
+  }
 }

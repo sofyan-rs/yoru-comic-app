@@ -508,5 +508,8 @@
   "translateEngine": "Diterjemahkan oleh",
   "translateEngineServer": "Server",
   "translateMlKitHint": "Terjemahan offline dari Google: cepat, gratis, dan ringan, tapi lebih kaku dari model AI; tidak bisa membetulkan salah baca atau mengikuti catatan. Paket bahasanya (sekitar 30 MB) diunduh saat pertama dipakai. Bahasa komik diambil dari source-nya.",
-  "translateScriptEnglish": "Inggris"
+  "translateScriptEnglish": "Inggris",
+  "translateCustomServer": "Kustom",
+  "translateTest": "Tes",
+  "translateTestOk": "Dijawab dalam {ms} md: “{reply}”"
 }
