@@ -19,7 +19,8 @@ class DotMenuItem {
   final bool destructive;
 }
 
-/// Round ⋮ button that opens a [width]-wide `surface` menu with hairlines
+/// Round ⋮ button that opens a `surface` menu (at least [width] wide, wider
+/// for a long label, as wide as the screen allows) with hairlines
 /// between rows, its right edge under the button's (the buttons sit at the
 /// top right, so the menu keeps the screen's margin). The trigger turns
 /// `surfaceRaised` while open.
@@ -44,23 +45,45 @@ class DotMenuButton extends StatelessWidget {
 
   static const width = 224.0;
 
+  /// Room in a row besides its label: the side padding, the icon and the
+  /// gap after it, and a little to spare.
+  static const _rowChrome = DotSpace.s4 * 2 + DotSize.iconMenu + 12 + 8;
+
+  /// Wide enough for the longest label on one line ("Terjemahkan ulang
+  /// chapter" does not fit [width]), within the screen's margins.
+  double _menuWidth(BuildContext context) {
+    final painter = TextPainter(
+      textDirection: TextDirection.ltr,
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    );
+    var widest = 0.0;
+    for (final item in items) {
+      painter
+        ..text = TextSpan(text: item.label, style: DotlineText.body)
+        ..layout();
+      if (painter.width > widest) widest = painter.width;
+    }
+    painter.dispose();
+    final most = MediaQuery.sizeOf(context).width - DotSpace.s4 * 2;
+    return (widest + _rowChrome).clamp(width, most < width ? width : most);
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = Dotline.of(context);
+    final menuWidth = _menuWidth(context);
     return MenuAnchor(
       onOpen: onOpen,
       onClose: onClose,
-      alignmentOffset: const Offset(
-        -(width - DotSize.touchTarget),
-        DotSpace.s2,
-      ),
+      alignmentOffset: Offset(-(menuWidth - DotSize.touchTarget), DotSpace.s2),
       style: MenuStyle(
         backgroundColor: WidgetStatePropertyAll(c.surface),
         surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
         elevation: const WidgetStatePropertyAll(0),
         shadowColor: const WidgetStatePropertyAll(Colors.transparent),
         padding: const WidgetStatePropertyAll(EdgeInsets.zero),
-        fixedSize: const WidgetStatePropertyAll(Size.fromWidth(width)),
+        fixedSize: WidgetStatePropertyAll(Size.fromWidth(menuWidth)),
         shape: WidgetStatePropertyAll(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(DotRadius.m),
@@ -71,7 +94,7 @@ class DotMenuButton extends StatelessWidget {
       menuChildren: [
         for (var i = 0; i < items.length; i++) ...[
           if (i > 0) const Divider(),
-          _DotMenuRow(item: items[i]),
+          _DotMenuRow(item: items[i], width: menuWidth),
         ],
       ],
       builder: (context, controller, _) => DecoratedBox(
@@ -95,9 +118,10 @@ class DotMenuButton extends StatelessWidget {
 }
 
 class _DotMenuRow extends StatelessWidget {
-  const _DotMenuRow({required this.item});
+  const _DotMenuRow({required this.item, required this.width});
 
   final DotMenuItem item;
+  final double width;
 
   @override
   Widget build(BuildContext context) {
@@ -106,9 +130,7 @@ class _DotMenuRow extends StatelessWidget {
     return MenuItemButton(
       onPressed: item.onTap,
       style: ButtonStyle(
-        minimumSize: const WidgetStatePropertyAll(
-          Size(DotMenuButton.width, 52),
-        ),
+        minimumSize: WidgetStatePropertyAll(Size(width, 52)),
         padding: const WidgetStatePropertyAll(
           EdgeInsets.symmetric(horizontal: DotSpace.s4),
         ),
@@ -116,7 +138,12 @@ class _DotMenuRow extends StatelessWidget {
         splashFactory: NoSplash.splashFactory,
       ),
       leadingIcon: Icon(item.icon, size: DotSize.iconMenu, color: color),
-      child: Text(item.label, style: DotlineText.body.copyWith(color: color)),
+      child: Text(
+        item.label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: DotlineText.body.copyWith(color: color),
+      ),
     );
   }
 }
