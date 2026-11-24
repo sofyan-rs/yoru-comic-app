@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:injectable/injectable.dart';
+import 'package:yoru/core/constants/texts.dart';
 import 'package:yoru/core/di/register_module.dart';
 import 'package:yoru/core/error/exceptions.dart';
 import 'package:yoru/features/translate/data/device/mlkit_translation.dart';
@@ -37,7 +38,34 @@ class LlmTranslatorImpl implements LlmTranslator {
   /// Local models can take a while.
   static const _timeout = Duration(minutes: 3);
 
+  /// Tries of a request a server answers 429 (too many requests) to.
+  static const _rateLimitTries = 3;
+
+  /// [_send], asked again after a 429 (a free plan's requests per second,
+  /// pages translated side by side): after the server's `Retry-After`, or
+  /// 2, 4 and 8 seconds.
   Future<Response<dynamic>> _post(
+    TranslatorConfig config,
+    Map<String, Object> body,
+  ) async {
+    for (var attempt = 1; ; attempt++) {
+      try {
+        return await _send(config, body);
+      } on DioException catch (e) {
+        if (e.response?.statusCode != 429 || attempt > _rateLimitTries) {
+          rethrow;
+        }
+        final after = int.tryParse(
+          e.response?.headers.value('retry-after') ?? '',
+        );
+        final wait = Duration(seconds: min(after ?? 1 << attempt, 30));
+        debugPrint('Translate: 429, asking again in ${wait.inSeconds} s');
+        await Future<void>.delayed(wait);
+      }
+    }
+  }
+
+  Future<Response<dynamic>> _send(
     TranslatorConfig config,
     Map<String, Object> body,
   ) => _dio.post<dynamic>(
@@ -146,20 +174,73 @@ class LlmTranslatorImpl implements LlmTranslator {
   }
 
   /// The API's own error message when it sent one.
-  static String _errorMessage(DioException e) {
-    final data = e.response?.data;
-    final status = e.response?.statusCode;
-    String? message;
-    if (data is Map) {
-      final error = data['error'];
-      message = error is Map ? error['message']?.toString() : error?.toString();
-    } else if (data is String && data.isNotEmpty) {
-      message = data.length > 200 ? '${data.substring(0, 200)}…' : data;
-    }
-    message ??= e.message ?? e.type.name;
-    return status == null ? message : '$status: $message';
-  }
+  static String _errorMessage(DioException e) => llmErrorMessage(
+    status: e.response?.statusCode,
+    data: e.response?.data,
+    type: e.type,
+  );
 }
+
+/// What went wrong with a request, for the reader: what the [status] (or
+/// the connection error [type]) means in plain words, then the server's
+/// own reason from its answer ([data]) on a second line when it gives one.
+@visibleForTesting
+String llmErrorMessage({
+  int? status,
+  Object? data,
+  DioExceptionType type = DioExceptionType.badResponse,
+}) {
+  final t = AppText.t;
+  final summary = switch (status) {
+    null => switch (type) {
+      DioExceptionType.connectionTimeout ||
+      DioExceptionType.sendTimeout ||
+      DioExceptionType.receiveTimeout => t.translateErrorTimeout,
+      DioExceptionType.badCertificate => t.translateErrorCertificate,
+      DioExceptionType.cancel => t.translateErrorCancelled,
+      _ => t.translateErrorConnection,
+    },
+    401 || 403 => t.translateErrorKey,
+    402 => t.translateErrorPayment,
+    404 => t.translateErrorNotFound,
+    408 || 504 => t.translateErrorTimeout,
+    413 => t.translateErrorTooLong,
+    429 => t.translateErrorRateLimit,
+    >= 500 => t.translateErrorServer,
+    _ => t.translateErrorRefused,
+  };
+  final reason = _serverReason(data);
+  final head = status == null ? summary : '$summary ($status)';
+  return reason == null ? head : '$head\n$reason';
+}
+
+/// The reason a server gives in its error answer: OpenAI's
+/// `{"error": {"message"}}`, Mistral's `{"message"}`, FastAPI's
+/// `{"detail"}`, or a short plain text; null when there is none.
+String? _serverReason(Object? data) {
+  if (data is String) {
+    final text = data.trim();
+    if (text.isEmpty || text.startsWith('<')) return null;
+    try {
+      return _serverReason(jsonDecode(text));
+    } on FormatException {
+      return _short(text);
+    }
+  }
+  if (data is! Map) return null;
+  Object? found = data['error'];
+  if (found is Map) found = found['message'] ?? found['msg'];
+  found ??= data['message'] ?? data['detail'] ?? data['error_description'];
+  if (found is List && found.isNotEmpty) {
+    final first = found.first;
+    found = first is Map ? first['msg'] ?? first['message'] : first;
+  }
+  final text = found?.toString().trim() ?? '';
+  return text.isEmpty ? null : _short(text);
+}
+
+String _short(String text) =>
+    text.length > 160 ? '${text.substring(0, 160)}…' : text;
 
 /// The texts of a page as the model gets them: by number, so one it merges
 /// or skips cannot shift the others into the wrong balloons; with the page

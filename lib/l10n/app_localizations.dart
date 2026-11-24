@@ -3169,6 +3169,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Replied in {ms} ms: “{reply}”'**
   String translateTestOk(int ms, String reply);
+
+  /// No description provided for @translateErrorConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t reach the server: check the URL and your connection'**
+  String get translateErrorConnection;
+
+  /// No description provided for @translateErrorTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'The server took too long to answer'**
+  String get translateErrorTimeout;
+
+  /// No description provided for @translateErrorCertificate.
+  ///
+  /// In en, this message translates to:
+  /// **'The server\'s security certificate isn\'t valid'**
+  String get translateErrorCertificate;
+
+  /// No description provided for @translateErrorCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'The request was stopped'**
+  String get translateErrorCancelled;
+
+  /// No description provided for @translateErrorKey.
+  ///
+  /// In en, this message translates to:
+  /// **'The API key was refused: check it, and that it may use this model'**
+  String get translateErrorKey;
+
+  /// No description provided for @translateErrorPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'The account needs credit or a paid plan'**
+  String get translateErrorPayment;
+
+  /// No description provided for @translateErrorNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Not found: check the URL and the model name'**
+  String get translateErrorNotFound;
+
+  /// No description provided for @translateErrorTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'The page\'s text is too long for this server'**
+  String get translateErrorTooLong;
+
+  /// No description provided for @translateErrorRateLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many requests, or the free quota is used up: wait a moment, or check your plan'**
+  String get translateErrorRateLimit;
+
+  /// No description provided for @translateErrorServer.
+  ///
+  /// In en, this message translates to:
+  /// **'The server has a problem: try again later'**
+  String get translateErrorServer;
+
+  /// No description provided for @translateErrorRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'The server refused the request'**
+  String get translateErrorRefused;
 }
 
 class _AppLocalizationsDelegate

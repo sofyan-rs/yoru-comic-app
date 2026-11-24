@@ -1680,4 +1680,44 @@ class AppLocalizationsEn extends AppLocalizations {
   String translateTestOk(int ms, String reply) {
     return 'Replied in $ms ms: “$reply”';
   }
+
+  @override
+  String get translateErrorConnection =>
+      'Can\'t reach the server: check the URL and your connection';
+
+  @override
+  String get translateErrorTimeout => 'The server took too long to answer';
+
+  @override
+  String get translateErrorCertificate =>
+      'The server\'s security certificate isn\'t valid';
+
+  @override
+  String get translateErrorCancelled => 'The request was stopped';
+
+  @override
+  String get translateErrorKey =>
+      'The API key was refused: check it, and that it may use this model';
+
+  @override
+  String get translateErrorPayment => 'The account needs credit or a paid plan';
+
+  @override
+  String get translateErrorNotFound =>
+      'Not found: check the URL and the model name';
+
+  @override
+  String get translateErrorTooLong =>
+      'The page\'s text is too long for this server';
+
+  @override
+  String get translateErrorRateLimit =>
+      'Too many requests, or the free quota is used up: wait a moment, or check your plan';
+
+  @override
+  String get translateErrorServer =>
+      'The server has a problem: try again later';
+
+  @override
+  String get translateErrorRefused => 'The server refused the request';
 }

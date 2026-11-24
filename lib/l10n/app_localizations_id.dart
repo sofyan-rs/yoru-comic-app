@@ -1660,4 +1660,44 @@ class AppLocalizationsId extends AppLocalizations {
   String translateTestOk(int ms, String reply) {
     return 'Dijawab dalam $ms md: “$reply”';
   }
+
+  @override
+  String get translateErrorConnection =>
+      'Server tidak bisa dihubungi: cek URL dan koneksimu';
+
+  @override
+  String get translateErrorTimeout => 'Server terlalu lama menjawab';
+
+  @override
+  String get translateErrorCertificate =>
+      'Sertifikat keamanan server tidak valid';
+
+  @override
+  String get translateErrorCancelled => 'Permintaan dihentikan';
+
+  @override
+  String get translateErrorKey =>
+      'API key ditolak: cek key-nya, dan apakah boleh memakai model ini';
+
+  @override
+  String get translateErrorPayment => 'Akunnya perlu saldo atau paket berbayar';
+
+  @override
+  String get translateErrorNotFound =>
+      'Tidak ditemukan: cek URL dan nama modelnya';
+
+  @override
+  String get translateErrorTooLong =>
+      'Teks halaman terlalu panjang untuk server ini';
+
+  @override
+  String get translateErrorRateLimit =>
+      'Terlalu banyak permintaan, atau kuota gratis habis: tunggu sebentar, atau cek paketmu';
+
+  @override
+  String get translateErrorServer =>
+      'Server sedang bermasalah: coba lagi nanti';
+
+  @override
+  String get translateErrorRefused => 'Server menolak permintaan';
 }

@@ -511,5 +511,16 @@
   "translateScriptEnglish": "Inggris",
   "translateCustomServer": "Kustom",
   "translateTest": "Tes",
-  "translateTestOk": "Dijawab dalam {ms} md: “{reply}”"
+  "translateTestOk": "Dijawab dalam {ms} md: “{reply}”",
+  "translateErrorConnection": "Server tidak bisa dihubungi: cek URL dan koneksimu",
+  "translateErrorTimeout": "Server terlalu lama menjawab",
+  "translateErrorCertificate": "Sertifikat keamanan server tidak valid",
+  "translateErrorCancelled": "Permintaan dihentikan",
+  "translateErrorKey": "API key ditolak: cek key-nya, dan apakah boleh memakai model ini",
+  "translateErrorPayment": "Akunnya perlu saldo atau paket berbayar",
+  "translateErrorNotFound": "Tidak ditemukan: cek URL dan nama modelnya",
+  "translateErrorTooLong": "Teks halaman terlalu panjang untuk server ini",
+  "translateErrorRateLimit": "Terlalu banyak permintaan, atau kuota gratis habis: tunggu sebentar, atau cek paketmu",
+  "translateErrorServer": "Server sedang bermasalah: coba lagi nanti",
+  "translateErrorRefused": "Server menolak permintaan"
 }

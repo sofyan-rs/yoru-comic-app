@@ -1,3 +1,6 @@
+import 'package:yoru/core/constants/texts.dart';
+import 'package:dio/dio.dart';
+
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -351,6 +354,45 @@ void main() {
         block('WHAT DO YOU THINK YOU ARE DOING', 90),
       ], pageWidth: 576),
       hasLength(1),
+    );
+  });
+
+  test('request errors say what went wrong, with the server\'s reason', () {
+    // Mistral: the reason at the top level.
+    expect(
+      llmErrorMessage(
+        status: 429,
+        data: {'message': 'Requests rate limit exceeded'},
+      ),
+      '${AppText.t.translateErrorRateLimit} (429)\n'
+      'Requests rate limit exceeded',
+    );
+    // OpenAI: under "error".
+    expect(
+      llmErrorMessage(
+        status: 401,
+        data: {
+          'error': {'message': 'Incorrect API key provided'},
+        },
+      ),
+      '${AppText.t.translateErrorKey} (401)\nIncorrect API key provided',
+    );
+    // FastAPI's list of details, and JSON sent as text.
+    expect(
+      llmErrorMessage(
+        status: 422,
+        data: '{"detail": [{"msg": "field required"}]}',
+      ),
+      '${AppText.t.translateErrorRefused} (422)\nfield required',
+    );
+    // An HTML error page says nothing useful.
+    expect(
+      llmErrorMessage(status: 502, data: '<html>Bad gateway</html>'),
+      '${AppText.t.translateErrorServer} (502)',
+    );
+    expect(
+      llmErrorMessage(type: DioExceptionType.connectionError),
+      AppText.t.translateErrorConnection,
     );
   });
 
