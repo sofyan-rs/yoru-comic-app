@@ -303,12 +303,19 @@ void main() {
     expect(isCredit('TL: Kuro  PR: Yami'), isTrue);
     expect(isCredit('JOIN OUR DISCORD FOR EARLY CHAPTERS'), isTrue);
     expect(isCredit('Support us on Ko-fi'), isTrue);
+    expect(isCredit('READ ONLY AT VORTEXSCANS.COM'), isTrue);
+    expect(isCredit('ASURASCANS'), isTrue);
+    expect(isCredit('flamecomics'), isTrue);
+    expect(isCredit('Wait... Mr. Kim?'), isFalse);
+    expect(isCredit('I read comics too.'), isFalse);
     expect(isCredit('THE COMMON DORMITORY GHOST INCIDENT'), isFalse);
     expect(isCredit("I'll translate it for you."), isFalse);
     expect(isCredit('TOP STUDENT?'), isFalse);
     expect(
-      storyBlocks([block('WAIT!'), block('Join our Discord!')])
-          .map((b) => b.text),
+      storyBlocks([
+        block('WAIT!'),
+        block('Join our Discord!'),
+      ], pageWidth: 600).map((b) => b.text),
       ['WAIT!'],
     );
     expect(
@@ -316,8 +323,34 @@ void main() {
         block('CHAPTER 12'),
         block('Translator: Kuro'),
         block('Typesetter: Yami'),
-      ]),
+      ], pageWidth: 600),
       isEmpty,
+    );
+  });
+
+  test('sound effects drawn in the art are not translated', () {
+    OcrBlock block(String text, double size) =>
+        OcrBlock(rect: ui.Rect.zero, text: text, letterSize: size);
+    // From a real page 576 px wide: 하아 read as "Of Of", 150 px tall.
+    final kept = storyBlocks([
+      block('STEPPING IN NOW IS SUICIDE, BUT..', 66),
+      block('Of Of', 150),
+      block('KALAU AKU BISA MENAHAN MEREKA SAMPAI EVE BANGUN', 32),
+      block('HUH?', 30),
+    ], pageWidth: 576);
+    expect(kept.map((b) => b.text), [
+      'STEPPING IN NOW IS SUICIDE, BUT..',
+      'KALAU AKU BISA MENAHAN MEREKA SAMPAI EVE BANGUN',
+      'HUH?',
+    ]);
+    // Alone on its page, still too big for a balloon.
+    expect(storyBlocks([block('BOOM!', 120)], pageWidth: 576), isEmpty);
+    // A long line in big letters is a title or a shout, not a sound.
+    expect(
+      storyBlocks([
+        block('WHAT DO YOU THINK YOU ARE DOING', 90),
+      ], pageWidth: 576),
+      hasLength(1),
     );
   });
 

@@ -19,8 +19,8 @@ class _Online implements NetworkInfo {
 class _Ocr implements PageOcr {
   @override
   Future<OcrPage> read(Uint8List bytes, OcrScript script) async => (
-    width: 100,
-    height: 150,
+    width: 600,
+    height: 900,
     lines: const [
       OcrLine(rect: ui.Rect.fromLTWH(10, 10, 50, 20), text: 'HELLO'),
     ],

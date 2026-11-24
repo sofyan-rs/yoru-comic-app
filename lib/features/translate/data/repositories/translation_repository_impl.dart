@@ -42,10 +42,10 @@ class TranslationRepositoryImpl implements TranslationRepository {
   /// OCR in the app instead of by the model; v6: texts sent by number; v7:
   /// with the letters' size; v8: a style guide per language; v9: aku/kamu,
   /// never gue/lo).
-  static const _version = 'v10';
+  static const _version = 'v11';
 
   /// Bumped when stored OCR text should be read again.
-  static const _ocrVersion = 'ocr4';
+  static const _ocrVersion = 'ocr5';
 
   /// Translated lines of the page before sent as context, and their
   /// length: enough for names and tone, few tokens.
@@ -159,7 +159,10 @@ class TranslationRepositoryImpl implements TranslationRepository {
     final source = PageTranslation(
       aspect: page.height / page.width,
       blocks: [
-        for (final b in storyBlocks(groupLines(page.lines)))
+        for (final b in storyBlocks(
+          groupLines(page.lines),
+          pageWidth: page.width.toDouble(),
+        ))
           TextBlock(
             left: b.rect.left / page.width,
             top: b.rect.top / page.height,

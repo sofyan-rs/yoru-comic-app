@@ -38,7 +38,11 @@ bool isWatermark(String text) => RegExp(
 final _credit = RegExp(
   r'discord|patreon|ko-?fi|paypal|saweria|trakteer|typeset|proofread|'
   r'redraw|clean(er|ing|ed)\b|translat(or|ed by|ion by)|scanlat|'
-  r'\b(tl|pr|ts|qc|raws?|scans?)\b|join (us|our)|support us|donat',
+  r'\b(tl|pr|ts|qc|raws?|scans?)\b|join (us|our)|support us|donat|'
+  // A site's name run together (ASURASCANS, FLAMECOMICS), or its address
+  // inside a line (READ ONLY AT VORTEXSCANS.COM).
+  r'\w(scans?|toons?|comics)\b|'
+  r'\w\.(com|net|org|io|xyz|me|to|gg|cc|site|info|id|co|lol|art|fun|top)\b',
   caseSensitive: false,
 );
 
@@ -46,16 +50,40 @@ final _credit = RegExp(
 /// story.
 bool isCredit(String text) => _credit.hasMatch(text);
 
-/// The blocks of a page worth translating: none on a credits page (two or
-/// more [isCredit] blocks: a scanlator's staff or promo page), else all
-/// but the credits.
-List<OcrBlock> storyBlocks(List<OcrBlock> blocks) {
+/// The blocks of a page [pageWidth] wide worth translating: none on a
+/// credits page (two or more [isCredit] blocks: a scanlator's staff or
+/// promo page), else all but the credits and the sound effects
+/// ([isSoundEffect]).
+List<OcrBlock> storyBlocks(List<OcrBlock> blocks, {required double pageWidth}) {
   final credits = blocks.where((b) => isCredit(b.text)).length;
   if (credits >= 2) return const [];
+  final usual = blocks.isEmpty
+      ? 0.0
+      : _median([for (final b in blocks) b.letterSize]);
   return [
     for (final b in blocks)
-      if (!isCredit(b.text)) b,
+      if (!isCredit(b.text) &&
+          !isSoundEffect(b, usualLetterSize: usual, pageWidth: pageWidth))
+        b,
   ];
+}
+
+/// A sound effect drawn in the art (BOOM, 쾅, ドドド): a word or three,
+/// lettered far bigger than the page's other text ([usualLetterSize]) or
+/// than any balloon's (15 % of the [pageWidth]). Not translated: it is
+/// part of the drawing, and the OCR misreads it anyway.
+bool isSoundEffect(
+  OcrBlock block, {
+  required double usualLetterSize,
+  required double pageWidth,
+}) {
+  final text = block.text.trim();
+  final short =
+      text.split(RegExp(r'\s+')).length <= 3 &&
+      _letter.allMatches(text).length <= 15;
+  if (!short) return false;
+  return block.letterSize >= pageWidth * 0.15 ||
+      (usualLetterSize > 0 && block.letterSize >= usualLetterSize * 2.2);
 }
 
 /// Whether a text box is a column of vertical writing.
