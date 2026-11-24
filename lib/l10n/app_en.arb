@@ -638,5 +638,12 @@
   "translateErrorRateLimit": "Too many requests, or the free quota is used up: wait a moment, or check your plan",
   "translateErrorServer": "The server has a problem: try again later",
   "translateErrorRefused": "The server refused the request",
-  "translateChapterAgain": "Translate chapter again"
+  "translateChapterAgain": "Translate chapter again",
+  "coverAnimation": "Hero animation",
+  "coverAnimationDescription": "The cover flies into a comic's details when you open it",
+  "settings": "Settings",
+  "sourcesMenuDescription": "Extensions, source migration, DNS over HTTPS",
+  "libraryMenuDescription": "Import comics, categories, downloads, cache",
+  "backupMenuDescription": "Back up, restore, import from other apps",
+  "appearanceMenuDescription": "Theme, language, animation and sound"
 }

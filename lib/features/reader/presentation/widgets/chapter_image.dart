@@ -7,6 +7,7 @@ import 'package:yoru/core/utils/image_support.dart';
 import 'package:yoru/core/utils/utils.dart';
 import 'package:yoru/features/settings/domain/entities/app_settings.dart';
 import 'package:yoru/features/translate/domain/entities/translator_config.dart';
+import 'package:yoru/features/translate/presentation/reader_translation.dart';
 import 'package:yoru/features/translate/presentation/widgets/translated_page.dart';
 
 import 'dart:async';
@@ -41,6 +42,8 @@ class ChapterImg extends StatefulWidget {
     this.onOpenWeb,
     this.translator,
     this.previousPage,
+    this.joinPrevious = false,
+    this.pageGap = 0,
     @visibleForTesting this.cacheManager,
   });
 
@@ -50,6 +53,13 @@ class ChapterImg extends StatefulWidget {
 
   /// The page before (URL or file path): its translation is the context.
   final String? previousPage;
+
+  /// Shown right under [previousPage] (the vertical reader): a balloon cut
+  /// by the seam between them is translated whole, by this page.
+  final bool joinPrevious;
+
+  /// Space above this page, between it and [previousPage].
+  final double pageGap;
 
   /// Opens the chapter on its site; offered on a page in a format this
   /// device cannot show (AVIF before Android 12, on the desktops).
@@ -163,6 +173,15 @@ class _ChapterImgState extends State<ChapterImg> {
           readImage: _readImage,
           config: widget.translator,
           previousPageId: widget.previousPage,
+          readPrevious: switch (widget.previousPage) {
+            final previous? when widget.joinPrevious => () => readPage(
+              previous,
+              isFile: widget.isFile,
+              headers: widget.headers,
+            ),
+            _ => null,
+          },
+          seamGap: widget.pageGap,
           fit: fit,
           alignment: widget.alignment,
           child: image,

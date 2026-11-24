@@ -1703,4 +1703,28 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get translateChapterAgain => 'Terjemahkan ulang chapter';
+
+  @override
+  String get coverAnimation => 'Animasi hero';
+
+  @override
+  String get coverAnimationDescription =>
+      'Sampul terbang ke halaman detail saat komik dibuka';
+
+  @override
+  String get settings => 'Pengaturan';
+
+  @override
+  String get sourcesMenuDescription =>
+      'Ekstensi, pindah sumber, DNS over HTTPS';
+
+  @override
+  String get libraryMenuDescription => 'Impor komik, kategori, unduhan, cache';
+
+  @override
+  String get backupMenuDescription =>
+      'Cadangkan, pulihkan, impor dari aplikasi lain';
+
+  @override
+  String get appearanceMenuDescription => 'Tema, bahasa, animasi dan suara';
 }

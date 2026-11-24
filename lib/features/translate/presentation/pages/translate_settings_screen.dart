@@ -241,7 +241,7 @@ class _TranslateSettingsScreenState extends State<TranslateSettingsScreen> {
                   padding: contentInset(constraints.maxWidth).add(
                     EdgeInsets.fromLTRB(
                       DotSpace.s4,
-                      0,
+                      DotSpace.s4,
                       DotSpace.s4,
                       DotSpace.s6 + MediaQuery.paddingOf(context).bottom,
                     ),

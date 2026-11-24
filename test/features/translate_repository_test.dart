@@ -18,11 +18,21 @@ class _Online implements NetworkInfo {
 
 class _Ocr implements PageOcr {
   @override
-  Future<OcrPage> read(Uint8List bytes, OcrScript script) async => (
+  Future<OcrPage> read(
+    Uint8List bytes,
+    OcrScript script, {
+    Uint8List? above,
+  }) async => (
     width: 600,
     height: 900,
-    lines: const [
-      OcrLine(rect: ui.Rect.fromLTWH(10, 10, 50, 20), text: 'HELLO'),
+    lines: [
+      const OcrLine(rect: ui.Rect.fromLTWH(10, 10, 50, 20), text: 'HELLO'),
+      // With the page above read on top: a line the seam cuts, and one
+      // wholly above it (the page above's own).
+      if (above != null) ...[
+        const OcrLine(rect: ui.Rect.fromLTRB(200, -12, 400, 14), text: 'CUT'),
+        const OcrLine(rect: ui.Rect.fromLTRB(450, -80, 560, -56), text: 'UP'),
+      ],
     ],
   );
 }
@@ -133,7 +143,12 @@ void main() {
 
       repository.translateTogether([
         for (var i = 1; i <= 3; i++)
-          (pageId: 'p$i', readImage: read, previousPageId: 'p${i - 1}'),
+          (
+            pageId: 'p$i',
+            readImage: read,
+            previousPageId: 'p${i - 1}',
+            readPrevious: null,
+          ),
       ], config);
       // A page asked for on its own joins the run.
       final joined = await repository.translate(
@@ -152,6 +167,38 @@ void main() {
       expect(llm.sent, [
         ['HELLO'],
       ]);
+    },
+  );
+
+  test(
+    'a balloon cut by the seam is read whole and kept by the lower page',
+    () async {
+      final repository = TranslationRepositoryImpl(
+        _Online(),
+        _Ocr(),
+        _Llm(),
+        _Cache(),
+      );
+      Future<Uint8List> read() async => Uint8List(0);
+      final joined = config.joined(true);
+
+      await repository.translate(
+        pageId: 'p2',
+        readImage: read,
+        config: joined,
+        previousPageId: 'p1',
+        readPrevious: read,
+      );
+      final page = (await repository.cached('p2', joined))!;
+      expect(page.blocks.map((b) => b.text), ['T:CUT', 'T:HELLO']);
+      expect(page.blocks.first.top, lessThan(0));
+
+      // Not joined (pages one at a time): the page alone.
+      await repository.translate(pageId: 'p2', readImage: read, config: config);
+      expect(
+        (await repository.cached('p2', config))!.blocks.map((b) => b.text),
+        ['T:HELLO'],
+      );
     },
   );
 }

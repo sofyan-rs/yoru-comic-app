@@ -15,6 +15,9 @@ typedef TranslatePageParams = ({
 
   /// The page before, whose translation is the context.
   String? previousPageId,
+
+  /// The page before's image, to read a balloon cut by the seam whole.
+  Future<Uint8List> Function()? readPrevious,
 });
 
 /// Translates one chapter page, from the cache when it was done before.
@@ -48,5 +51,6 @@ class TranslatePage implements UseCase<PageTranslation, TranslatePageParams> {
         readImage: p.readImage,
         config: p.config,
         previousPageId: p.previousPageId,
+        readPrevious: p.readPrevious,
       );
 }

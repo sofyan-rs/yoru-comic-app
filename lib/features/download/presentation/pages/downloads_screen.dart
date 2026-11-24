@@ -67,7 +67,7 @@ class DownloadsScreen extends StatelessWidget {
                         SliverPadding(
                           padding: const EdgeInsets.fromLTRB(
                             DotSpace.s4,
-                            DotSpace.s3,
+                            DotSpace.s4,
                             DotSpace.s4,
                             DotSpace.s5,
                           ),

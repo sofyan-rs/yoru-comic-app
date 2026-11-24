@@ -105,6 +105,9 @@ abstract class AppSettings with _$AppSettings {
     /// Incognito mode: the reader records no history.
     @Default(false) bool incognito,
 
+    /// A comic's cover flies from its card into its details when opened.
+    @Default(false) bool coverAnimation,
+
     /// The "lalala pipipi" sound while Home refreshes.
     @Default(true) bool kururinSound,
 

@@ -68,7 +68,7 @@ class _LatestChapterMoreState extends State<LatestChapterMore> {
               controller: _scrollController,
               physics: const AlwaysScrollableScrollPhysics(),
               slivers: [
-                const SliverPadding(padding: EdgeInsets.only(top: DotSpace.s2)),
+                const SliverPadding(padding: EdgeInsets.only(top: DotSpace.s4)),
                 SliverCenteredContent(
                   slivers: [
                     SliverListGroup(

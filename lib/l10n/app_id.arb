@@ -523,5 +523,12 @@
   "translateErrorRateLimit": "Terlalu banyak permintaan, atau kuota gratis habis: tunggu sebentar, atau cek paketmu",
   "translateErrorServer": "Server sedang bermasalah: coba lagi nanti",
   "translateErrorRefused": "Server menolak permintaan",
-  "translateChapterAgain": "Terjemahkan ulang chapter"
+  "translateChapterAgain": "Terjemahkan ulang chapter",
+  "coverAnimation": "Animasi hero",
+  "coverAnimationDescription": "Sampul terbang ke halaman detail saat komik dibuka",
+  "settings": "Pengaturan",
+  "sourcesMenuDescription": "Ekstensi, pindah sumber, DNS over HTTPS",
+  "libraryMenuDescription": "Impor komik, kategori, unduhan, cache",
+  "backupMenuDescription": "Cadangkan, pulihkan, impor dari aplikasi lain",
+  "appearanceMenuDescription": "Tema, bahasa, animasi dan suara"
 }

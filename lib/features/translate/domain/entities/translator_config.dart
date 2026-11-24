@@ -50,6 +50,7 @@ class TranslatorConfig {
     this.autoScript = false,
     this.mlKit = false,
     this.sourceLanguage = '',
+    this.joinPages = false,
   });
 
   /// The config to translate with, or null when the server or model is
@@ -91,6 +92,26 @@ class TranslatorConfig {
         sourceLanguage: sourceLanguage ?? '',
       );
 
+  /// This config with [joinPages] set to [join].
+  TranslatorConfig joined(bool join) => TranslatorConfig(
+    baseUrl: baseUrl,
+    apiKey: apiKey,
+    model: model,
+    language: language,
+    script: script,
+    notes: notes,
+    comic: comic,
+    autoScript: autoScript,
+    mlKit: mlKit,
+    sourceLanguage: sourceLanguage,
+    joinPages: join,
+  );
+
+  /// Pages are shown one under the other (the vertical reader): a balloon
+  /// cut where one image ends and the next begins is read across the seam,
+  /// and translated by the lower page.
+  final bool joinPages;
+
   /// API root without a trailing slash, e.g. `https://api.openai.com/v1`.
   final String baseUrl;
 
@@ -126,9 +147,11 @@ class TranslatorConfig {
 
   /// Part of the cache key: a page translated by another model, into
   /// another language or with other notes is translated again.
-  String get cacheTag => mlKit
-      ? 'mlkit:$sourceLanguage|$language|${script.name}'
-      : '$baseUrl|$model|$language|${script.name}|$notes';
+  String get cacheTag =>
+      (mlKit
+          ? 'mlkit:$sourceLanguage|$language|${script.name}'
+          : '$baseUrl|$model|$language|${script.name}|$notes') +
+      (joinPages ? '|join' : '');
 
   @override
   bool operator ==(Object other) =>
@@ -142,7 +165,8 @@ class TranslatorConfig {
       other.mlKit == mlKit &&
       other.sourceLanguage == sourceLanguage &&
       other.notes == notes &&
-      other.comic == comic;
+      other.comic == comic &&
+      other.joinPages == joinPages;
 
   @override
   int get hashCode => Object.hash(
@@ -155,6 +179,7 @@ class TranslatorConfig {
     comic,
     mlKit,
     sourceLanguage,
+    joinPages,
   );
 
   /// Trims, drops trailing slashes and a pasted `/chat/completions`, and

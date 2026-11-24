@@ -164,7 +164,7 @@ class _SourceMigrationScreenState extends State<SourceMigrationScreen> {
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(
                             DotSpace.s4,
-                            0,
+                            DotSpace.s4,
                             DotSpace.s4,
                             DotSpace.s4,
                           ),

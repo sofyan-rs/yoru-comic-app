@@ -176,7 +176,7 @@ class _ExtensionsViewState extends State<_ExtensionsView> {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(
                   DotSpace.s4,
-                  DotSpace.s2,
+                  DotSpace.s4,
                   DotSpace.s4,
                   DotSpace.s4,
                 ),

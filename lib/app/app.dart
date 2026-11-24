@@ -1,3 +1,4 @@
+import 'package:yoru/core/presentation/widgets/dotline/cover_hero.dart';
 import 'package:yoru/core/source/local/local_source.dart';
 import 'package:yoru/core/network/dns_setting.dart';
 import 'package:yoru/app/app_shortcuts.dart';
@@ -93,6 +94,13 @@ class _YoruAppState extends State<YoruApp> {
             listenWhen: (previous, current) =>
                 previous.language != current.language,
             listener: (context, _) => rebuildAll(context as Element),
+          ),
+          // Off until the stored settings load and say otherwise.
+          BlocListener<SettingsCubit, AppSettings>(
+            listenWhen: (previous, current) =>
+                previous.coverAnimation != current.coverAnimation,
+            listener: (_, settings) =>
+                coverAnimation.value = settings.coverAnimation,
           ),
           BlocListener<SettingsCubit, AppSettings>(
             listenWhen: (previous, current) =>

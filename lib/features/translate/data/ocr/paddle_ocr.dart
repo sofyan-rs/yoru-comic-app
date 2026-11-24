@@ -17,8 +17,11 @@ typedef OcrPage = ({int width, int height, List<OcrLine> lines});
 /// every platform: a detection model finds the lines, a recognition model
 /// ([OcrScript]) reads each.
 abstract interface class PageOcr {
-  /// Lines of the page whose file is [bytes].
-  Future<OcrPage> read(Uint8List bytes, OcrScript script);
+  /// Lines of the page whose file is [bytes]. With [above] (the file of
+  /// the page shown just above it), the bottom of that page is read on top
+  /// of this one, so a line cut by the seam is read whole; lines there
+  /// have their top above 0.
+  Future<OcrPage> read(Uint8List bytes, OcrScript script, {Uint8List? above});
 }
 
 /// Hands the page's file to an [OcrWorker], which does everything off the
@@ -35,12 +38,17 @@ class PaddleOcr implements PageOcr {
   static const _maxWidth = 1200;
 
   @override
-  Future<OcrPage> read(Uint8List bytes, OcrScript script) async {
+  Future<OcrPage> read(
+    Uint8List bytes,
+    OcrScript script, {
+    Uint8List? above,
+  }) async {
     final files = await _models.ensure(script);
     OcrPageResult page;
     try {
       page = await _worker.read((
         data: TransferableTypedData.fromList([bytes]),
+        above: above == null ? null : TransferableTypedData.fromList([above]),
         encoded: true,
         width: 0,
         height: 0,
@@ -61,6 +69,7 @@ class PaddleOcr implements PageOcr {
         if (pixels == null) throw StateError('Could not read the page');
         page = await _worker.read((
           data: TransferableTypedData.fromList([pixels.buffer.asUint8List()]),
+          above: null,
           encoded: false,
           width: image.width,
           height: image.height,

@@ -72,13 +72,14 @@ class TranslationRepositoryImpl implements TranslationRepository {
     required Future<Uint8List> Function() readImage,
     required TranslatorConfig config,
     String? previousPageId,
+    Future<Uint8List> Function()? readPrevious,
   }) {
     final key = _key(pageId, config);
     return _inFlight[key] ??
         _track(
           key,
           pageId,
-          _run(key, pageId, readImage, config, previousPageId),
+          _run(key, pageId, readImage, config, previousPageId, readPrevious),
         );
   }
 
@@ -134,7 +135,12 @@ class TranslationRepositoryImpl implements TranslationRepository {
       final watch = Stopwatch()..start();
       final sources = [
         for (final p in todo)
-          await _source(p.page.pageId, p.page.readImage, config.script),
+          await _source(
+            p.page.pageId,
+            p.page.readImage,
+            config.script,
+            config.joinPages ? p.page.readPrevious : null,
+          ),
       ];
       final read = watch.elapsedMilliseconds;
       final withText = <int>[];
@@ -252,12 +258,18 @@ class TranslationRepositoryImpl implements TranslationRepository {
     Future<Uint8List> Function() readImage,
     TranslatorConfig config,
     String? previousPageId,
+    Future<Uint8List> Function()? readPrevious,
   ) async {
     if (await _cache.get(key) case final stored?) return right(stored);
     final local = config.mlKit || _isLocal(config.baseUrl);
     return runRemote(_networkInfo, offline: local, () async {
       final watch = Stopwatch()..start();
-      final source = await _source(pageId, readImage, config.script);
+      final source = await _source(
+        pageId,
+        readImage,
+        config.script,
+        config.joinPages ? readPrevious : null,
+      );
       final read = watch.elapsedMilliseconds;
       // Nothing to translate: no request, no waiting for the page before.
       if (source.blocks.isEmpty) {
@@ -284,14 +296,29 @@ class TranslationRepositoryImpl implements TranslationRepository {
   /// The text of [pageId] as the OCR reads it (blocks holding the original
   /// text), stored apart from translations: another language or model
   /// translates it again without reading the page again.
+  ///
+  /// With [readPrevious], the bottom of the page before is read above it:
+  /// a balloon the seam cuts is read whole and kept here (its top above
+  /// 0), one wholly above the seam is the page before's own.
   Future<PageTranslation> _source(
     String pageId,
     Future<Uint8List> Function() readImage,
-    OcrScript script,
-  ) async {
-    final key = '$_ocrVersion|$pageId|${script.name}';
+    OcrScript script, [
+    Future<Uint8List> Function()? readPrevious,
+  ]) async {
+    final key =
+        '$_ocrVersion|$pageId|${script.name}${readPrevious == null ? '' : '|j'}';
     if (await _cache.get(key) case final stored?) return stored;
-    final page = await _ocr.read(await readImage(), script);
+    Uint8List? above;
+    if (readPrevious != null) {
+      try {
+        above = await readPrevious();
+      } catch (e) {
+        // Not on the device yet: this page alone.
+        debugPrint('Translate: page before unreadable: $e');
+      }
+    }
+    final page = await _ocr.read(await readImage(), script, above: above);
     final source = PageTranslation(
       aspect: page.height / page.width,
       blocks: [
@@ -299,15 +326,16 @@ class TranslationRepositoryImpl implements TranslationRepository {
           groupLines(page.lines),
           pageWidth: page.width.toDouble(),
         ))
-          TextBlock(
-            left: b.rect.left / page.width,
-            top: b.rect.top / page.height,
-            right: b.rect.right / page.width,
-            bottom: b.rect.bottom / page.height,
-            text: b.text,
-            letterSize: b.letterSize / page.width,
-            dark: b.dark,
-          ),
+          if (b.rect.bottom > 0)
+            TextBlock(
+              left: b.rect.left / page.width,
+              top: b.rect.top / page.height,
+              right: b.rect.right / page.width,
+              bottom: b.rect.bottom / page.height,
+              text: b.text,
+              letterSize: b.letterSize / page.width,
+              dark: b.dark,
+            ),
       ],
     );
     await _cache.put(key, source);

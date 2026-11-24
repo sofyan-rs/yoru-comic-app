@@ -19,6 +19,7 @@ class SettingsModel {
     this.infiniteScroll = false,
     this.autoScrollSpeed = 3,
     this.incognito = false,
+    this.coverAnimation = false,
     this.kururinSound = true,
     this.lalalaUntilFinish = false,
     this.bookmarkGrouping = BookmarkGrouping.status,
@@ -49,6 +50,7 @@ class SettingsModel {
     infiniteScroll: e.infiniteScroll,
     autoScrollSpeed: e.autoScrollSpeed,
     incognito: e.incognito,
+    coverAnimation: e.coverAnimation,
     kururinSound: e.kururinSound,
     lalalaUntilFinish: e.lalalaUntilFinish,
     bookmarkGrouping: e.bookmarkGrouping,
@@ -92,6 +94,7 @@ class SettingsModel {
   final bool infiniteScroll;
   final int autoScrollSpeed;
   final bool incognito;
+  final bool coverAnimation;
   final bool kururinSound;
   final bool lalalaUntilFinish;
 
@@ -130,6 +133,7 @@ class SettingsModel {
     infiniteScroll: infiniteScroll,
     autoScrollSpeed: autoScrollSpeed.clamp(autoScrollMin, autoScrollMax),
     incognito: incognito,
+    coverAnimation: coverAnimation,
     kururinSound: kururinSound,
     lalalaUntilFinish: lalalaUntilFinish,
     bookmarkGrouping: bookmarkGrouping,

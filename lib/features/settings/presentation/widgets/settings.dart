@@ -1,71 +1,29 @@
-import 'package:yoru/features/local/presentation/local_import.dart';
 import 'package:yoru/core/constants/texts.dart';
 import 'package:yoru/core/constants/variables.dart';
 import 'package:yoru/core/presentation/widgets/dotline/dotline.dart';
 import 'package:yoru/core/theme/dotline_tokens.dart';
 import 'package:yoru/core/utils/utils.dart';
-import 'package:yoru/features/backup/presentation/bloc/backup_cubit.dart';
-import 'package:yoru/features/download/presentation/bloc/download_cubit.dart';
-import 'package:yoru/features/download/presentation/pages/downloads_screen.dart';
-import 'package:yoru/features/source/presentation/bloc/sources_cubit.dart';
-import 'package:yoru/features/source/presentation/pages/extensions_screen.dart';
 import 'package:yoru/features/settings/domain/entities/app_settings.dart';
 import 'package:yoru/features/settings/presentation/bloc/settings_cubit.dart';
+import 'package:yoru/features/settings/presentation/pages/settings_pages.dart';
 import 'package:yoru/features/settings/presentation/widgets/app_info.dart';
-import 'package:yoru/features/settings/presentation/widgets/clear_cache_sheet.dart';
-import 'package:yoru/features/settings/presentation/widgets/dns_sheet.dart';
-import 'package:yoru/features/settings/presentation/widgets/language_sheet.dart';
+import 'package:yoru/features/source/presentation/bloc/sources_cubit.dart';
 import 'package:yoru/features/sync/presentation/widgets/sync_section.dart';
 import 'package:yoru/features/translate/presentation/pages/translate_settings_screen.dart';
 import 'package:yoru/features/update/presentation/bloc/update_cubit.dart';
-import 'package:yoru/features/migration/presentation/pages/import_screen.dart';
-import 'package:yoru/features/migration/presentation/pages/source_migration_screen.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lucide_icons_flutter/lucide_icons_300.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:yoru/features/category/presentation/pages/categories_screen.dart';
-import 'package:yoru/core/network/image_cache.dart';
 
-/// More groups: incognito mode, SOURCES (extensions, migrate source),
-/// LIBRARY (categories, downloads, cache), TRANSLATION, SYNC, BACKUP (file, restore,
-/// import), APPEARANCE, ABOUT.
-class Settings extends StatefulWidget {
+/// More: incognito mode, then one row per settings group (Sources,
+/// Library, Translation, Backup, Appearance), each opening its own screen,
+/// SYNC (Google Drive) and ABOUT (updates, the app, bug reports).
+class Settings extends StatelessWidget {
   const Settings({super.key, this.appVersion = ''});
 
   /// Shown next to "Check for updates".
   final String appVersion;
-
-  @override
-  State<Settings> createState() => _SettingsState();
-}
-
-class _SettingsState extends State<Settings> {
-  int _cacheBytes = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadCacheSize();
-  }
-
-  Future<void> _loadCacheSize() async {
-    final bytes = await comicImageCache.store.getCacheSize();
-    if (mounted) setState(() => _cacheBytes = bytes);
-  }
-
-  Future<void> _clearCache(BuildContext context) async {
-    final confirmed = await showDotSheet<bool>(
-      context: context,
-      builder: (_) => const ClearCacheSheet(),
-    );
-    if (confirmed != true) return;
-    await comicImageCache.emptyCache();
-    await _loadCacheSize();
-    if (context.mounted) {
-      showSnackBar(context: context, message: AppText.t.cacheCleared);
-    }
-  }
 
   Future<void> _reportBug(BuildContext context) async {
     final opened = await launchUrl(
@@ -79,12 +37,22 @@ class _SettingsState extends State<Settings> {
 
   @override
   Widget build(BuildContext context) {
-    final busy = context.watch<BackupCubit>().state is BackupBusy;
     final checkingUpdate = context.select<UpdateCubit, bool>(
       (u) => u.state is UpdateChecking,
     );
     final updateAvailable = context.select<UpdateCubit, bool>(
       (u) => u.state is UpdateAvailable,
+    );
+    final incognito = context.select<SettingsCubit, bool>(
+      (s) => s.state.incognito,
+    );
+    void setIncognito(bool on) =>
+        context.read<SettingsCubit>().update((s) => s.copyWith(incognito: on));
+    final extensionUpdates = context.select<SourcesCubit, int>(
+      (s) => s.state.updateCount,
+    );
+    final translateLabel = context.select<SettingsCubit, String>(
+      (s) => translateSettingLabel(s.state),
     );
     final themeMode = context.select<SettingsCubit, AppThemeMode>(
       (s) => s.state.themeMode,
@@ -92,35 +60,9 @@ class _SettingsState extends State<Settings> {
     final language = context.select<SettingsCubit, AppLanguage>(
       (s) => s.state.language,
     );
-    final downloadedBytes = context.select<DownloadCubit, int>(
-      (d) => d.state.totalBytes,
-    );
-    final extensionUpdates = context.select<SourcesCubit, int>(
-      (s) => s.state.updateCount,
-    );
-    final incognito = context.select<SettingsCubit, bool>(
-      (s) => s.state.incognito,
-    );
-    void setIncognito(bool on) =>
-        context.read<SettingsCubit>().update((s) => s.copyWith(incognito: on));
-    final dnsSetting = context.select<SettingsCubit, String>(
-      (s) => s.state.dnsOverHttps,
-    );
-    final translateLabel = context.select<SettingsCubit, String>(
-      (s) => translateSettingLabel(s.state),
-    );
-    final kururinSound = context.select<SettingsCubit, bool>(
-      (s) => s.state.kururinSound,
-    );
-    void setKururinSound(bool on) => context.read<SettingsCubit>().update(
-      (s) => s.copyWith(kururinSound: on),
-    );
-    final lalalaUntilFinish = context.select<SettingsCubit, bool>(
-      (s) => s.state.lalalaUntilFinish,
-    );
-    void setLalalaUntilFinish(bool on) => context.read<SettingsCubit>().update(
-      (s) => s.copyWith(lalalaUntilFinish: on),
-    );
+
+    void open(String title, Widget child) =>
+        SettingsSubScreen.open(context, title: title, child: child);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -145,183 +87,62 @@ class _SettingsState extends State<Settings> {
           ),
         ),
         const SizedBox(height: DotSpace.s3),
-        SectionLabel(label: AppText.t.sources),
+        SectionLabel(label: AppText.t.settings),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: DotSpace.s4),
           child: ListGroup(
             children: [
               ListRow(
                 icon: LucideIcons300.puzzle,
-                title: AppText.t.extensions,
-                subtitle: AppText.t.extensionsDescription,
+                title: AppText.t.sources,
+                subtitle: AppText.t.sourcesMenuDescription,
                 trailing: extensionUpdates == 0
                     ? null
                     : UpdateBadge(count: extensionUpdates),
                 showChevron: true,
-                onTap: () => ExtensionsScreen.open(context),
+                onTap: () => open(AppText.t.sources, const SourcesSettings()),
               ),
               ListRow(
-                icon: LucideIcons300.arrowRightLeft,
-                title: AppText.t.migrateSource,
-                subtitle: AppText.t.migrateSourceDescription,
+                icon: LucideIcons300.libraryBig,
+                title: AppText.t.library,
+                subtitle: AppText.t.libraryMenuDescription,
                 showChevron: true,
-                onTap: () => SourceMigrationScreen.open(context),
+                onTap: () => open(AppText.t.library, const LibrarySettings()),
               ),
-              ListRow(
-                icon: LucideIcons300.globeLock,
-                title: AppText.t.dnsOverHttps,
-                subtitle: AppText.t.dnsOverHttpsDescription,
-                value: dnsSettingLabel(dnsSetting),
-                showChevron: true,
-                onTap: () => showDnsSheet(context),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: DotSpace.s3),
-        SectionLabel(label: AppText.t.library),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: DotSpace.s4),
-          child: ListGroup(
-            children: [
-              ListRow(
-                icon: LucideIcons300.folderInput,
-                title: AppText.t.importComics,
-                subtitle: canImportFolders
-                    ? AppText.t.importComicsDescription
-                    : AppText.t.importComicsDescriptionFiles,
-                showChevron: true,
-                onTap: () => importLocalComics(context),
-              ),
-              ListRow(
-                icon: LucideIcons300.folder,
-                title: AppText.t.categories,
-                subtitle: AppText.t.groupByCategoryDescription,
-                showChevron: true,
-                onTap: () => CategoriesScreen.open(context),
-              ),
-              ListRow(
-                icon: LucideIcons300.download,
-                title: AppText.t.downloads,
-                subtitle: AppText.t.downloadsDescription,
-                value: downloadedBytes == 0
-                    ? null
-                    : formatBytes(downloadedBytes),
-                showChevron: true,
-                onTap: () => DownloadsScreen.open(context),
-              ),
-              ListRow(
-                icon: LucideIcons300.trash2,
-                title: AppText.t.clearCache,
-                subtitle: AppText.t.clearCacheDescription,
-                value: _cacheBytes == 0 ? null : formatBytes(_cacheBytes),
-                showChevron: false,
-                onTap: () => _clearCache(context),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: DotSpace.s3),
-        SectionLabel(label: AppText.t.translation),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: DotSpace.s4),
-          child: ListGroup(
-            children: [
               ListRow(
                 icon: LucideIcons300.languages,
-                title: AppText.t.translatePages,
+                title: AppText.t.translation,
                 subtitle: AppText.t.translatePagesDescription,
                 value: translateLabel,
                 showChevron: true,
                 onTap: () => TranslateSettingsScreen.open(context),
               ),
-            ],
-          ),
-        ),
-        const SyncSection(),
-        const SizedBox(height: DotSpace.s3),
-        SectionLabel(label: AppText.t.backup),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: DotSpace.s4),
-          child: ListGroup(
-            children: [
               ListRow(
                 icon: LucideIcons300.database,
-                title: AppText.t.backupData,
-                subtitle: AppText.t.backupDataDescription,
-                onTap: busy ? null : () => context.read<BackupCubit>().backup(),
-              ),
-              ListRow(
-                icon: LucideIcons300.rotateCcw,
-                title: AppText.t.restoreData,
-                subtitle: AppText.t.restoreDataDescription,
-                onTap: busy
-                    ? null
-                    : () => context.read<BackupCubit>().restore(),
-              ),
-              ListRow(
-                icon: LucideIcons300.archiveRestore,
-                title: AppText.t.importFromApps,
-                subtitle: AppText.t.importFromAppsDescription,
+                title: AppText.t.backup,
+                subtitle: AppText.t.backupMenuDescription,
                 showChevron: true,
-                onTap: () => ImportScreen.open(context),
+                onTap: () => open(AppText.t.backup, const BackupSettings()),
               ),
-            ],
-          ),
-        ),
-        const SizedBox(height: DotSpace.s3),
-        SectionLabel(label: AppText.t.appearance),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: DotSpace.s4),
-          child: SegmentedControl<AppThemeMode>(
-            selected: themeMode,
-            onChanged: (mode) =>
-                context.read<SettingsCubit>().changeThemeMode(mode),
-            segments: [
-              Segment(value: AppThemeMode.system, label: AppText.t.themeSystem),
-              Segment(value: AppThemeMode.light, label: AppText.t.themeLight),
-              Segment(value: AppThemeMode.dark, label: AppText.t.themeDark),
-            ],
-          ),
-        ),
-        const SizedBox(height: DotSpace.s3),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: DotSpace.s4),
-          child: ListGroup(
-            children: [
               ListRow(
-                icon: LucideIcons300.languages,
-                title: AppText.t.appLanguage,
-                value: language.nativeName,
+                icon: LucideIcons300.palette,
+                title: AppText.t.appearance,
+                subtitle: AppText.t.appearanceMenuDescription,
+                value:
+                    '${switch (themeMode) {
+                      AppThemeMode.system => AppText.t.themeSystem,
+                      AppThemeMode.light => AppText.t.themeLight,
+                      AppThemeMode.dark => AppText.t.themeDark,
+                    }} · ${language.nativeName}',
                 showChevron: true,
-                onTap: () => showLanguageSheet(context),
+                onTap: () =>
+                    open(AppText.t.appearance, const AppearanceSettings()),
               ),
-              ListRow(
-                icon: LucideIcons300.volume2,
-                title: AppText.t.kururinSound,
-                subtitle: AppText.t.kururinSoundDescription,
-                trailing: DotSwitch(
-                  value: kururinSound,
-                  semanticLabel: AppText.t.kururinSound,
-                  onChanged: setKururinSound,
-                ),
-                onTap: () => setKururinSound(!kururinSound),
-              ),
-              if (kururinSound)
-                ListRow(
-                  icon: LucideIcons300.hourglass,
-                  title: AppText.t.lalalaUntilFinish,
-                  subtitle: AppText.t.lalalaUntilFinishDescription,
-                  trailing: DotSwitch(
-                    value: lalalaUntilFinish,
-                    semanticLabel: AppText.t.lalalaUntilFinish,
-                    onChanged: setLalalaUntilFinish,
-                  ),
-                  onTap: () => setLalalaUntilFinish(!lalalaUntilFinish),
-                ),
             ],
           ),
         ),
+        // One group, so right here rather than a screen of its own.
+        const SyncSection(),
         const SizedBox(height: DotSpace.s3),
         SectionLabel(label: AppText.t.about),
         Padding(
@@ -334,9 +155,9 @@ class _SettingsState extends State<Settings> {
                   title: AppText.t.checkUpdate,
                   value: updateAvailable
                       ? AppText.t.updateAvailable
-                      : widget.appVersion.isEmpty
+                      : appVersion.isEmpty
                       ? null
-                      : 'v${widget.appVersion}',
+                      : 'v$appVersion',
                   showChevron: true,
                   onTap: checkingUpdate
                       ? null

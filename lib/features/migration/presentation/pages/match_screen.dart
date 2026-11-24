@@ -166,7 +166,7 @@ class _MatchViewState extends State<_MatchView> {
                               child: Padding(
                                 padding: const EdgeInsets.fromLTRB(
                                   DotSpace.s4,
-                                  0,
+                                  DotSpace.s4,
                                   DotSpace.s4,
                                   DotSpace.s4,
                                 ),

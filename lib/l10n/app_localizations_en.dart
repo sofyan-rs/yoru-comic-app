@@ -1723,4 +1723,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get translateChapterAgain => 'Translate chapter again';
+
+  @override
+  String get coverAnimation => 'Hero animation';
+
+  @override
+  String get coverAnimationDescription =>
+      'The cover flies into a comic\'s details when you open it';
+
+  @override
+  String get settings => 'Settings';
+
+  @override
+  String get sourcesMenuDescription =>
+      'Extensions, source migration, DNS over HTTPS';
+
+  @override
+  String get libraryMenuDescription =>
+      'Import comics, categories, downloads, cache';
+
+  @override
+  String get backupMenuDescription =>
+      'Back up, restore, import from other apps';
+
+  @override
+  String get appearanceMenuDescription =>
+      'Theme, language, animation and sound';
 }

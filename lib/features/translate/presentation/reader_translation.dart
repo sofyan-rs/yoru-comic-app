@@ -10,8 +10,9 @@ import 'package:yoru/features/translate/domain/entities/translator_config.dart';
 import 'package:yoru/features/translate/domain/usecases/translate_page.dart';
 
 /// Comics (by key) whose pages the reader translates, turned on from its
-/// menu. Kept in memory only: it follows the reader from chapter to
-/// chapter of the comic and is gone when the app closes.
+/// menu. It follows the reader from chapter to chapter of the comic (the
+/// next or previous one, a chapter from its list) and is turned off when
+/// the reader is left.
 final translatedComics = <String>{};
 
 /// Pages after the one on screen translated too, so they are ready (or
@@ -53,6 +54,9 @@ void translateAhead({
       readImage: () => read(pages[from]),
       config: config,
       previousPageId: from > 0 ? pages[from - 1] : null,
+      readPrevious: config.joinPages && from > 0
+          ? () => read(pages[from - 1])
+          : null,
     )),
   );
   if (to > from + 1) {
@@ -62,6 +66,7 @@ void translateAhead({
           pageId: pages[i],
           readImage: () => read(pages[i]),
           previousPageId: pages[i - 1],
+          readPrevious: config.joinPages ? () => read(pages[i - 1]) : null,
         ),
     ], config);
   }

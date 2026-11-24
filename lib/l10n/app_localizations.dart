@@ -3241,6 +3241,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Translate chapter again'**
   String get translateChapterAgain;
+
+  /// No description provided for @coverAnimation.
+  ///
+  /// In en, this message translates to:
+  /// **'Hero animation'**
+  String get coverAnimation;
+
+  /// No description provided for @coverAnimationDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'The cover flies into a comic\'s details when you open it'**
+  String get coverAnimationDescription;
+
+  /// No description provided for @settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settings;
+
+  /// No description provided for @sourcesMenuDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Extensions, source migration, DNS over HTTPS'**
+  String get sourcesMenuDescription;
+
+  /// No description provided for @libraryMenuDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Import comics, categories, downloads, cache'**
+  String get libraryMenuDescription;
+
+  /// No description provided for @backupMenuDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up, restore, import from other apps'**
+  String get backupMenuDescription;
+
+  /// No description provided for @appearanceMenuDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme, language, animation and sound'**
+  String get appearanceMenuDescription;
 }
 
 class _AppLocalizationsDelegate

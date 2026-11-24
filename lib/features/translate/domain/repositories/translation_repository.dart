@@ -11,6 +11,10 @@ typedef PageRequest = ({
   String pageId,
   Future<Uint8List> Function() readImage,
   String? previousPageId,
+
+  /// The page before's image ([TranslatorConfig.joinPages]): a balloon cut
+  /// by the seam between them is read whole.
+  Future<Uint8List> Function()? readPrevious,
 });
 
 abstract interface class TranslationRepository {
@@ -39,5 +43,6 @@ abstract interface class TranslationRepository {
     required Future<Uint8List> Function() readImage,
     required TranslatorConfig config,
     String? previousPageId,
+    Future<Uint8List> Function()? readPrevious,
   });
 }

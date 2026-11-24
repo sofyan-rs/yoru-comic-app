@@ -36,6 +36,8 @@ class TranslatedPage extends StatefulWidget {
     required this.readImage,
     required this.config,
     this.previousPageId,
+    this.readPrevious,
+    this.seamGap = 0,
     required this.fit,
     required this.alignment,
     required this.child,
@@ -48,6 +50,13 @@ class TranslatedPage extends StatefulWidget {
 
   /// The page before, whose translation is the context.
   final String? previousPageId;
+
+  /// The page before's image ([TranslatorConfig.joinPages]).
+  final Future<Uint8List> Function()? readPrevious;
+
+  /// Space between this page and the one above it: a balloon cut by the
+  /// seam reaches that much further up.
+  final double seamGap;
   final BoxFit fit;
   final Alignment alignment;
   final Widget child;
@@ -142,6 +151,7 @@ class _TranslatedPageState extends State<TranslatedPage> {
       readImage: widget.readImage,
       config: config,
       previousPageId: widget.previousPageId,
+      readPrevious: widget.readPrevious,
     ));
     if (!mounted || run != _run) return;
     setState(() {
@@ -202,7 +212,10 @@ class _TranslatedPageState extends State<TranslatedPage> {
     final translation = _translation;
     final aspect = translation?.aspect ?? _aspect;
     final busy = _status == _Status.running || _status == _Status.failed;
+    // Not clipped: a balloon cut by the seam is drawn over the page above
+    // too (pages below paint over those above).
     return Stack(
+      clipBehavior: Clip.none,
       children: [
         widget.child,
         if (aspect != null &&
@@ -213,6 +226,7 @@ class _TranslatedPageState extends State<TranslatedPage> {
                 final box = constraints.biggest;
                 final image = _imageRect(aspect, box);
                 return Stack(
+                  clipBehavior: Clip.none,
                   children: [
                     if (translation != null && !_original)
                       Positioned.fill(
@@ -278,6 +292,7 @@ class _TranslatedPageState extends State<TranslatedPage> {
     if (key == _laidOutFor && _laidOut != null) return _laidOut!;
     _laidOutFor = key;
     return _laidOut = Stack(
+      clipBehavior: Clip.none,
       children: [
         for (final b in translation.blocks)
           _bubble(
@@ -311,10 +326,20 @@ class _TranslatedPageState extends State<TranslatedPage> {
       image.top + b * image.height,
     );
     final sizes = bubbleFontSizes(block.letterSize, image.width);
+    var area = onImage(block.left, block.top, block.right, block.bottom);
+    // Cut by the seam: it reaches into the page above, past the gap.
+    if (block.top < 0) {
+      area = Rect.fromLTRB(
+        area.left,
+        area.top - widget.seamGap,
+        area.right,
+        area.bottom,
+      );
+    }
     final layout = layoutBubble(
-      onImage(block.left, block.top, block.right, block.bottom),
+      area,
       text,
-      bounds: image,
+      bounds: image.expandToInclude(area),
       maxFontSize: sizes.max,
       minFontSize: sizes.min,
       scaler: scaler,

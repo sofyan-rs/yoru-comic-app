@@ -29,6 +29,11 @@ final class CoverHeroTag {
   int get hashCode => identityHashCode(element);
 }
 
+/// Whether covers fly into a comic's details (the cover animation
+/// setting); set by the app from the settings. Without a card's [Hero] the
+/// details' one has nothing to fly from, so the page just opens.
+final coverAnimation = ValueNotifier<bool>(false);
+
 /// [child] (a card's [ComicCover]) as the start of the flight to the
 /// comic's details, which wrap their cover in a [Hero] with the same [tag].
 class CoverHero extends StatelessWidget {
@@ -77,7 +82,13 @@ class CoverHero extends StatelessWidget {
               (constraints.maxWidth * MediaQuery.devicePixelRatioOf(context))
                   .round();
         }
-        return Hero(tag: tag, flightShuttleBuilder: shuttle, child: child);
+        return ValueListenableBuilder<bool>(
+          valueListenable: coverAnimation,
+          builder: (context, on, child) => on
+              ? Hero(tag: tag, flightShuttleBuilder: shuttle, child: child!)
+              : child!,
+          child: child,
+        );
       },
     );
   }

@@ -33,6 +33,10 @@ typedef OcrPageResult = ({int width, int height, List<OcrResult> lines});
 /// RGBA pixels [width] × [height]; and the model files.
 typedef OcrRequest = ({
   TransferableTypedData data,
+
+  /// The file of the page shown above this one, whose bottom is read on
+  /// top of it; null for none.
+  TransferableTypedData? above,
   bool encoded,
   int width,
   int height,
@@ -130,6 +134,10 @@ class _Engine {
   /// Widest line, so a long caption stays within memory.
   static const _maxLineWidth = 1600;
 
+  /// Height of the strip of the page above read with a page, over its
+  /// width: room for a balloon cut by the seam.
+  static const _seamAspect = 0.5;
+
   /// Lines read per recognizer run.
   static const _batch = 8;
 
@@ -153,7 +161,7 @@ class _Engine {
 
   Future<OcrPageResult> read(OcrRequest r) async {
     final data = r.data.materialize().asUint8List();
-    final _Rgba image;
+    _Rgba image;
     if (r.encoded) {
       final decoded = img.decodeImage(data);
       if (decoded == null) throw const UndecodablePage();
@@ -164,6 +172,36 @@ class _Engine {
       );
     } else {
       image = _Rgba(data, r.width, r.height);
+    }
+    // The bottom of the page above on top: lines cut by the seam are read
+    // whole, then moved up by the strip's height (their tops above 0).
+    var seam = 0;
+    final aboveData = r.above;
+    if (aboveData != null) {
+      try {
+        final above = img.decodeImage(aboveData.materialize().asUint8List());
+        if (above != null) {
+          final strip = min(above.height, (above.width * _seamAspect).round());
+          var part = img.copyCrop(
+            above,
+            x: 0,
+            y: above.height - strip,
+            width: above.width,
+            height: strip,
+          );
+          if (part.width != image.width) {
+            part = img.copyResize(part, width: image.width);
+          }
+          final top = part.getBytes(order: img.ChannelOrder.rgba);
+          final joined = Uint8List(top.length + image.pixels.length)
+            ..setAll(0, top)
+            ..setAll(top.length, image.pixels);
+          seam = part.height;
+          image = _Rgba(joined, image.width, image.height + seam);
+        }
+      } catch (_) {
+        // The page above cannot be read here: this page alone.
+      }
     }
 
     // The page in overlapping slices; a line is kept by the slice that
@@ -189,7 +227,7 @@ class _Engine {
         if (centre >= ownTop && centre <= ownBottom) boxes.add(box);
       }
     }
-    final lines = boxes.isEmpty
+    final read = boxes.isEmpty
         ? const <OcrResult>[]
         : await _recognize(
             image,
@@ -197,7 +235,21 @@ class _Engine {
             await _session(r.recognition),
             await _dictionary(r.dictionary),
           );
-    return (width: image.width, height: image.height, lines: lines);
+    final lines = seam == 0
+        ? read
+        : [
+            for (final l in read)
+              (
+                left: l.left,
+                top: l.top - seam,
+                right: l.right,
+                bottom: l.bottom - seam,
+                text: l.text,
+                score: l.score,
+                dark: l.dark,
+              ),
+          ];
+    return (width: image.width, height: image.height - seam, lines: lines);
   }
 
   /// Boxes of the text lines in [region] of [image], in page pixels.

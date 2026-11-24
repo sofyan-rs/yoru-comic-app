@@ -16,6 +16,8 @@ import 'package:yoru/features/translate/domain/entities/translator_config.dart';
 
 const _page = String.fromEnvironment('OCR_PAGE');
 const _script = String.fromEnvironment('OCR_SCRIPT', defaultValue: 'cjk');
+// The page shown above OCR_PAGE, read on top of it (the vertical reader).
+const _above = String.fromEnvironment('OCR_ABOVE');
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -34,6 +36,7 @@ void main() {
         final page = await ocr.read(
           await file.readAsBytes(),
           OcrScript.parse(_script),
+          above: _above.isEmpty ? null : await File(_above).readAsBytes(),
         );
         lines = page.lines;
         // ignore: avoid_print

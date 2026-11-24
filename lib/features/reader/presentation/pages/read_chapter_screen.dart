@@ -152,6 +152,10 @@ class _ReadChapterViewState extends State<_ReadChapterView>
   /// Most chapters fit; longer ones scale the meter down.
   static const _maxMeterDots = 24;
 
+  /// The page the page meter is being dragged to (0-based), shown in the
+  /// bar until the finger lifts and the reader jumps there.
+  final _scrub = ValueNotifier<int?>(null);
+
   var _controlsVisible = true;
   Timer? _autoHide;
 
@@ -268,6 +272,8 @@ class _ReadChapterViewState extends State<_ReadChapterView>
 
   @override
   void dispose() {
+    if (!_toAnotherChapter) translatedComics.remove(widget.comicSlug);
+    _scrub.dispose();
     _autoHide?.cancel();
     _autoScrollResume?.cancel();
     _translateTimer?.cancel();
@@ -622,12 +628,20 @@ class _ReadChapterViewState extends State<_ReadChapterView>
   /// Whether this comic's pages are translated (the menu's toggle).
   bool get _translating => translatedComics.contains(widget.comicSlug);
 
+  /// Leaving for another chapter of the comic ([_openChapter]): its
+  /// translation stays on there. Leaving the reader any other way turns it
+  /// off.
+  bool _toAnotherChapter = false;
+
   /// What [ChapterImg] translates with; null while translation is off.
   TranslatorConfig? _translator(AppSettings settings) => _translating
-      ? TranslatorConfig.configured(settings)?.forComic(
-          widget.comicDetails.title,
-          sourceLanguage: context.sourceOf(widget.comicSlug)?.lang,
-        )
+      ? TranslatorConfig.configured(settings)
+            ?.forComic(
+              widget.comicDetails.title,
+              sourceLanguage: context.sourceOf(widget.comicSlug)?.lang,
+            )
+            // One image under the next: balloons cut by a seam read whole.
+            .joined(settings.readingDirection == ReadingDirection.vertical)
       : null;
 
   /// Translates [page] of [segment] and the few after it (see
@@ -908,6 +922,7 @@ class _ReadChapterViewState extends State<_ReadChapterView>
     // would make this chapter look read after the new one.
     _announceProgress();
     _left = true;
+    _toAnotherChapter = true;
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (_) => ReadChapterScreen(
@@ -935,6 +950,22 @@ class _ReadChapterViewState extends State<_ReadChapterView>
         ),
       ),
     );
+  }
+
+  /// Straight to [page] (0-based), as the page meter's drag ends: no
+  /// scrolling through every page between.
+  void _jumpToPage(int page, int pageCount, ReadingDirection direction) {
+    final target = page.clamp(0, pageCount - 1);
+    if (direction == ReadingDirection.vertical) {
+      final current = _current;
+      if (_itemScroll.isAttached && current != null) {
+        _itemScroll.jumpTo(index: _indexOf(current, target));
+      }
+    } else {
+      _pageController?.jumpToPage(
+        _controllerSpreads ? PageSpreads(pageCount).spreadOf(target) : target,
+      );
+    }
   }
 
   void _goToPage(int page, int pageCount, ReadingDirection direction) {
@@ -1357,6 +1388,9 @@ class _ReadChapterViewState extends State<_ReadChapterView>
       itemScrollController: _itemScroll,
       scrollOffsetController: _scrollOffset,
       itemPositionsListener: _itemPositions,
+      // Pages a screen and a half ahead are built (and decoded) before they
+      // scroll into view, so a fast scroll does not wait on them.
+      minCacheExtent: MediaQuery.sizeOf(context).height * 1.5,
       // Zoomed, the viewer scrolls the list (see [_panVertical]).
       physics: _pinching || _zoomed
           ? const NeverScrollableScrollPhysics()
@@ -1382,6 +1416,8 @@ class _ReadChapterViewState extends State<_ReadChapterView>
               maxWidth: _pageWidth(settings),
               translator: _translator(settings),
               previousPage: page > 0 ? segment.images[page - 1] : null,
+              joinPrevious: true,
+              pageGap: settings.pageGap ? DotSpace.s2 : 0,
             ),
           ),
         ),
@@ -1778,36 +1814,80 @@ class _ReadChapterViewState extends State<_ReadChapterView>
                 onTap: previous == null ? null : () => _openChapter(previous),
               ),
               Expanded(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => _goToPage(
-                    _page.value + 1,
-                    pageCount,
-                    settings.readingDirection,
-                  ),
-                  child: ValueListenableBuilder(
-                    valueListenable: _page,
-                    builder: (context, page, _) {
-                      final shown = shownPageNumber(page, pageCount);
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          DotMeter(
-                            value: shown,
-                            total: pageCount,
-                            dots: pageCount.clamp(1, _maxMeterDots),
-                            gap: 2,
-                          ),
-                          const SizedBox(height: DotSpace.s1),
-                          Text(
-                            '${AppText.t.pageShort} $shown / $pageCount'
-                                .toUpperCase(),
-                            style: DotlineText.data.copyWith(color: c.inkMuted),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
+                child: LayoutBuilder(
+                  builder: (context, box) {
+                    // Dragging along the meter picks a page by where the
+                    // finger is; tapping still turns one page.
+                    int pageAt(double x) => pageCount <= 0
+                        ? 0
+                        : (x / box.maxWidth * pageCount).floor().clamp(
+                            0,
+                            pageCount - 1,
+                          );
+                    void scrubTo(double x) {
+                      final page = pageAt(x);
+                      if (page == _scrub.value) return;
+                      _scrub.value = page;
+                      HapticFeedback.selectionClick();
+                    }
+
+                    return GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => _goToPage(
+                        _page.value + 1,
+                        pageCount,
+                        settings.readingDirection,
+                      ),
+                      onHorizontalDragStart: (d) {
+                        _autoHide?.cancel();
+                        scrubTo(d.localPosition.dx);
+                      },
+                      onHorizontalDragUpdate: (d) =>
+                          scrubTo(d.localPosition.dx),
+                      onHorizontalDragEnd: (_) {
+                        final page = _scrub.value;
+                        _scrub.value = null;
+                        if (page != null) {
+                          _jumpToPage(
+                            page,
+                            pageCount,
+                            settings.readingDirection,
+                          );
+                        }
+                      },
+                      onHorizontalDragCancel: () => _scrub.value = null,
+                      child: ValueListenableBuilder(
+                        valueListenable: _scrub,
+                        builder: (context, scrub, _) => ValueListenableBuilder(
+                          valueListenable: _page,
+                          builder: (context, page, _) {
+                            final shown = scrub == null
+                                ? shownPageNumber(page, pageCount)
+                                : scrub + 1;
+                            return Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                DotMeter(
+                                  value: shown,
+                                  total: pageCount,
+                                  dots: pageCount.clamp(1, _maxMeterDots),
+                                  gap: 2,
+                                ),
+                                const SizedBox(height: DotSpace.s1),
+                                Text(
+                                  '${AppText.t.pageShort} $shown / $pageCount'
+                                      .toUpperCase(),
+                                  style: DotlineText.data.copyWith(
+                                    color: scrub == null ? c.inkMuted : c.ink,
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
               RoundIconButton(

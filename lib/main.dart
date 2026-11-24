@@ -29,6 +29,11 @@ import 'package:path_provider/path_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Room for a few decoded pages: a webtoon page at screen width can take
+  // 30 MB, and Flutter's default 100 MB held about three, so pages scrolled
+  // past were decoded again on the way back (a stutter and a blank flash).
+  PaintingBinding.instance.imageCache.maximumSizeBytes =
+      await imageCacheBytes();
   // Before any HttpClient exists, so all of them can use DNS over HTTPS.
   HttpOverrides.global = DohHttpOverrides();
   await moveDataFromOldAppId();
@@ -136,4 +141,27 @@ Future<void> _fixRelativeCovers(ExtensionManager extensions) async {
   } catch (e) {
     debugPrint('Relative covers not fixed: $e');
   }
+}
+
+/// Memory for decoded images, by the device's RAM: a 16th of it, from
+/// Flutter's default 100 MB (1 GB phones) to 384 MB (6 GB and up). Android
+/// and Linux tell the RAM in /proc/meminfo; iOS (2 GB iPhones run iOS 16)
+/// and the other desktops get a fixed size. Under memory pressure Flutter
+/// empties the cache anyway.
+Future<int> imageCacheBytes() async {
+  const mb = 1 << 20;
+  const fallback = 100 * mb;
+  if (Platform.isAndroid || Platform.isLinux) {
+    try {
+      final info = await File('/proc/meminfo').readAsString();
+      final kb = int.parse(
+        RegExp(r'MemTotal:\s+(\d+)\s+kB').firstMatch(info)!.group(1)!,
+      );
+      return (kb * 1024 ~/ 16).clamp(fallback, 384 * mb);
+    } catch (_) {
+      return fallback;
+    }
+  }
+  if (Platform.isIOS) return 192 * mb;
+  return 384 * mb;
 }

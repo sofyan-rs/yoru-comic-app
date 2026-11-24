@@ -78,7 +78,8 @@ class ImportScreen extends StatelessWidget {
             Expanded(
               child: LayoutBuilder(
                 builder: (context, constraints) => ListView(
-                  padding: contentInset(constraints.maxWidth),
+                  padding: contentInset(constraints.maxWidth)
+                      .copyWith(top: DotSpace.s4),
                   children: [
                     Padding(
                       padding: const EdgeInsets.symmetric(
