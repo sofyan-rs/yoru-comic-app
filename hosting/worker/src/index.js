@@ -16,6 +16,9 @@
 //   screen used by Drive sync.
 // - /altstore.json is an AltStore / SideStore source listing the iOS IPAs of
 //   the GitHub releases, so sideloaded installs get updates there.
+// - /robots.txt and /sitemap.xml point search engines at the home page and
+//   the privacy policy on yoru.kurodev.org (the canonical host); series
+//   pages are share previews and ask not to be indexed.
 
 import { appleTouch, favicon32, favicon64 } from './icons.js';
 
@@ -34,6 +37,8 @@ const API = 'https://api-bacakomik.kurodev.org';
 const DOWNLOAD =
   'https://github.com/sofyan-rs/yoru-comic-app/releases/latest';
 const APP_NAME = 'Yoru';
+// The canonical host: bacakomik.kurodev.org serves the same pages.
+const SITE = 'https://yoru.kurodev.org';
 const ISSUES =
   'https://github.com/sofyan-rs/yoru-comic-app/issues/new';
 
@@ -72,6 +77,10 @@ export default {
 
     if (/^\/privacy(-policy)?\/?$/.test(url.pathname)) {
       return html(privacyPage());
+    }
+    if (url.pathname === '/robots.txt') return text(robotsTxt(), 'text/plain');
+    if (url.pathname === '/sitemap.xml') {
+      return text(sitemapXml(), 'application/xml');
     }
     if (url.pathname === '/altstore.json') {
       return cached(request, ctx, () => altStoreSource(url.origin));
@@ -333,6 +342,39 @@ export function titleFromSlug(slug) {
     .join(' ');
 }
 
+function text(body, type) {
+  return new Response(body, {
+    headers: {
+      'Content-Type': `${type}; charset=utf-8`,
+      'Cache-Control': `public, max-age=${PAGE_TTL}`,
+    },
+  });
+}
+
+export function robotsTxt() {
+  return `User-agent: *
+Allow: /
+
+Sitemap: ${SITE}/sitemap.xml
+`;
+}
+
+// The pages worth finding in a search: the home page and the privacy
+// policy (dated by its last change).
+export function sitemapXml() {
+  const updated = new Date(`${PRIVACY_UPDATED} UTC`).toISOString().slice(0, 10);
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>${SITE}/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>${SITE}/privacy-policy</loc><lastmod>${updated}</lastmod><changefreq>yearly</changefreq><priority>0.3</priority></url>
+</urlset>
+`;
+}
+
+// JSON for a <script> block: `<` escaped, so text in it cannot close it.
+const jsonLd = (data) =>
+  `<script type="application/ld+json">${JSON.stringify(data).replace(/</g, '\\u003c')}</script>`;
+
 function html(body, status = 200) {
   return new Response(body, {
     status,
@@ -575,6 +617,7 @@ export function page({ url, title, description, image, meta, missing = false }) 
     `<meta name="description" content="${escape(desc)}">
   ${og}
   <meta name="twitter:card" content="${image ? 'summary_large_image' : 'summary'}">
+  <meta name="robots" content="noindex, follow">
   <style>${STYLE}
     body { min-height: 100vh; display: flex; flex-direction: column; }
     main { position: relative; flex: 1; display: grid; place-items: center;
@@ -619,7 +662,13 @@ export function privacyPage() {
 <head>
   ${head(
     `Privacy Policy — ${APP_NAME}`,
-    `<meta name="description" content="What data ${APP_NAME} stores and where it is sent.">
+    `<meta name="description" content="What data ${APP_NAME}, the manga and manhwa reader app, keeps on your device, what it sends to comic sites, Google Drive and translation servers, and what it never collects.">
+  <link rel="canonical" href="${SITE}/privacy-policy">
+  <meta property="og:site_name" content="${APP_NAME}">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="${SITE}/privacy-policy">
+  <meta property="og:title" content="Privacy Policy — ${APP_NAME}">
+  <meta property="og:description" content="What data ${APP_NAME} stores and where it is sent.">
   <style>${STYLE}
     main.wrap { padding-top: 48px; }
     html { scroll-behavior: smooth; }
@@ -818,9 +867,49 @@ const PRIVACY_POINTS = [
 const phone = (name, alt, cls = '', lazy = true) =>
   `<figure class="${`phone ${cls}`.trim()}"><img src="${SCREENSHOT(name)}" alt="${escape(alt)}" width="540" height="1200"${lazy ? ' loading="lazy"' : ''}></figure>`;
 
+// Schema.org data for search engines: the site and the app (free, its
+// platforms, features, screenshots, licence and source code).
+function homeStructuredData(desc) {
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebSite',
+        '@id': `${SITE}/#website`,
+        url: `${SITE}/`,
+        name: APP_NAME,
+        alternateName: ['Yoru Comic Reader', 'BacaKomik'],
+        inLanguage: 'en',
+      },
+      {
+        '@type': 'SoftwareApplication',
+        '@id': `${SITE}/#app`,
+        name: APP_NAME,
+        alternateName: 'BacaKomik',
+        description: desc,
+        url: `${SITE}/`,
+        applicationCategory: 'EntertainmentApplication',
+        applicationSubCategory: 'Comic reader',
+        operatingSystem: 'Android, iOS, Windows, macOS, Linux',
+        downloadUrl: DOWNLOAD,
+        installUrl: DOWNLOAD,
+        isAccessibleForFree: true,
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+        license: 'https://www.gnu.org/licenses/gpl-3.0.html',
+        featureList: FEATURES.map(([, title]) => title),
+        screenshot: [...HERO_SCREENS, ...GALLERY].map(([name]) =>
+          SCREENSHOT(name),
+        ),
+        author: { '@type': 'Organization', name: 'Kurodev', url: KURODEV },
+        sameAs: [GITHUB],
+      },
+    ],
+  };
+}
+
 export function homePage(origin) {
   const desc =
-    'An app for reading manga, manhwa and manhua from several sources, on Android, iOS, Windows, macOS and Linux.';
+    'Free, open-source manga, manhwa and manhua reader for Android, iOS, Windows, macOS and Linux: several sources, offline reading, Drive sync and page translation. No ads.';
 
   const heroPhones = HERO_SCREENS.map(([name, alt], i) =>
     phone(name, alt, ['back left', 'front', 'back right'][i], false),
@@ -864,15 +953,24 @@ export function homePage(origin) {
 <html lang="en">
 <head>
   ${head(
-    `${APP_NAME} — Comic reader for mobile & desktop`,
+    `${APP_NAME} — Free manga, manhwa & manhua reader app`,
     `<meta name="description" content="${escape(desc)}">
+  <link rel="canonical" href="${SITE}/">
   <meta property="og:site_name" content="${APP_NAME}">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="${escape(`${origin}/`)}">
-  <meta property="og:title" content="${APP_NAME}">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:url" content="${SITE}/">
+  <meta property="og:title" content="${APP_NAME} — Free manga, manhwa & manhua reader">
   <meta property="og:description" content="${escape(desc)}">
   <meta property="og:image" content="${SCREENSHOT('desktop-home')}">
+  <meta property="og:image:width" content="1594">
+  <meta property="og:image:height" content="992">
+  <meta property="og:image:alt" content="${APP_NAME} on the desktop: home with continue reading and latest updates">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${APP_NAME} — Free manga, manhwa & manhua reader">
+  <meta name="twitter:description" content="${escape(desc)}">
+  <meta name="twitter:image" content="${SCREENSHOT('desktop-home')}">
+  ${jsonLd(homeStructuredData(desc))}
   <style>${STYLE}
     html { scroll-behavior: smooth; }
     section[id] { scroll-margin-top: 80px; }

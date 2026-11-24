@@ -108,6 +108,34 @@ test('home page describes the app and links the privacy policy', async () => {
   assert.match(body, /<link rel="icon" type="image\/png" sizes="32x32" href="\/favicon-32.png">/);
 });
 
+test('home page tells search engines what the app is', async () => {
+  const body = await (await get('/')).text();
+  assert.match(body, /<link rel="canonical" href="https:\/\/yoru.kurodev.org\/">/);
+  assert.match(body, /<title>Yoru — Free manga, manhwa &amp; manhua reader app<\/title>/);
+  const ld = JSON.parse(
+    body.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1],
+  );
+  const app = ld['@graph'].find((n) => n['@type'] === 'SoftwareApplication');
+  assert.equal(app.offers.price, '0');
+  assert.match(app.operatingSystem, /Android.*Linux/);
+  assert.ok(app.featureList.includes('Page translation'));
+  assert.doesNotMatch(body, /noindex/);
+});
+
+test('robots.txt and the sitemap point at the canonical host', async () => {
+  const robots = await get('/robots.txt');
+  assert.equal(robots.headers.get('Content-Type'), 'text/plain; charset=utf-8');
+  assert.match(await robots.text(), /Sitemap: https:\/\/yoru.kurodev.org\/sitemap.xml/);
+  const sitemap = await (await get('/sitemap.xml')).text();
+  assert.match(sitemap, /<loc>https:\/\/yoru.kurodev.org\/<\/loc>/);
+  assert.match(sitemap, /<loc>https:\/\/yoru.kurodev.org\/privacy-policy<\/loc><lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/);
+});
+
+test('series pages are previews, not search results', async () => {
+  const body = await (await get('/series/voratoon:some-comic')).text();
+  assert.match(body, /<meta name="robots" content="noindex, follow">/);
+});
+
 test('favicons are the app icon as PNG', async () => {
   for (const path of ['/favicon.ico', '/favicon-32.png', '/favicon-64.png', '/apple-touch-icon.png']) {
     const res = await get(path);
