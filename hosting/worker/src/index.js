@@ -791,8 +791,6 @@ const DESKTOP_SCREENS = [
 ];
 
 const GALLERY = [
-  ['translate', 'Page translation'],
-  ['translate-settings', 'Translation settings'],
   ['home-light', 'Light theme'],
   ['explore', 'Explore'],
   ['filter', 'Filters'],
@@ -800,6 +798,8 @@ const GALLERY = [
   ['history', 'History'],
   ['downloads', 'Downloads'],
   ['sources', 'Sources'],
+  ['translate', 'Page translation'],
+  ['translate-settings', 'Translation settings'],
 ];
 
 const STATS = [
