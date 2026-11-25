@@ -28,58 +28,59 @@ Fedora RPM installs can update from inside the app: approve the system's adminis
 
 ## Screenshots
 
-| Splash | Home | Sources | Explore |
-|---|---|---|---|
+| Splash                                                             | Home                                                                                                  | Sources                                                                                        | Explore                                                                                            |
+| ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
 | <img src="screenshot/splash.webp" width="200" alt="Splash screen"> | <img src="screenshot/home.webp" width="200" alt="Home: continue reading, new series, latest updates"> | <img src="screenshot/sources.webp" width="200" alt="Source picker with the installed sources"> | <img src="screenshot/explore.webp" width="200" alt="Explore: title search, format and cover grid"> |
 
-| Filter | Detail | Reader | Bookmarks |
-|---|---|---|---|
+| Filter                                                                                             | Detail                                                                                             | Reader                                                                                      | Bookmarks                                                                                                            |
+| -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | <img src="screenshot/filter.webp" width="200" alt="Filter sheet: sort, format, status and genres"> | <img src="screenshot/detail.webp" width="200" alt="Comic details with source, stats and synopsis"> | <img src="screenshot/reader.webp" width="200" alt="Reader with chapter bar and page meter"> | <img src="screenshot/bookmark.webp" width="200" alt="Bookmarks with language and new chapter badges and read meter"> |
 
-| History | Extensions | More |
-|---|---|---|
-| <img src="screenshot/history.webp" width="200" alt="Reading history grouped by day, with the source"> | <img src="screenshot/extensions.webp" width="200" alt="Installed extensions"> | <img src="screenshot/more.webp" width="200" alt="Stats, incognito mode, extensions, source migration, DNS over HTTPS and library"> |
+| History                                                                                               | Extensions                                                                    | More                                                                                                                               |
+| ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| <img src="screenshot/history.webp" width="200" alt="Reading history grouped by day, with the source"> | <img src="screenshot/extensions.webp" width="200" alt="Installed extensions"> | <img src="screenshot/more.webp" width="200" alt="Stats, incognito mode, and settings grouped into sources, library, translation, backup and appearance"> |
 
-| Download chapters | Downloads | Light theme |
-|---|---|---|
+| Download chapters                                                                                                | Downloads                                                                                             | Light theme                                                                      |
+| ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
 | <img src="screenshot/download-select.webp" width="200" alt="Selecting chapters to download for offline reading"> | <img src="screenshot/downloads.webp" width="200" alt="Download queue and downloads grouped by comic"> | <img src="screenshot/home-light.webp" width="200" alt="Home in the light theme"> |
 
-| Page translation | Translation settings |
-|---|---|
+| Page translation                                                                                                                  | Translation settings                                                                                                                                                 |
+| --------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | <img src="screenshot/translate.webp" width="200" alt="A manga page with its speech balloons translated into Indonesian in place"> | <img src="screenshot/translate-settings.webp" width="200" alt="Translate pages settings: server presets, API key, model, Test button and the kind of text in pages"> |
 
-Screenshots were taken on a real device (iQOO I2218, Android 16) running v2.0.0; the page translation ones on v2.26.
+Screenshots were taken on a real device (iQOO I2218, Android 16).
 
 ### Desktop
 
-| Home | Explore |
-|---|---|
+| Home                                                                                                  | Explore                                                                                                          |
+| ----------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | <img src="screenshot/desktop-home.webp" width="420" alt="Desktop home with the side navigation rail"> | <img src="screenshot/desktop-explore.webp" width="420" alt="Desktop explore: format tabs and a wide cover grid"> |
 
-| Detail | Reader |
-|---|---|
+| Detail                                                                                                     | Reader                                                                                                     |
+| ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
 | <img src="screenshot/desktop-detail.webp" width="420" alt="Desktop comic details beside the chapter list"> | <img src="screenshot/desktop-reader.webp" width="420" alt="Desktop reader showing two pages side by side"> |
 
 Desktop screenshots were taken on Windows 11 running v2.21.0.
 
 ## Features
 
-- **Sources:** pick the source in the header of Home or Explore. The app ships without sources: install them from More → Extensions. A multi-language source becomes one source per enabled language (for example EN and ID), each with its own bookmarks and history. Installed extensions show an update badge when the repo has a newer version. On Android 9+, Mihon / Tachiyomi extensions install too (see [Extensions](#extensions)).
+- **Sources:** pick the source in the header of Home or Explore. The app ships without sources: install them from More → Sources → Extensions. A multi-language source becomes one source per enabled language (for example EN and ID), each with its own bookmarks and history. Installed extensions show an update badge when the repo has a newer version. On Android 9+, Mihon / Tachiyomi extensions install too (see [Extensions](#extensions)).
 - **Extensions:** icons, an 18+ label (18+ extensions are hidden until you show them), search by name or site, and a language picker, for installed and available extensions alike.
 - **Home:** continue reading with chapter progress, new series (or popular, when the source has no newest order) and the latest updates of the current source. Pull to refresh for a small easter egg.
 - **Explore:** title search combined with the source's own filters (type, status, sort, genres…), with infinite scroll. Long filter lists fold away behind "Show all".
 - **Comic details:** alternative titles (other languages and romanized names; tap to see them all), source and language, rating, chapter count, release year, synopsis and genres. The chapter list can be searched and sorted, marks new, read, partly read (`5 / 24`) and downloaded chapters, and supports selecting chapters to download them or mark them read or unread. Share a comic as a link that opens the app, save its cover, or long-press the title to copy it. Without a connection, comics you downloaded, bookmarked or read still open from the details saved on the phone.
 - **Reader:** vertical strip or page by page (right-to-left or left-to-right), fit to width or height, keep the screen on, optional gap between pages. Double-tap or pinch to zoom, and move the zoomed page in any direction; page meter, previous/next chapter, and a "chapter finished" card. Reopens a chapter at the page you stopped at. Auto-scroll with adjustable speed in the vertical reader. Downloaded chapters open from the phone. Long press a page to save it to the gallery.
-- **Page translation (optional, off by default):** in the reader's ⋮ menu, turn on Translate pages for a comic; translated text is laid over each speech balloon, and a small button on each page shows the original again. The text is read on the device (PaddleOCR; its model, about 25 MB, downloads the first time) and only the text, never the page, is translated by what you pick in More → Translation → Translate pages:
+- **Page translation (optional, off by default):** in the reader's ⋮ menu, turn on Translate pages for a comic; translated text is laid over each speech balloon, and a small button on each page shows the original again. The text is read on the device (PaddleOCR; its model, about 25 MB, downloads the first time) and only the text, never the page, is translated by what you pick in More → Translation:
   - **Server:** any OpenAI-compatible API (OpenAI, Gemini, OpenRouter, Claude, DeepSeek) or a local one (Ollama, LM Studio), with your own key. A local server on another computer must be reachable from the phone: same network, and the server listening on the network (for Ollama, `OLLAMA_HOST=0.0.0.0`), e.g. `http://192.168.1.10:11434/v1`.
   - **ML Kit** (Android and iOS): Google's offline translation; language packs (about 30 MB each) download the first time. Fast and free, plainer than an AI model.
 
   Nothing downloads until you use it, translations are cached so a page is translated once, and only the page on screen and the next three are translated, once you stop on a page (the next three in one request, to save tokens). Reader ⋮ → Translate chapter again, or holding a page's small button, tries a page again with the same model. Settings also cover the target language, the kind of text in pages (picked from the source's language by default: Japanese/Chinese, Korean, English or other Latin letters), your own notes for the translator, all caps and the lettering font (Patrick Hand, Komika Hand, Comic Neue, or a `.ttf`/`.otf` you import).
+
 - **Bookmarks:** language badge and unread-chapter badge on each card, read progress and search by title or alternative title across every tab (tab counts show the matches). Swipe the comics sideways to change tab. Group them by status, source or your own categories (a comic can be in several); pick a category when you bookmark, or skip. Pull to refresh checks the comics on screen (the open group, narrowed by a search) for new chapters, with a progress notification; stop it from the notification's Cancel button or the stop button in the header. A comic that takes too long is skipped.
 - **History:** last read chapter per comic, grouped by day; swipe to delete.
-- **Downloads:** download chapters for offline reading. Downloads keep going in the background and while the phone is locked, with a progress notification. More → Downloads shows the storage used, the queue with retry and cancel, and downloads grouped per comic. Files stay in the app's own storage and are removed when the app is uninstalled.
-- **Local comics:** import CBZ or ZIP files, and on Android and desktop folders of images, from More → Import comics or the empty Home of the Local source. They are copied into the app, bookmarked and read offline. Name files like `Series - Ch. 12.cbz` (or `Vol. 3`), or put a `ComicInfo.xml` in the CBZ, so the chapters of a series group together. A local comic's menu has Add chapters (files go into that comic, whatever their names), Edit details (title, author, synopsis, genres, cover) and Delete from device. Local comics stay on the device: Google Drive sync leaves them out.
-- **Migration:** in More → Backup & sync → Migration. Move bookmarks and reading history to another source, one comic, a selection or a whole source: each title is searched in the new source (and, if nothing comes up, its alternative titles), matches by title or alternative title are picked for you and you choose the rest. Import your library from a Mihon / Tachiyomi backup (`.tachibk`: bookmarks from sources Yoru has, with their categories and read chapters) or from a site's CSV export of your list (titles are searched in that site's source, one at a time). Imported comics load their covers and chapters when you open them or refresh, and the chapters you had read are marked read then. A series you already bookmarked from another source is not added twice.
+- **Downloads:** download chapters for offline reading. Downloads keep going in the background and while the phone is locked, with a progress notification. More → Library → Downloads shows the storage used, the queue with retry and cancel, and downloads grouped per comic. Files stay in the app's own storage and are removed when the app is uninstalled.
+- **Local comics:** import CBZ or ZIP files, and on Android and desktop folders of images, from More → Library → Import comics or the empty Home of the Local source. They are copied into the app, bookmarked and read offline. Name files like `Series - Ch. 12.cbz` (or `Vol. 3`), or put a `ComicInfo.xml` in the CBZ, so the chapters of a series group together. A local comic's menu has Add chapters (files go into that comic, whatever their names), Edit details (title, author, synopsis, genres, cover) and Delete from device. Local comics stay on the device: Google Drive sync leaves them out.
+- **Migration:** in More → Sources → Migrate source, move bookmarks and reading history to another source, one comic, a selection or a whole source: each title is searched in the new source (and, if nothing comes up, its alternative titles), matches by title or alternative title are picked for you and you choose the rest. In More → Backup → Import from other apps, import your library from a Mihon / Tachiyomi backup (`.tachibk`: bookmarks from sources Yoru has, with their categories and read chapters) or from a site's CSV export of your list (titles are searched in that site's source, one at a time). Imported comics load their covers and chapters when you open them or refresh, and the chapters you had read are marked read then. A series you already bookmarked from another source is not added twice.
 - **Sync:** turn on Google Drive sync in More to sync bookmarks, categories and reading history across devices. The library is kept as one file in the app's hidden Drive folder (`drive.appdata`), so the app cannot see your other Drive files. Nothing goes through our servers.
 - **Data:** back up and restore the library to a file, clear cached chapter pages (covers and downloads are kept), and choose the system, light or dark theme.
 
@@ -97,7 +98,7 @@ A second repo is built from the public extension source (its extensions differ f
 https://sofyan-rs.github.io/yoru-ext-public-source/index.json
 ```
 
-Add a repo in More → Extensions → Extension repos. Extensions run code and access the internet, so only add repos you trust.
+Add a repo in More → Sources → Extensions → Extension repos. Extensions run code and access the internet, so only add repos you trust.
 
 **Mihon extensions (Android 9+ and desktop, not iOS).** A Mihon / Tachiyomi extension repo works too: paste its `index.min.json`, `repo.json` or base URL. Its extensions install inside the app (no separate APK install) and work like the app's own: browse, search, filters, the reader, downloads (in the background too), a scanlator picker when a comic has several, and their own settings. They update from the same repo, and an APK is only loaded when it is signed with the key the repo publishes. Bookmarks from a Mihon backup map straight to these sources.
 
@@ -147,6 +148,6 @@ Yoru is free software under the [GNU General Public License v3.0](LICENSE): you 
 
 `android/mihon` contains Mihon's source API and chapter recognition (Apache License 2.0) and code from SCANCORE (MIT, `android/mihon/LICENSE-SCANCORE`), each file keeping its notice.
 
-Extensions are a separate project under the Apache License 2.0 ([public source](https://github.com/sofyan-rs/yoru-ext-public-source)). Third-party assets keep their own licenses: the Geist, Geist Mono and Doto fonts (SIL Open Font License 1.1), Lucide icons (ISC). The splash artwork and the "lalala pipipi" animation and sound belong to their respective owners and are not covered by this license. Comics shown in the app and the screenshots belong to their publishers.
+Extensions are a separate project under the Apache License 2.0 ([public source](https://github.com/sofyan-rs/yoru-ext-public-source)). Third-party assets keep their own licenses: the Geist, Geist Mono and Doto fonts (SIL Open Font License 1.1), Lucide icons (ISC). Comics shown in the app and the screenshots belong to their publishers.
 
 Found a bug or have an idea? [Open an issue](https://github.com/sofyan-rs/yoru-comic-app/issues/new).
