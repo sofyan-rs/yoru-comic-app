@@ -61,6 +61,11 @@ android {
             sourceSets[it].manifest.srcFile 'src/store/AndroidManifest.xml'
         }
     }
+    // The Mihon host (loading extension APKs) and the APK self-update are
+    // left out of a store build entirely, not only switched off: stores
+    // forbid running downloaded native code and updating outside the store.
+    // src/full holds the real glue, src/store no-op stand-ins.
+    sourceSets.main.java.srcDirs += storeBuild ? 'src/store/kotlin' : 'src/full/kotlin'
 
     buildTypes {
         release {
@@ -101,7 +106,16 @@ flutter {
     source '../..'
 }
 
+if (storeBuild) {
+    // ota_update's plugin project is added by the Flutter Gradle plugin;
+    // dropping it here leaves GeneratedPluginRegistrant with the no-op
+    // OtaUpdatePlugin in src/store (Dart never calls it: no update check).
+    configurations.configureEach {
+        exclude group: 'sk.fourq.otaupdate', module: 'ota_update'
+    }
+}
+
 dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
-    implementation project(':mihon')
+    if (!storeBuild) implementation project(':mihon')
 }

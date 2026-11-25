@@ -3,4 +3,16 @@
     <uses-permission
         android:name="android.permission.REQUEST_INSTALL_PACKAGES"
         tools:node="remove" />
+    <!-- Nothing asks for it at run time (imports go through the system
+         picker), and Google Play restricts photo permissions. -->
+    <uses-permission
+        android:name="android.permission.READ_MEDIA_IMAGES"
+        tools:node="remove" />
+    <application>
+        <!-- ota_update is not in a store build: its class is gone, and a
+             provider naming a missing class crashes the app at start. -->
+        <provider
+            android:name="sk.fourq.otaupdate.OtaUpdateFileProvider"
+            tools:node="remove" />
+    </application>
 </manifest>
