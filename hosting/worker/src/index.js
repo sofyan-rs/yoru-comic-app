@@ -85,7 +85,19 @@ export default {
     if (url.pathname === '/altstore.json') {
       return cached(request, ctx, () => altStoreSource(url.origin));
     }
-    if (url.pathname === '/') return html(homePage(url.origin));
+    if (url.pathname === '/') {
+      return cached(request, ctx, async () => {
+        const latest = await latestRelease();
+        const res = html(homePage(url.origin, latest));
+        // Kept as long as the AltStore source; without a version it is not
+        // kept, so the next visit asks GitHub again.
+        res.headers.set(
+          'Cache-Control',
+          latest ? `public, max-age=${SOURCE_TTL}` : 'no-store',
+        );
+        return res;
+      });
+    }
     return html(page({ url: url.href, missing: true }), 404);
   },
 };
@@ -134,6 +146,31 @@ const SOURCE_TTL = 15 * 60;
 // (AppRelease.apkTableHeading in the app).
 const NOTES_END = '## Which APK?';
 const MIN_IOS = '16.0';
+
+const LATEST_API =
+  'https://api.github.com/repos/sofyan-rs/yoru-comic-app/releases/latest';
+
+// The newest release's version and page for the home page badge, or null
+// when GitHub cannot be read.
+async function latestRelease() {
+  try {
+    const res = await fetch(LATEST_API, {
+      headers: {
+        Accept: 'application/vnd.github+json',
+        'User-Agent': 'yoru-links-worker',
+      },
+    });
+    if (!res.ok) return null;
+    const r = await res.json();
+    if (typeof r.tag_name !== 'string') return null;
+    return {
+      version: r.tag_name.replace(/^v/, ''),
+      url: r.html_url ?? DOWNLOAD,
+    };
+  } catch {
+    return null;
+  }
+}
 
 // AltStore source format (https://faq.altstore.io/developers/make-a-source).
 // Versions are the releases with an `…-ios.ipa` asset, newest first.
@@ -852,8 +889,7 @@ const GALLERY = [
 ];
 
 const STATS = [
-  ['0', 'Ads'],
-  ['0', 'Trackers'],
+  ['Free', 'No ads'],
   ['5', 'Platforms'],
   ['GPL-3.0', 'Open source'],
 ];
@@ -861,7 +897,7 @@ const STATS = [
 const PRIVACY_POINTS = [
   ['smartphone', 'On your device', 'Bookmarks, history, settings and downloads are kept in the app’s storage.'],
   ['cloud', 'In your Drive', 'Sync is optional. Data goes straight between your device and a hidden folder in your Google Drive.'],
-  ['eye-off', 'Not with us', 'No account, no analytics, no trackers. We do not receive your library.'],
+  ['eye-off', 'Not with us', `No ${APP_NAME} account, no analytics, no trackers. We do not receive your library.`],
 ];
 
 const phone = (name, alt, cls = '', lazy = true) =>
@@ -907,7 +943,9 @@ function homeStructuredData(desc) {
   };
 }
 
-export function homePage(origin) {
+// `latest` is from latestRelease(); without it the badge says what the app
+// is instead.
+export function homePage(origin, latest = null) {
   const desc =
     'Free, open-source manga, manhwa and manhua reader for Android, iOS, Windows, macOS and Linux: several sources, offline reading, Drive sync and page translation. No ads.';
 
@@ -990,6 +1028,8 @@ export function homePage(origin) {
       padding: 6px 12px; border-radius: 999px; color: var(--muted);
       border: 1px solid var(--line-strong);
       background: color-mix(in srgb, var(--surface) 70%, transparent); }
+    a.kicker { text-decoration: none; transition: color 0.2s, border-color 0.2s; }
+    a.kicker:hover { color: var(--ink); border-color: var(--muted); }
     h1 { font-family: var(--dot); font-weight: 900;
       font-size: clamp(80px, 18vw, 152px); line-height: 0.95;
       letter-spacing: -0.02em; margin: 24px 0 0; }
@@ -1026,17 +1066,21 @@ export function homePage(origin) {
     }
 
     /* Stats */
-    .stats { display: grid; grid-template-columns: 1fr 1fr;
-      border-bottom: 1px solid var(--line); }
+    /* Full width, like the hero's bottom line above it. */
+    .stats-band { border-bottom: 1px solid var(--line); }
+    .stats { display: grid; grid-template-columns: 1fr 1fr; }
     .stats > div { padding: 24px 16px; border-right: 1px solid var(--line);
       border-top: 1px solid var(--line); }
     .stats > div:nth-child(-n+2) { border-top: 0; }
     .stats > div:nth-child(2n) { border-right: 0; }
+    /* An odd last cell takes the whole row on phones. */
+    .stats > div:last-child:nth-child(odd) { grid-column: 1 / -1; border-right: 0; }
     .stats .value { font-family: var(--dot); font-weight: 900; font-size: 40px;
       line-height: 44px; margin: 0 0 6px; }
     .stats .label { margin: 0; }
     @media (min-width: 640px) {
-      .stats { grid-template-columns: repeat(4, 1fr); }
+      .stats { grid-template-columns: repeat(3, 1fr); }
+      .stats > div:last-child:nth-child(odd) { grid-column: auto; }
       .stats > div { border-top: 0; padding: 32px 24px; }
       .stats > div:nth-child(2n) { border-right: 1px solid var(--line); }
       .stats > div:last-child { border-right: 0; }
@@ -1179,7 +1223,9 @@ export function homePage(origin) {
       <div class="dot-grid" aria-hidden="true"></div>
       <div class="wrap">
         <div>
-          <p class="kicker label rise"><span class="status ok pulse"></span>Free · No ads · No trackers</p>
+          ${latest
+            ? `<a class="kicker label rise" href="${escape(latest.url)}"><span class="status ok pulse"></span>Latest · v${escape(latest.version)} ${icon('arrow-up-right')}</a>`
+            : '<p class="kicker label rise"><span class="status ok pulse"></span>Free · No ads · No trackers</p>'}
           <h1>${APP_NAME}</h1>
           <p class="lead rise d2">Read manga, manhwa and manhua from several sources.
           <strong>One library on your phone and your computer.</strong></p>
@@ -1199,9 +1245,11 @@ export function homePage(origin) {
       </div>
     </section>
 
-    <div class="wrap">
-      <div class="stats">
-        ${stats}
+    <div class="stats-band">
+      <div class="wrap">
+        <div class="stats">
+          ${stats}
+        </div>
       </div>
     </div>
 

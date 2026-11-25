@@ -3,9 +3,11 @@ import { afterEach, test } from 'node:test';
 import worker from '../src/index.js';
 
 const ctx = { waitUntil() {} };
-const realFetch = globalThis.fetch;
+// Tests never reach the network: a test that needs an answer mocks fetch.
+const offline = async () => new Response('offline', { status: 503 });
+globalThis.fetch = offline;
 afterEach(() => {
-  globalThis.fetch = realFetch;
+  globalThis.fetch = offline;
 });
 
 const get = (path) =>
@@ -257,5 +259,33 @@ test('altstore.json is not cached when GitHub fails', async () => {
   globalThis.fetch = async () => new Response('rate limited', { status: 403 });
   const res = await get('/altstore.json');
   assert.equal(res.status, 502);
+  assert.equal(res.headers.get('Cache-Control'), 'no-store');
+});
+
+test('home page badge shows the latest release', async () => {
+  globalThis.fetch = async (url) => {
+    assert.equal(
+      String(url),
+      'https://api.github.com/repos/sofyan-rs/yoru-comic-app/releases/latest',
+    );
+    return Response.json({
+      tag_name: 'v2.26.8',
+      html_url: 'https://github.com/sofyan-rs/yoru-comic-app/releases/tag/v2.26.8',
+    });
+  };
+  const res = await get('/');
+  const body = await res.text();
+  assert.match(
+    body,
+    /<a class="kicker[^"]*" href="https:\/\/github.com\/sofyan-rs\/yoru-comic-app\/releases\/tag\/v2.26.8">.*Latest · v2.26.8/,
+  );
+  assert.match(res.headers.get('Cache-Control'), /max-age=900/);
+});
+
+test('home page badge falls back when GitHub fails', async () => {
+  globalThis.fetch = async () => new Response('rate limited', { status: 403 });
+  const res = await get('/');
+  assert.equal(res.status, 200);
+  assert.match(await res.text(), /Free · No ads · No trackers/);
   assert.equal(res.headers.get('Cache-Control'), 'no-store');
 });
