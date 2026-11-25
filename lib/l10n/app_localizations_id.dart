@@ -1192,7 +1192,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get importFromApps => 'Impor dari aplikasi lain';
 
   @override
-  String get importFromAppsDescription => 'Mihon, Tachiyomi atau Comix.to';
+  String get importFromAppsDescription => 'Mihon, Tachiyomi atau Comix';
 
   @override
   String get migrateSource => 'Migrasi sumber';
@@ -1246,7 +1246,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get importMihonDescription => 'Bookmark dari cadangan .tachibk';
 
   @override
-  String get importComix => 'Impor dari Comix.to';
+  String get importComix => 'Impor dari Comix';
 
   @override
   String get importComixDescription =>

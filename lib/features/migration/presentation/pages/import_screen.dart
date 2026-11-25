@@ -50,7 +50,7 @@ class ImportScreen extends StatelessWidget {
           (
             id: comixSource,
             name: getIt<ExtensionManager>().nameOf(comixSource),
-            detail: 'comix.to',
+            detail: null,
           ),
         for (final s in installed) (id: s.id, name: s.name, detail: s.domain),
       ],

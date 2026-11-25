@@ -2375,7 +2375,7 @@ abstract class AppLocalizations {
   /// No description provided for @importFromAppsDescription.
   ///
   /// In en, this message translates to:
-  /// **'Mihon, Tachiyomi or Comix.to'**
+  /// **'Mihon, Tachiyomi or Comix'**
   String get importFromAppsDescription;
 
   /// No description provided for @migrateSource.
@@ -2471,7 +2471,7 @@ abstract class AppLocalizations {
   /// No description provided for @importComix.
   ///
   /// In en, this message translates to:
-  /// **'Import from Comix.to'**
+  /// **'Import from Comix'**
   String get importComix;
 
   /// No description provided for @importComixDescription.

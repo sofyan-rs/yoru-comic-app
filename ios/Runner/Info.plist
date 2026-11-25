@@ -37,6 +37,10 @@
 	</array>
 	<key>GIDClientID</key>
 	<string>805931733064-ilav9vsl6l4qr1bfrtt3027pf892akmr.apps.googleusercontent.com</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<!-- Removed from a store build by ios/scripts/store_build_plist.sh:
+	     the sideloading stores the updater hands an IPA to. -->
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>altstore</string>
@@ -44,6 +48,18 @@
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<!-- Page translation by a server on the local network (Ollama, LM
+	     Studio), which is plain http. -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Yoru connects to the translation server you set up on your local network, such as Ollama or LM Studio.</string>
+	<!-- Long-press a page → save to Photos (gal). -->
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Yoru saves the pages you choose to your photo library.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

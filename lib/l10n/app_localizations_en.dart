@@ -1191,7 +1191,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get importFromApps => 'Import from other apps';
 
   @override
-  String get importFromAppsDescription => 'Mihon, Tachiyomi or Comix.to';
+  String get importFromAppsDescription => 'Mihon, Tachiyomi or Comix';
 
   @override
   String get migrateSource => 'Migrate source';
@@ -1244,7 +1244,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get importMihonDescription => 'Bookmarks from a .tachibk backup';
 
   @override
-  String get importComix => 'Import from Comix.to';
+  String get importComix => 'Import from Comix';
 
   @override
   String get importComixDescription =>
